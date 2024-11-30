@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "cats-and-mouse-game-website": {
+    "cats-and-mouse-game-ui": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -24,13 +24,10 @@
             "tsConfig": "tsconfig.app.json",
             "aot": true,
             "assets": [
-
               "src/robots.txt",
               "src/humans.txt",
               "src/sitemap.xml",
-
               "src/favicon.ico",
-
               "src/favicon-16.png",
               "src/favicon-32.png",
               "src/favicon-57.png",
@@ -98,18 +95,18 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "buildTarget": "cats-and-mouse-game-website:build"
+            "buildTarget": "cats-and-mouse-game-ui:build"
           },
           "configurations": {
             "production": {
-              "buildTarget": "cats-and-mouse-game-website:build:production"
+              "buildTarget": "cats-and-mouse-game-ui:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "buildTarget": "cats-and-mouse-game-website:build"
+            "buildTarget": "cats-and-mouse-game-ui:build"
           }
         },
         "test": {
@@ -120,13 +117,10 @@
             "tsConfig": "tsconfig.spec.json",
             "karmaConfig": "karma.conf.js",
             "assets": [
-              
               "src/robots.txt",
               "src/humans.txt",
               "src/sitemap.xml",
-
               "src/favicon.ico",
-
               "src/favicon-16.png",
               "src/favicon-32.png",
               "src/favicon-57.png",
@@ -146,7 +140,6 @@
               "src/favicon-192.png",
               "src/favicon-310.png",
               "src/browserconfig.xml",
-
               "src/assets"
             ],
             "styles": [
@@ -179,11 +172,11 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "cats-and-mouse-game-website:serve"
+            "devServerTarget": "cats-and-mouse-game-ui:serve"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "cats-and-mouse-game-website:serve:production"
+              "devServerTarget": "cats-and-mouse-game-ui:serve:production"
             }
           }
         }
