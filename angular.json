@@ -189,5 +189,8 @@
         }
       }
     }},
-  "defaultProject": "cats-and-mouse-game-website"
+  "defaultProject": "cats-and-mouse-game-website",
+  "cli": {
+    "analytics": false
+  }
 }
