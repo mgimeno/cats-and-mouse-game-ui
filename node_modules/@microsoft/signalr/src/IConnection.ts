@@ -1,5 +1,5 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 import { TransferFormat } from "./ITransport";
 
@@ -12,7 +12,7 @@ export interface IConnection {
 
     start(transferFormat: TransferFormat): Promise<void>;
     send(data: string | ArrayBuffer): Promise<void>;
-    stop(error?: Error): Promise<void>;
+    stop(error?: Error | unknown): Promise<void>;
 
     onreceive: ((data: string | ArrayBuffer) => void) | null;
     onclose: ((error?: Error) => void) | null;

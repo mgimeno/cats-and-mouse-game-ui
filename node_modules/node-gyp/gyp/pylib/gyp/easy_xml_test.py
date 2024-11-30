@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Copyright (c) 2011 Google Inc. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
@@ -9,10 +9,7 @@
 import gyp.easy_xml as easy_xml
 import unittest
 
-try:
-    from StringIO import StringIO  # Python 2
-except ImportError:
-    from io import StringIO  # Python 3
+from io import StringIO
 
 
 class TestSequenceFunctions(unittest.TestCase):
@@ -79,6 +76,8 @@ class TestSequenceFunctions(unittest.TestCase):
             '\'Debug|Win32\'" Label="Configuration">'
             "<ConfigurationType>Application</ConfigurationType>"
             "<CharacterSet>Unicode</CharacterSet>"
+            "<SpectreMitigation>SpectreLoadCF</SpectreMitigation>"
+            "<VCToolsVersion>14.36.32532</VCToolsVersion>"
             "</PropertyGroup>"
             "</Project>"
         )
@@ -102,6 +101,8 @@ class TestSequenceFunctions(unittest.TestCase):
                     },
                     ["ConfigurationType", "Application"],
                     ["CharacterSet", "Unicode"],
+                    ["SpectreMitigation", "SpectreLoadCF"],
+                    ["VCToolsVersion", "14.36.32532"],
                 ],
             ]
         )

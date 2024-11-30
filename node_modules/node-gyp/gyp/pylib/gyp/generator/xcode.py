@@ -2,7 +2,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-from __future__ import print_function
 
 import filecmp
 import gyp.common
@@ -110,7 +109,7 @@ def CreateXCConfigurationList(configuration_names):
     return xccl
 
 
-class XcodeProject(object):
+class XcodeProject:
     def __init__(self, gyp_path, path, build_file_dict):
         self.gyp_path = gyp_path
         self.path = path
@@ -440,7 +439,7 @@ sys.exit(subprocess.call(sys.argv[1:]))" """
         # it opens the project file, which will result in unnecessary diffs.
         # TODO(mark): This is evil because it relies on internal knowledge of
         # PBXProject._other_pbxprojects.
-        for other_pbxproject in self.project._other_pbxprojects.keys():
+        for other_pbxproject in self.project._other_pbxprojects:
             self.project.AddOrGetProjectReference(other_pbxproject)
 
         self.project.SortRemoteProductReferences()
@@ -613,7 +612,7 @@ def PerformBuild(data, configurations, params):
     for config in configurations:
         arguments = ["xcodebuild", "-project", xcodeproj_path]
         arguments += ["-configuration", config]
-        print("Building [%s]: %s" % (config, arguments))
+        print(f"Building [{config}]: {arguments}")
         subprocess.check_call(arguments)
 
 
@@ -1072,7 +1071,7 @@ def GenerateOutput(target_list, target_dicts, data, params):
                 # TODO(mark): There's a possibility for collision here.  Consider
                 # target "t" rule "A_r" and target "t_A" rule "r".
                 makefile_name = "%s.make" % re.sub(
-                    "[^a-zA-Z0-9_]", "_", "%s_%s" % (target_name, rule["rule_name"])
+                    "[^a-zA-Z0-9_]", "_", "{}_{}".format(target_name, rule["rule_name"])
                 )
                 makefile_path = os.path.join(
                     xcode_projects[build_file].path, makefile_name
@@ -1102,7 +1101,7 @@ def GenerateOutput(target_list, target_dicts, data, params):
                         eol = ""
                     else:
                         eol = " \\"
-                    makefile.write("    %s%s\n" % (concrete_output, eol))
+                    makefile.write(f"    {concrete_output}{eol}\n")
 
                 for (rule_source, concrete_outputs, message, action) in zip(
                     rule["rule_sources"],
@@ -1119,11 +1118,8 @@ def GenerateOutput(target_list, target_dicts, data, params):
                     for concrete_output_index, concrete_output in enumerate(
                         concrete_outputs
                     ):
-                        if concrete_output_index == 0:
-                            bol = ""
-                        else:
-                            bol = "    "
-                        makefile.write("%s%s \\\n" % (bol, concrete_output))
+                        bol = "" if concrete_output_index == 0 else "    "
+                        makefile.write(f"{bol}{concrete_output} \\\n")
 
                         concrete_output_dir = posixpath.dirname(concrete_output)
                         if (
@@ -1143,7 +1139,7 @@ def GenerateOutput(target_list, target_dicts, data, params):
                             eol = ""
                         else:
                             eol = " \\"
-                        makefile.write("    %s%s\n" % (prerequisite, eol))
+                        makefile.write(f"    {prerequisite}{eol}\n")
 
                     # Make sure that output directories exist before executing the rule
                     # action.
