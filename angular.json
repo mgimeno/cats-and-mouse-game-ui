@@ -98,18 +98,18 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "cats-and-mouse-game-website:build"
+            "buildTarget": "cats-and-mouse-game-website:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "cats-and-mouse-game-website:build:production"
+              "buildTarget": "cats-and-mouse-game-website:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "cats-and-mouse-game-website:build"
+            "buildTarget": "cats-and-mouse-game-website:build"
           }
         },
         "test": {
@@ -189,7 +189,6 @@
         }
       }
     }},
-  "defaultProject": "cats-and-mouse-game-website",
   "cli": {
     "analytics": false
   }
