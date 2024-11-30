@@ -1,0 +1,21 @@
+<h2 *ngIf="canSelectTeam()" class="text-center" i18n="@@select_team.select">
+  Select a team
+</h2>
+
+<div class="teams-container">
+
+  <div class="team-box" (click)="selectMyTeam(teamEnum.Cats)" [class.selected]="isMyTeamSelected(teamEnum.Cats)"
+    [class.clickable]="canSelectTeam()" [class.opponent]="isOpponentTeamSelected(teamEnum.Cats)">
+    <div class="image cat-figure"></div>
+    <div class="name secondary">{{getTeamName(teamEnum.Cats) || catsText}}</div>
+  </div>
+
+  <div class="versus"><b class="secondary">VS</b></div>
+
+  <div class="team-box" (click)="selectMyTeam(teamEnum.Mouse)" [class.selected]="isMyTeamSelected(teamEnum.Mouse)"
+    [class.clickable]="canSelectTeam()" [class.opponent]="isOpponentTeamSelected(teamEnum.Mouse)">
+    <div class="image mouse-figure"></div>
+    <div class="name secondary">{{getTeamName(teamEnum.Mouse) || mouseText}}</div>
+  </div>
+
+</div>

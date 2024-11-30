@@ -1,0 +1,46 @@
+@import "variables";
+
+.chat {
+  margin-top: 25px;
+
+  .chat-box-title {
+    color: $primaryColor;
+  }
+
+  .chat-history {
+    margin-top: 15px;
+    max-height: 200px;
+    overflow-y: scroll;
+
+    .chat-line {
+      margin: 0 15px 9px 0;
+
+      .black {
+        color: #333;
+      }
+
+      .white {
+        color: #888;
+      }
+
+      .red {
+        color: $errorColor;
+      }
+
+      .green {
+        color: $successColor;
+      }
+    }
+  }
+
+  .chat-form {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+
+    .send-message-button {
+      margin-left: 10px;
+      width: 80px;
+    }
+  }
+}

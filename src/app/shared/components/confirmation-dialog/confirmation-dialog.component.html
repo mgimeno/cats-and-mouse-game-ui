@@ -1,0 +1,19 @@
+<div class="text-center">
+
+  <h1 *ngIf="data.dialogTitle">{{data.dialogTitle}}</h1>
+
+  <p *ngIf="data.dialogBody">
+
+    {{data.dialogBody}}
+
+  </p>
+
+  <div class="buttons-container">
+    <button class="big-button" mat-raised-button color="primary" (click)="onConfirmation()" cdkFocusInitial
+      i18n="@@button.yes">Yes</button>
+
+    <button class="big-button" mat-button (click)="onCancel()" i18n="@@button.cancel">Cancel</button>
+
+  </div>
+
+</div>

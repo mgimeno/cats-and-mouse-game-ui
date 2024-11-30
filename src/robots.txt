@@ -1,0 +1,3 @@
+Sitemap: http://cats-and-mouse.marcosgimeno.com/sitemap.xml
+User-agent: *
+Disallow:

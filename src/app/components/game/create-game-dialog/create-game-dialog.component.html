@@ -1,0 +1,61 @@
+<ng-container *ngIf="!isGameCreated">
+
+  <h1 mat-dialog-title i18n="@@create.title">Create game</h1>
+
+  <form class="max-container-width" [formGroup]="formGroup" (ngSubmit)="onSubmit()" autocomplete="off">
+
+    <h2 class="text-center" i18n="@@create.name">
+      Your name
+    </h2>
+
+    <mat-form-field [formGroup]=formGroup class="center-placeholder">
+      <input type="text" matInput formControlName="userName" [maxlength]="maxUsernameLength" class="text-center" autocomplete=”false” name=“searchUserName”>
+    </mat-form-field>
+
+    <!-- <mat-form-field [formGroup]=formGroup>
+      <input type="password" matInput placeholder="Game password" formControlName="gamePassword"
+        autocomplete="new-password">
+      <mat-hint align="start">optional</mat-hint>
+    </mat-form-field> -->
+
+    <app-team-select [formGroup]=formGroup [game]=createdGame></app-team-select>
+
+    <div class="buttons-container">
+
+      <button class="big-button" type="submit" mat-raised-button color="primary"
+        cdkFocusInitial i18n="@@create.create_game">Create game</button>
+
+      <button class="big-button" type="button" mat-button (click)="onCancel()" i18n="@@button.cancel">Cancel</button>
+
+    </div>
+
+  </form>
+
+</ng-container>
+
+<div *ngIf="isGameCreated" class="text-center">
+
+  <h1 mat-dialog-title i18n="@@create.awaiting_title">Awaiting for another player</h1>
+
+  <app-loader></app-loader>
+
+  <br />
+  <br />
+
+  <div *ngIf="joinGameUrl">
+    <p>
+      <b class="secondary" i18n="@@create.share_link_description">Share this link to join your game</b>
+    </p>
+
+    <div class="copy-link-container" #container>
+      <button class="big-button" mat-raised-button cdkFocusInitial color="primary" [class.link-copied]="isJoinGameLinkCopiedToClipboard"
+        ngxClipboard [cbContent]="joinGameUrl" [container]="container" (click)="onCopyLinkClick()">
+        <span *ngIf="!isJoinGameLinkCopiedToClipboard" i18n="@@create.copy_link">Copy link</span>
+        <span *ngIf="isJoinGameLinkCopiedToClipboard" i18n="@@create.copied">Copied!</span>
+      </button>
+    </div>
+  </div>
+
+  <button class="big-button" type="button" mat-button (click)="onCancelGame()" i18n="@@button.cancel">Cancel</button>
+
+</div>

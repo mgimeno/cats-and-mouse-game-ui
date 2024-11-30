@@ -1,0 +1,193 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "newProjectRoot": "projects",
+  "projects": {
+    "cats-and-mouse-game-website": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
+      "root": "",
+      "sourceRoot": "src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist",
+            "index": "src/index.html",
+            "main": "src/main.ts",
+            "polyfills": "src/polyfills.ts",
+            "tsConfig": "tsconfig.app.json",
+            "aot": true,
+            "assets": [
+
+              "src/robots.txt",
+              "src/humans.txt",
+              "src/sitemap.xml",
+
+              "src/favicon.ico",
+
+              "src/favicon-16.png",
+              "src/favicon-32.png",
+              "src/favicon-57.png",
+              "src/favicon-60.png",
+              "src/favicon-64.png",
+              "src/favicon-70.png",
+              "src/favicon-72.png",
+              "src/favicon-76.png",
+              "src/favicon-96.png",
+              "src/favicon-114.png",
+              "src/favicon-120.png",
+              "src/favicon-144.png",
+              "src/favicon-150.png",
+              "src/favicon-152.png",
+              "src/favicon-160.png",
+              "src/favicon-180.png",
+              "src/favicon-192.png",
+              "src/favicon-310.png",
+              "src/browserconfig.xml",
+
+              "src/assets"
+            ],
+            "styles": [
+              "src/styles.scss"
+            ],
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "src/scss"
+              ]
+            },
+            "scripts": [
+              
+            ]
+          },
+          "configurations": {
+            "production": {
+              "baseHref": "/cats-and-mouse/",
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "2mb",
+                  "maximumError": "5mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb"
+                }
+              ]
+            }
+          }
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "browserTarget": "cats-and-mouse-game-website:build"
+          },
+          "configurations": {
+            "production": {
+              "browserTarget": "cats-and-mouse-game-website:build:production"
+            }
+          }
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "browserTarget": "cats-and-mouse-game-website:build"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "src/test.ts",
+            "polyfills": "src/polyfills.ts",
+            "tsConfig": "tsconfig.spec.json",
+            "karmaConfig": "karma.conf.js",
+            "assets": [
+              
+              "src/robots.txt",
+              "src/humans.txt",
+              "src/sitemap.xml",
+
+              "src/favicon.ico",
+
+              "src/favicon-16.png",
+              "src/favicon-32.png",
+              "src/favicon-57.png",
+              "src/favicon-60.png",
+              "src/favicon-64.png",
+              "src/favicon-70.png",
+              "src/favicon-72.png",
+              "src/favicon-76.png",
+              "src/favicon-96.png",
+              "src/favicon-114.png",
+              "src/favicon-120.png",
+              "src/favicon-144.png",
+              "src/favicon-150.png",
+              "src/favicon-152.png",
+              "src/favicon-160.png",
+              "src/favicon-180.png",
+              "src/favicon-192.png",
+              "src/favicon-310.png",
+              "src/browserconfig.xml",
+
+              "src/assets"
+            ],
+            "styles": [
+              "src/styles.scss"
+            ],
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "src/scss"
+              ]
+            },
+            "scripts": [
+              
+            ]
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "tsconfig.app.json",
+              "tsconfig.spec.json",
+              "e2e/tsconfig.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        },
+        "e2e": {
+          "builder": "@angular-devkit/build-angular:protractor",
+          "options": {
+            "protractorConfig": "e2e/protractor.conf.js",
+            "devServerTarget": "cats-and-mouse-game-website:serve"
+          },
+          "configurations": {
+            "production": {
+              "devServerTarget": "cats-and-mouse-game-website:serve:production"
+            }
+          }
+        }
+      }
+    }},
+  "defaultProject": "cats-and-mouse-game-website"
+}

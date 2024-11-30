@@ -1,0 +1,34 @@
+<h1 mat-dialog-title i18n="@@how_to_play.title">How to play</h1>
+
+<div class="max-container-width text-justify">
+
+  <h2 i18n="@@how_to_play-introduction_title">Introduction</h2>
+  <p>
+    <span i18n="@@how_to_play-introduction_text_1">The Cats & Mouse game is played on a chessboard.</span>
+    
+    <br>
+    <span i18n="@@how_to_play-introduction_text_2">5 pieces are used, 1 white to represent the mouse and 4 black
+      to represent the cats.</span>
+    
+  </p>
+
+  <h2 i18n="@@how_to_play-moving_title">How to move the pieces?</h2>
+  <p i18n="@@how_to_play-moving_text">
+    All pieces move diagonally on the black squares, but cats cannot move backwards, while the mouse can do so.
+  </p>
+
+  <h2 i18n="@@how_to_play-goal_title">What is the goal?</h2>
+  <p i18n="@@how_to_play-goal_text">
+    The mouse is to reach the last row of the board, whereas the cats are to corner the mouse so that it's not able to
+    make any movement.
+  </p>
+
+</div>
+
+<br>
+<br>
+<div class="text-center">
+  <button class="big-button" type="button" mat-raised-button color="primary" (click)="onClose()" cdkFocusInitial i18n="@@how_to_play-accept_button">
+    Got it!
+  </button>
+</div>

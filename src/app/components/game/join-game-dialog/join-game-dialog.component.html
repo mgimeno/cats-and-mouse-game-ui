@@ -1,0 +1,33 @@
+<h1 mat-dialog-title i18n="@@join.title">Join game</h1>
+
+<form class="max-container-width" [formGroup]="formGroup" (ngSubmit)="onSubmit()" autocomplete="off">
+
+  <h2 class="text-center" i18n="@@join.name">
+    Your name
+  </h2>
+
+  <mat-form-field [formGroup]=formGroup class="center-placeholder">
+    <input type="text" matInput  formControlName="userName" [maxlength]="maxUsernameLength" class="text-center" autocomplete=”false” name=“searchUserName”>
+  </mat-form-field>
+
+  <!-- <mat-form-field *ngIf="data.isPasswordProtected" [formGroup]=formGroup>
+    <input type="password" matInput placeholder="Game password" formControlName="gamePassword"
+      autocomplete="new-password">
+  </mat-form-field> -->
+
+  <app-team-select [formGroup]=formGroup [game]=data></app-team-select>
+
+  <div class="buttons-container">
+
+    <button class="big-button" type="submit" mat-raised-button
+      color="primary" cdkFocusInitial i18n="@@join.start_game">
+      Start game
+    </button>
+
+    <button class="big-button" type="button" mat-button (click)="onCancel()" i18n="@@button.cancel">
+      Cancel
+    </button>
+
+  </div>
+
+</form>

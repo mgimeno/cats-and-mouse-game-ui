@@ -1,0 +1,352 @@
+@import "~@angular/material/prebuilt-themes/indigo-pink.css";
+@import "variables";
+
+* {
+  font-family: Roboto, sans-serif;
+}
+
+html {
+  height: 100%;
+}
+
+html,
+.mat-dialog-container,
+.mat-bottom-sheet-container {
+  background: #fafafa;
+}
+
+body {
+  margin: 0;
+}
+
+h1,
+.mat-dialog-title {
+  text-align: center;
+  margin: 40px 0 50px !important;
+  font-size: 1.69em;
+  color: $primaryColor;
+}
+
+h2 {
+  font-size: 1.2em;
+  color: $secondaryColor;
+  margin: 0;
+  font-weight: normal;
+}
+
+a {
+  text-decoration: none;
+}
+
+.small {
+  font-size: small;
+}
+
+.primary {
+  color: $primaryColor;
+}
+
+.secondary {
+  color: $secondaryColor;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.mat-bottom-sheet-container {
+  padding: 10px 0 50px !important;
+}
+
+.mat-dialog-content {
+  padding-bottom: 20px !important;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-justify {
+  text-align: justify;
+}
+
+.mat-form-field {
+  width: 100%;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.green {
+  color: $successColor;
+}
+
+.red {
+  color: $errorColor;
+}
+
+.bg-green {
+  background-color: $successColor;
+}
+
+.wrapper {
+  padding: 0 35px;
+}
+
+.mini-wrapper {
+  padding: 0 15px;
+}
+
+.buttons-container {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  button {
+    margin-top: 15px;
+  }
+}
+
+//buttons
+.mat-raised-button,
+.mat-button {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.mat-toolbar.mat-primary,
+.mat-fab.mat-primary,
+.mat-flat-button.mat-primary,
+.mat-mini-fab.mat-primary,
+.mat-raised-button.mat-primary {
+  background-color: $primaryColor;
+}
+
+.success-button {
+  background-color: $successColor;
+  color: white;
+}
+
+.max-container-width {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+input {
+  font-size: 1.2em !important;
+  color: $primaryColor !important;
+
+  &.text-center {
+    text-align: center !important;
+  }
+}
+
+.mat-form-field-appearance-legacy .mat-form-field-underline {
+  background-color: rgba(100, 100, 100, 0.1);
+}
+
+//Hide placeholder
+.mat-form-field.mat-focused .mat-form-field-label,
+input.ng-valid + span.mat-form-field-label-wrapper .mat-form-field-label {
+  display: none !important;
+}
+
+.mat-form-field.do-not-use-red-for-invalid {
+  .mat-form-field-ripple {
+    background-color: $secondaryColor !important;
+  }
+
+  input {
+    color: $secondaryColor !important;
+    caret-color: $secondaryColor !important;
+  }
+
+  .mat-form-field-label {
+    color: $secondaryColor !important;
+  }
+}
+
+.center-placeholder .mat-form-field-label {
+  text-align: center;
+}
+
+.button-with-right-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    width: 24px;
+    margin-left: 10px;
+  }
+}
+
+.figure {
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+}
+
+.mouse-figure {
+  @extend .figure;
+  background-image: url("/assets/images/mouse.svg");
+}
+
+.cat-figure {
+  @extend .figure;
+  background-image: url("/assets/images/cat.svg");
+}
+
+//Notification Service
+
+.mat-snack-bar-container {
+  color: white;
+  min-width: 270px !important;
+
+  .mat-simple-snackbar {
+    justify-content: center;
+    font-weight: bold;
+  }
+
+  &.success {
+    background-color: $successColor;
+  }
+
+  &.error {
+    background-color: $errorColor;
+  }
+
+  &.warning {
+    background-color: $warnColor;
+  }
+
+  &.info {
+    background-color: $infoColor;
+  }
+}
+
+.box-shadow {
+  -moz-box-shadow: inset 0 0 10px #311b0b;
+  -webkit-box-shadow: inset 0 0 10px #311b0b;
+  box-shadow: inset 0 0 10px #311b0b;
+}
+
+.big-button {
+  width: 150px;
+  height: 45px;
+  font-size: 1.05em !important;
+}
+
+.game-board {
+  width: 480px;
+  height: 480px;
+  margin: 0 auto;
+  border: 25px solid #803e04;
+  border-radius: 10px;
+  box-shadow: inset -1px 1px 7px rgba(0, 0, 0, 0.2), inset 1px -1px 7px rgba(0, 0, 0, 0.2),
+    1px 12px 5px rgba(0, 0, 0, 0.4), 4px 3px 8px rgba(0, 0, 0, 0.4), 5px 10px 10px rgba(0, 0, 0, 0.2),
+    -5px 10px 10px rgba(0, 0, 0, 0.4);
+
+  &.logo-game-board {
+    height: 180px;
+    border-top: 0;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+
+  .box {
+    width: 60px;
+    height: 60px;
+    float: left;
+    text-align: center;
+    line-height: 60px;
+    font-size: 40px;
+    color: #632f01;
+    font-weight: bold;
+    cursor: default;
+
+    &.white {
+      background-color: #ffce9e;
+    }
+
+    &.black {
+      background-color: #d18b47;
+    }
+
+    &.box-with-figure-can-be-selected {
+      @extend .box-shadow;
+      background-color: white;
+      cursor: pointer;
+    }
+
+    &.box-with-figure-is-selected {
+      @extend .box-shadow;
+      background-color: #2e8b57;
+      cursor: pointer;
+    }
+
+    &.box-can-be-new-figure-position {
+      @extend .box-shadow;
+      background-color: orange;
+      cursor: pointer;
+    }
+
+    &.mouse-figure,
+    &.cat-figure {
+      background-size: 80%;
+    }
+  }
+}
+
+@media only screen and (max-width: 570px) {
+  .game-board {
+    width: 320px;
+    height: 320px;
+    border-width: 13px;
+
+    &.logo-game-board {
+      height: 120px;
+    }
+
+    .box {
+      width: 40px;
+      height: 40px;
+      line-height: 40px;
+      font-size: 29px;
+    }
+  }
+
+  .options-container {
+    width: 346px !important;
+  }
+}
+
+@media only screen and (min-width: 900px) {
+  .play-container {
+    display: flex;
+    flex-wrap: nowrap;
+
+    .game-container {
+      width: 65%;
+    }
+
+    .options-container {
+      width: 35%;
+      margin-top: 0;
+      padding: 0 25px;
+    }
+
+    .chat {
+      .chat-history {
+        max-height: 468px !important;
+      }
+    }
+  }
+}

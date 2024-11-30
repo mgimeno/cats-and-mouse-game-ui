@@ -1,0 +1,44 @@
+@import "variables";
+
+h2 {
+    margin-top: 20px;
+}
+
+.teams-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 30px 0 50px;
+
+    .team-box {
+        border: 3px solid #aaa;
+        padding: 10px;
+        text-align: center;
+        border-radius: 5px;
+
+        &.selected {
+            border-color: #5b935e;
+        }
+
+        &.opponent {
+            border-color: #d58787;
+        }
+
+        .image {
+            width: 115px;
+            height: 115px;
+        }
+
+        .mouse-figure {
+            background-size: 78%;
+        }
+
+        .cat-figure {
+            background-size: 78%;
+        }
+    }
+
+    .versus {
+        margin: 0 12px;
+    }
+}

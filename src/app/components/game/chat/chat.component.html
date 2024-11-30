@@ -1,0 +1,30 @@
+<div class="chat">
+
+  <b class="chat-box-title" i18n="@@chat.chat">Chat box</b>
+
+  <div *ngIf="chatLines.length" class="chat-history" #scrollMe [scrollTop]="scrollMe.scrollHeight">
+
+    <div *ngFor="let chatLine of chatLines" class="chat-line" [class.text-right]="chatLine.teamId == teamEnum.Mouse">
+      
+      <b [class]=chatLine.class >
+        {{chatLine.message}}
+      </b>
+
+    </div>
+
+  </div>
+
+  <form *ngIf="canSendMessages" [formGroup]="formGroup" (ngSubmit)="onSubmit()" autocomplete="false" class="chat-form">
+    <mat-form-field [formGroup]=formGroup class="do-not-use-red-for-invalid" >
+      <input type="text" matInput [placeholder]=sendPlaceholder formControlName="message" autocomplete="false">
+    </mat-form-field>
+
+    <button class="send-message-button" type="submit" [disabled]="isSubmitButtonDisabled() == true" mat-raised-button
+      color="primary" cdkFocusInitial i18n="@@chat.send">
+      Send
+    </button>
+  </form>
+
+
+
+</div>

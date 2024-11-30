@@ -1,0 +1,62 @@
+<div *ngIf="!gameStatus">
+  <br>
+  <br>
+  <br>
+  <app-loader></app-loader>
+</div>
+
+<div *ngIf="gameStatus" class="play-container">
+
+  <div class="game-container">
+    <div class="wrapper">
+
+      <div class="text-center turn-info" >
+
+        <div class="turn-info-header" 
+          [class.big-turn-info-header]="!gameInfoSubHeader"
+          [@DrawAttentionAnimation]="attentionAnimation">
+          <span [class]="gameInfoHeaderColourClass">{{gameInfoHeader}}</span>
+        </div>
+
+        <div *ngIf="gameInfoSubHeader" class="turn-info-subheader">
+          {{gameInfoSubHeader}}
+        </div>  
+
+      </div>
+    </div>
+
+
+    <div class="game-board">
+
+      <ng-container *ngFor="let rowIndex of [0,1,2,3,4,5,6,7]">
+        <app-chess-box *ngFor="let columnIndex of [0,1,2,3,4,5,6,7]" [chessBox]="chessBoard[rowIndex][columnIndex]"
+          [chessBoxCurrentlySelected]="chessBoxCurrentlySelected" (click)="onChessBoxClicked(rowIndex,columnIndex)">
+        </app-chess-box>
+      </ng-container>
+
+    </div>
+
+  </div>
+
+  <div class="options-container">
+
+      <div class="options-buttons">
+        <button mat-button (click)=openHowToPlayDialog()><i class="far fa-question-circle"></i>&nbsp;<span i18n="@@play.how_to_play">how to play</span></button>
+
+        <button *ngIf="isRematchButtonVisible()" [disabled]="!isRematchButtonEnabled()" mat-raised-button class="success-button" (click)=sendRematchRequest()>
+          <i class="fas fa-redo"></i>&nbsp;
+          <span *ngIf="isRematchButtonEnabled()" i18n="@@play.rematch">rematch</span>
+          <span *ngIf="!isRematchButtonEnabled()" i18n="@@play.rematch_awaiting">awaiting</span>
+        </button>
+
+        <button *ngIf="!isGameOver()" mat-button color="warn" (click)=surrender()><i class="far fa-flag"></i>&nbsp;<span i18n="@@play.surrender">surrender</span></button>
+        <button *ngIf="isGameOver()" mat-raised-button color="warn" (click)=exitGame()><i class="fas fa-sign-out-alt"></i>&nbsp;<span i18n="@@play.exit_game">exit game</span></button>
+      </div>
+
+      <app-chat [gameId]=gameStatus.gameId [canSendMessages]=!hasAnyPlayerLeft()></app-chat>
+    
+  </div>
+
+
+
+</div>
