@@ -1,0 +1,41 @@
+version: 2.1
+orbs:
+  node: circleci/node@5
+jobs:
+  build:
+    executor: node/default
+    working_directory: ~/cats-and-mouse-ui
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+      - run:
+          command: npm run ng build -c production
+      - persist_to_workspace:
+            root: ~/cats-and-mouse-ui
+            paths:
+                - .
+  deploy:
+    working_directory: ~/cats-and-mouse-ui
+    docker:
+      - image: cimg/base:2024.02
+    steps:
+      - attach_workspace:
+            at: ~/cats-and-mouse-ui
+      - add_ssh_keys:
+          fingerprints:
+            - "SHA256:URTfidP7xVnBRdhWO03zsI0UdDd1nk+ht5pqT1f4UcY"
+      - run:
+          command: |
+            mkdir -p ~/.ssh
+            ssh-keyscan $SSH_HOST >> ~/.ssh/known_hosts
+            ssh $SSH_USER@$SSH_HOST "rm -dRf /home/mgimeno/apps/cats-and-mouse-ui"
+            ssh $SSH_USER@$SSH_HOST "mkdir -p /home/mgimeno/apps/cats-and-mouse-ui"
+            scp -rv ./dist/* $SSH_USER@$SSH_HOST:apps/cats-and-mouse-ui
+workflows:
+  build-and-deploy:
+    jobs:
+      - build
+      - deploy:
+          requires:
+            - build
