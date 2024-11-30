@@ -1,5 +1,5 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms';
 import { ILabelValue } from 'src/app/shared/interfaces/label-value.interface';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { TeamEnum } from 'src/app/shared/enums/team.enum';
@@ -16,7 +16,7 @@ import { COMMON_CONSTANTS } from 'src/app/shared/constants/common';
 })
 export class CreateGameDialogComponent implements OnInit {
 
-  formGroup: FormGroup = null;
+  formGroup: UntypedFormGroup = null;
   isGameCreated: boolean = false;
   joinGameUrl: string = null;
   isJoinGameLinkCopiedToClipboard: boolean = false;
@@ -42,10 +42,10 @@ export class CreateGameDialogComponent implements OnInit {
     else{
       const previousUserName = localStorage.getItem(`${environment.localStoragePrefix}user-name`);
 
-      this.formGroup = new FormGroup({
-        'userName': new FormControl(previousUserName || null, [Validators.required, Validators.maxLength(this.maxUsernameLength)]),
-        'teamId': new FormControl(null, Validators.required),
-        'gamePassword': new FormControl(null)
+      this.formGroup = new UntypedFormGroup({
+        'userName': new UntypedFormControl(previousUserName || null, [Validators.required, Validators.maxLength(this.maxUsernameLength)]),
+        'teamId': new UntypedFormControl(null, Validators.required),
+        'gamePassword': new UntypedFormControl(null)
       });
     }  
   }

@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms';
 import { IChatLine } from '../../../shared/interfaces/chat-line.interface';
 import { SignalrService } from '../../../shared/services/signalr-service';
 import { IChatMessage } from '../../../shared/interfaces/chat-message.interface';
@@ -20,7 +20,7 @@ export class ChatComponent implements OnInit, OnDestroy {
   @Input() gameId: string;
   @Input() canSendMessages: boolean;
 
-  formGroup: FormGroup = null;
+  formGroup: UntypedFormGroup = null;
   chatLines: IChatLine[] = [];
 
   teamEnum = TeamEnum;
@@ -32,8 +32,8 @@ export class ChatComponent implements OnInit, OnDestroy {
     private cdRef: ChangeDetectorRef,
     private notificationService: NotificationService) {
 
-    this.formGroup = new FormGroup({
-      'message': new FormControl(null, [Validators.required])
+    this.formGroup = new UntypedFormGroup({
+      'message': new UntypedFormControl(null, [Validators.required])
     });
   }
 

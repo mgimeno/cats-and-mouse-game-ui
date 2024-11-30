@@ -35,50 +35,42 @@ import { SelectLanguageComponent } from './components/select-language/select-lan
 
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    LoadingDialogComponent,
-    HowToPlayDialogComponent,
-    ConfirmationDialogComponent,
-    PageNotFoundComponent,
-    CreateGameDialogComponent,
-    JoinGameDialogComponent,
-    PlayGameComponent,
-    HomeComponent,
-    ChessBoxComponent,
-    ChatComponent,
-    LoaderComponent,
-    TeamSelectComponent,
-    SelectLanguageComponent
-  ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    HttpClientModule,
-    FormsModule,
-    ReactiveFormsModule,
-    BrowserAnimationsModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatBottomSheetModule,
-    MatDialogModule,
-    MatTableModule,
-    MatSnackBarModule,
-    ClipboardModule,
-  ],
-  entryComponents: [
-    CreateGameDialogComponent,
-    JoinGameDialogComponent,
-    LoadingDialogComponent,
-    HowToPlayDialogComponent,
-    ConfirmationDialogComponent,
-    SelectLanguageComponent
-  ],
-  providers: [
-    SignalrService,
-    { provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: { hasBackdrop: true, disableClose: true } },
-  ],
-  bootstrap: [AppComponent]
+    declarations: [
+        AppComponent,
+        LoadingDialogComponent,
+        HowToPlayDialogComponent,
+        ConfirmationDialogComponent,
+        PageNotFoundComponent,
+        CreateGameDialogComponent,
+        JoinGameDialogComponent,
+        PlayGameComponent,
+        HomeComponent,
+        ChessBoxComponent,
+        ChatComponent,
+        LoaderComponent,
+        TeamSelectComponent,
+        SelectLanguageComponent
+    ],
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        HttpClientModule,
+        FormsModule,
+        ReactiveFormsModule,
+        BrowserAnimationsModule,
+        MatButtonModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatBottomSheetModule,
+        MatDialogModule,
+        MatTableModule,
+        MatSnackBarModule,
+        ClipboardModule,
+    ],
+    providers: [
+        SignalrService,
+        { provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: { hasBackdrop: true, disableClose: true } },
+    ],
+    bootstrap: [AppComponent]
 })
 export class AppModule { }

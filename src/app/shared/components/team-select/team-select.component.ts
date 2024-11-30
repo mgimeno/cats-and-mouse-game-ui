@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 import { TeamEnum } from '../../enums/team.enum';
 import { IGameListItem } from '../../interfaces/game-list-item.interface';
 
@@ -11,7 +11,7 @@ import { IGameListItem } from '../../interfaces/game-list-item.interface';
 })
 export class TeamSelectComponent {
 
-  @Input() formGroup: FormGroup;
+  @Input() formGroup: UntypedFormGroup;
   @Input() game: IGameListItem = null;
 
   teamEnum = TeamEnum;

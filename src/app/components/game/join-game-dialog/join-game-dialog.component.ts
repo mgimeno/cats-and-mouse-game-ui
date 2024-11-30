@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms';
 import { ILabelValue } from 'src/app/shared/interfaces/label-value.interface';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { IGameListItem } from 'src/app/shared/interfaces/game-list-item.interface';
@@ -16,7 +16,7 @@ import { COMMON_CONSTANTS } from 'src/app/shared/constants/common';
 })
 export class JoinGameDialogComponent implements OnInit {
 
-  formGroup: FormGroup = null;
+  formGroup: UntypedFormGroup = null;
   maxUsernameLength: number = COMMON_CONSTANTS.MAX_USERNAME_LENGTH;
 
   teams: ILabelValue[] = [{ label: TeamEnum[TeamEnum.Cats], value: TeamEnum.Cats }, { label: TeamEnum[TeamEnum.Mouse], value: TeamEnum.Mouse }];
@@ -35,13 +35,13 @@ export class JoinGameDialogComponent implements OnInit {
     const previousUserName = localStorage.getItem(`${environment.localStoragePrefix}user-name`);
     this.teamId = (this.data.teamId == TeamEnum.Cats ? TeamEnum.Mouse : TeamEnum.Cats);
 
-    this.formGroup = new FormGroup({
-      'userName': new FormControl(previousUserName || null, [Validators.required, Validators.maxLength(this.maxUsernameLength)]),
-      'teamId': new FormControl({ value: this.teamId, disabled: true }, Validators.required)
+    this.formGroup = new UntypedFormGroup({
+      'userName': new UntypedFormControl(previousUserName || null, [Validators.required, Validators.maxLength(this.maxUsernameLength)]),
+      'teamId': new UntypedFormControl({ value: this.teamId, disabled: true }, Validators.required)
     });
 
     if (this.data.isPasswordProtected) {
-      this.formGroup.addControl("gamePassword", new FormControl(null, Validators.required));
+      this.formGroup.addControl("gamePassword", new UntypedFormControl(null, Validators.required));
     }
   }
 
