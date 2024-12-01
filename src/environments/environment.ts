@@ -8,7 +8,8 @@ export const environment = {
   apiUrl: "http://localhost:51000/api/",
   apiGameHubUrl: "http://localhost:51000/gameHub",
   websiteUrl: "http://localhost:4200/",
-  localStoragePrefix: "cat-and-mouse-game_dev_"
+  localStoragePrefix: "cat-and-mouse-game_dev_",
+  baseHref: "/"
 };
 
 /*

@@ -1,5 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import {APP_BASE_HREF} from '@angular/common';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -32,6 +33,7 @@ import { LoaderComponent } from './shared/components/loader/loader.component';
 import { TeamSelectComponent } from './shared/components/team-select/team-select.component';
 import { ConfirmationDialogComponent } from './shared/components/confirmation-dialog/confirmation-dialog.component';
 import { SelectLanguageComponent } from './components/select-language/select-language.component';
+import { environment } from 'src/environments/environment';
 
 
 @NgModule({
@@ -70,6 +72,7 @@ import { SelectLanguageComponent } from './components/select-language/select-lan
     providers: [
         SignalrService,
         { provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: { hasBackdrop: true, disableClose: true } },
+        {provide: APP_BASE_HREF, useValue: environment.baseHref}
     ],
     bootstrap: [AppComponent]
 })
