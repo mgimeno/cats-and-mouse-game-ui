@@ -5,5 +5,4 @@ export const environment = {
   apiGameHubUrl: "http://cats-and-mouse-api.marcosgimeno.com/gameHub",
   websiteUrl: "https://marcosgimeno.com/cats-and-mouse/",
   localStoragePrefix: "cat-and-mouse-game_",
-  baseHref: "/cats-and-mouse/"
 };

@@ -65,30 +65,34 @@
           "configurations": {
             "production": {
               "baseHref": "/cats-and-mouse/",
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
+                }
+              ],
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
                   "with": "src/environments/environment.prod.ts"
                 }
               ],
-              "optimization": true,
-              "outputHashing": "all",
-              "sourceMap": false,
-              "namedChunks": false,
-              "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true,
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
-                },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "6kb"
-                }
-              ]
+              "outputHashing": "all"
+            },
+            "development": {
+              "baseHref": "/test/",
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true
             }
           }
         },
@@ -117,29 +121,7 @@
             "tsConfig": "tsconfig.spec.json",
             "karmaConfig": "karma.conf.js",
             "assets": [
-              "src/robots.txt",
-              "src/humans.txt",
-              "src/sitemap.xml",
               "src/favicon.ico",
-              "src/favicon-16.png",
-              "src/favicon-32.png",
-              "src/favicon-57.png",
-              "src/favicon-60.png",
-              "src/favicon-64.png",
-              "src/favicon-70.png",
-              "src/favicon-72.png",
-              "src/favicon-76.png",
-              "src/favicon-96.png",
-              "src/favicon-114.png",
-              "src/favicon-120.png",
-              "src/favicon-144.png",
-              "src/favicon-150.png",
-              "src/favicon-152.png",
-              "src/favicon-160.png",
-              "src/favicon-180.png",
-              "src/favicon-192.png",
-              "src/favicon-310.png",
-              "src/browserconfig.xml",
               "src/assets"
             ],
             "styles": [

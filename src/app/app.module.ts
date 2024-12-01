@@ -71,8 +71,7 @@ import { environment } from 'src/environments/environment';
     ],
     providers: [
         SignalrService,
-        { provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: { hasBackdrop: true, disableClose: true } },
-        {provide: APP_BASE_HREF, useValue: environment.baseHref}
+        { provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: { hasBackdrop: true, disableClose: true } }
     ],
     bootstrap: [AppComponent]
 })
