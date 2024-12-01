@@ -10,7 +10,7 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
       - run:
-          command: npm run ng build -c production --deploy-url="/cats-and-mouse/"
+          command: npm run ng build -c production
       - persist_to_workspace:
             root: ~/cats-and-mouse-ui
             paths:
