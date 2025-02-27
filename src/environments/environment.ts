@@ -3,12 +3,12 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false,
-  name: "dev",
-  apiUrl: "http://localhost:51000/api/",
-  apiGameHubUrl: "http://localhost:51000/gameHub",
-  websiteUrl: "http://localhost:4200/",
-  localStoragePrefix: "cat-and-mouse-game_dev_",
+  production: true,
+  name: "production",
+  apiUrl: "http://cats-and-mouse-api.marcosgimeno.com/api/",
+  apiGameHubUrl: "http://cats-and-mouse-api.marcosgimeno.com/gameHub",
+  websiteUrl: "https://marcosgimeno.com/cats-and-mouse/",
+  localStoragePrefix: "cat-and-mouse-game_",
 };
 
 /*
