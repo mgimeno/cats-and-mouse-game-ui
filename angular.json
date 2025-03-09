@@ -63,7 +63,6 @@
           },
           "configurations": {
             "production": {
-              "baseHref": "/cats-and-mouse/",
               "budgets": [
                 {
                   "type": "initial",
