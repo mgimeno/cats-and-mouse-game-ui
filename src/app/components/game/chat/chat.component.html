@@ -16,7 +16,7 @@
 
   <form *ngIf="canSendMessages" [formGroup]="formGroup" (ngSubmit)="onSubmit()" autocomplete="false" class="chat-form">
     <mat-form-field [formGroup]=formGroup class="do-not-use-red-for-invalid" >
-      <input type="text" matInput [placeholder]=sendPlaceholder formControlName="message" autocomplete="false">
+      <input type="text" matInput [placeholder]="sendPlaceholder" formControlName="message" autocomplete="false">
     </mat-form-field>
 
     <button class="send-message-button" type="submit" [disabled]="isSubmitButtonDisabled()" mat-raised-button
