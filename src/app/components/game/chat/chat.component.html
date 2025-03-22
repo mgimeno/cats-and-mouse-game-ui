@@ -19,7 +19,7 @@
       <input type="text" matInput [placeholder]=sendPlaceholder formControlName="message" autocomplete="false">
     </mat-form-field>
 
-    <button class="send-message-button" type="submit" [disabled]="isSubmitButtonDisabled() == true" mat-raised-button
+    <button class="send-message-button" type="submit" [disabled]="isSubmitButtonDisabled()" mat-raised-button
       color="primary" cdkFocusInitial i18n="@@chat.send">
       Send
     </button>

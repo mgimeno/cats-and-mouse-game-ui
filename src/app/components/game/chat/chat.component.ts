@@ -33,7 +33,7 @@ export class ChatComponent implements OnInit, OnDestroy {
     private notificationService: NotificationService) {
 
     this.formGroup = new UntypedFormGroup({
-      'message': new UntypedFormControl(null, [Validators.required])
+      'message': new UntypedFormControl(null)
     });
   }
 
@@ -118,7 +118,7 @@ export class ChatComponent implements OnInit, OnDestroy {
   }
 
   isSubmitButtonDisabled(): boolean {
-    return !this.formGroup.controls.message.value || !this.formGroup.controls.message.value.length;
+    return !this.formGroup.controls.message.value;
   }
 
   onSubmit(): void {
