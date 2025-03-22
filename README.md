@@ -2,7 +2,7 @@
 
 ## Demo URL
 
-[https://marcosgimeno.com/cats-and-mouse](https://marcosgimeno.com/cats-and-mouse)
+[http://cats-and-mouse.marcosgimeno.com](http://cats-and-mouse.marcosgimeno.com)
 
 ## What is this?
 
@@ -20,6 +20,6 @@ The mouse is to reach the last row of the board, whereas the cats are to corner 
 
 ## Development
 
-The website (client) is built using Angular 11, SignalR, responsive design (mobile first) and it's available in English & Spanish.
+The website (client) is built using Angular 14, SignalR, responsive design (mobile first) and it's available in English & Spanish.
 
-The server is built using .NET Core 3 and SignalR.
+The server is built using .NET Web API Core 9.0 and SignalR.
