@@ -8,17 +8,17 @@
       Your name
     </h2>
 
-    <mat-form-field [formGroup]=formGroup class="center-placeholder">
+    <mat-form-field [formGroup]="formGroup" class="center-placeholder">
       <input type="text" matInput formControlName="userName" [maxlength]="maxUsernameLength" class="text-center" autocomplete=”false” name=“searchUserName”>
     </mat-form-field>
 
-    <!-- <mat-form-field [formGroup]=formGroup>
+    <!-- <mat-form-field [formGroup]="formGroup">
       <input type="password" matInput placeholder="Game password" formControlName="gamePassword"
         autocomplete="new-password">
       <mat-hint align="start">optional</mat-hint>
     </mat-form-field> -->
 
-    <app-team-select [formGroup]=formGroup [game]=createdGame></app-team-select>
+    <app-team-select [formGroup]="formGroup" [game]="createdGame"></app-team-select>
 
     <div class="buttons-container">
 

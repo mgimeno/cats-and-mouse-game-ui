@@ -53,7 +53,7 @@
         <button *ngIf="isGameOver()" mat-raised-button color="warn" (click)=exitGame()><i class="fas fa-sign-out-alt"></i>&nbsp;<span i18n="@@play.exit_game">exit game</span></button>
       </div>
 
-      <app-chat [gameId]=gameStatus.gameId [canSendMessages]=!hasAnyPlayerLeft()></app-chat>
+      <app-chat [gameId]="gameStatus.gameId" [canSendMessages]=!hasAnyPlayerLeft()></app-chat>
     
   </div>
 
