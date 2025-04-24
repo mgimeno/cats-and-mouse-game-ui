@@ -44,12 +44,13 @@ jobs:
             ssh-keyscan $SSH_HOST >> ~/.ssh/known_hosts
             ssh $SSH_USER@$SSH_HOST "rm -dRf << pipeline.parameters.server-base-folder >><< pipeline.parameters.project-folder >><< pipeline.parameters.temp-upload-folder-slug >>"
             ssh $SSH_USER@$SSH_HOST "mkdir -p << pipeline.parameters.server-base-folder >><< pipeline.parameters.project-folder >><< pipeline.parameters.temp-upload-folder-slug >>"
-            zip -r << pipeline.parameters.build-dist-folder >>.zip ./<< pipeline.parameters.build-dist-folder >>
-            scp -v << pipeline.parameters.build-dist-folder >>.zip $SSH_USER@$SSH_HOST:/<< pipeline.parameters.server-base-folder >><< pipeline.parameters.project-folder >><< pipeline.parameters.temp-upload-folder-slug >>
-            ssh $SSH_USER@$SSH_HOST "unzip -d << pipeline.parameters.server-base-folder >><< pipeline.parameters.project-folder >><< pipeline.parameters.temp-upload-folder-slug >> << pipeline.parameters.server-base-folder >><< pipeline.parameters.project-folder >><< pipeline.parameters.temp-upload-folder-slug >>/<< pipeline.parameters.build-dist-folder >>.zip"
+            cd << pipeline.parameters.build-dist-folder >>
+            zip -r << pipeline.parameters.project-folder >>.zip ./*
+            scp -v << pipeline.parameters.project-folder >>.zip $SSH_USER@$SSH_HOST:/<< pipeline.parameters.server-base-folder >><< pipeline.parameters.project-folder >><< pipeline.parameters.temp-upload-folder-slug >>
+            ssh $SSH_USER@$SSH_HOST "unzip -d << pipeline.parameters.server-base-folder >><< pipeline.parameters.project-folder >><< pipeline.parameters.temp-upload-folder-slug >> << pipeline.parameters.server-base-folder >><< pipeline.parameters.project-folder >><< pipeline.parameters.temp-upload-folder-slug >>/<< pipeline.parameters.project-folder >>.zip"
+            ssh $SSH_USER@$SSH_HOST "rm -f << pipeline.parameters.server-base-folder >><< pipeline.parameters.project-folder >><< pipeline.parameters.temp-upload-folder-slug >>/<< pipeline.parameters.project-folder >>.zip"
             ssh $SSH_USER@$SSH_HOST "rm -dRf << pipeline.parameters.server-base-folder >><< pipeline.parameters.project-folder >>"
-            ssh $SSH_USER@$SSH_HOST "mv << pipeline.parameters.server-base-folder >><< pipeline.parameters.project-folder >><< pipeline.parameters.temp-upload-folder-slug >>/<< pipeline.parameters.build-dist-folder >> << pipeline.parameters.server-base-folder >><< pipeline.parameters.project-folder >>"
-            ssh $SSH_USER@$SSH_HOST "rm -dRf << pipeline.parameters.server-base-folder >><< pipeline.parameters.project-folder >><< pipeline.parameters.temp-upload-folder-slug >>"
+            ssh $SSH_USER@$SSH_HOST "mv << pipeline.parameters.server-base-folder >><< pipeline.parameters.project-folder >><< pipeline.parameters.temp-upload-folder-slug >> << pipeline.parameters.server-base-folder >><< pipeline.parameters.project-folder >>"
 workflows:
   build-and-deploy:
     jobs:
