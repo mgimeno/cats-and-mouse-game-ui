@@ -1,10 +1,23 @@
 version: 2.1
+parameters:
+  project-folder:
+    type: string
+    default: "cats-and-mouse-ui"
+  temp-upload-folder-slug:
+    type: string
+    default: "-temp-upload"
+  server-base-folder:
+    type: string
+    default: "/home/$SSH_USER/apps/"
+  build-dist-folder:
+    type: string
+    default: "dist"
 orbs:
   node: circleci/node@5
 jobs:
   build:
     executor: node/default
-    working_directory: ~/cats-and-mouse-ui
+    working_directory: ~/<< pipeline.parameters.project-folder >>
     steps:
       - checkout
       - node/install-packages:
@@ -12,16 +25,16 @@ jobs:
       - run:
           command: npm run ng build -c production
       - persist_to_workspace:
-            root: ~/cats-and-mouse-ui
+            root: ~/<< pipeline.parameters.project-folder >>
             paths:
                 - .
   deploy:
-    working_directory: ~/cats-and-mouse-ui
+    working_directory: ~/<< pipeline.parameters.project-folder >>
     docker:
       - image: cimg/base:2024.02
     steps:
       - attach_workspace:
-            at: ~/cats-and-mouse-ui
+            at: ~/<< pipeline.parameters.project-folder >>
       - add_ssh_keys:
           fingerprints:
             - "SHA256:URTfidP7xVnBRdhWO03zsI0UdDd1nk+ht5pqT1f4UcY"
@@ -29,9 +42,14 @@ jobs:
           command: |
             mkdir -p ~/.ssh
             ssh-keyscan $SSH_HOST >> ~/.ssh/known_hosts
-            ssh $SSH_USER@$SSH_HOST "rm -dRf /home/mgimeno/apps/cats-and-mouse"
-            ssh $SSH_USER@$SSH_HOST "mkdir -p /home/mgimeno/apps/cats-and-mouse"
-            scp -rv ./dist/* $SSH_USER@$SSH_HOST:apps/cats-and-mouse
+            ssh $SSH_USER@$SSH_HOST "rm -dRf << pipeline.parameters.server-base-folder >><< pipeline.parameters.project-folder >><< pipeline.parameters.temp-upload-folder-slug >>"
+            ssh $SSH_USER@$SSH_HOST "mkdir -p << pipeline.parameters.server-base-folder >><< pipeline.parameters.project-folder >><< pipeline.parameters.temp-upload-folder-slug >>"
+            zip -r << pipeline.parameters.build-dist-folder >>.zip ./<< pipeline.parameters.build-dist-folder >>
+            scp -v << pipeline.parameters.build-dist-folder >>.zip $SSH_USER@$SSH_HOST:/<< pipeline.parameters.server-base-folder >><< pipeline.parameters.project-folder >><< pipeline.parameters.temp-upload-folder-slug >>
+            ssh $SSH_USER@$SSH_HOST "unzip -d << pipeline.parameters.server-base-folder >><< pipeline.parameters.project-folder >><< pipeline.parameters.temp-upload-folder-slug >> << pipeline.parameters.server-base-folder >><< pipeline.parameters.project-folder >><< pipeline.parameters.temp-upload-folder-slug >>/<< pipeline.parameters.build-dist-folder >>.zip"
+            ssh $SSH_USER@$SSH_HOST "rm -dRf << pipeline.parameters.server-base-folder >><< pipeline.parameters.project-folder >>"
+            ssh $SSH_USER@$SSH_HOST "mv << pipeline.parameters.server-base-folder >><< pipeline.parameters.project-folder >><< pipeline.parameters.temp-upload-folder-slug >>/<< pipeline.parameters.build-dist-folder >> << pipeline.parameters.server-base-folder >><< pipeline.parameters.project-folder >>"
+            ssh $SSH_USER@$SSH_HOST "rm -dRf << pipeline.parameters.server-base-folder >><< pipeline.parameters.project-folder >><< pipeline.parameters.temp-upload-folder-slug >>"
 workflows:
   build-and-deploy:
     jobs:
