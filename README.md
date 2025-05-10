@@ -2,7 +2,7 @@
 
 ## Demo URL
 
-[http://cats-and-mouse.marcosgimeno.com](http://cats-and-mouse.marcosgimeno.com)
+[https://www.marcosgimeno.com/cats-and-mouse](https://www.marcosgimeno.com/cats-and-mouse)
 
 ## What is this?
 
