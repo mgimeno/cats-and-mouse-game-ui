@@ -1,8 +1,8 @@
 export const environment = {
   production: true,
   name: "production",
-  apiUrl: "http://cats-and-mouse-api.marcosgimeno.com/api/",
-  apiGameHubUrl: "http://cats-and-mouse-api.marcosgimeno.com/gameHub",
-  websiteUrl: "http://cats-and-mouse.marcosgimeno.com/",
+  apiUrl: "https://www.marcosgimeno.com:51000/api/",
+  apiGameHubUrl: "https://www.marcosgimeno.com:51000/gameHub",
+  websiteUrl: "https://www.marcosgimeno.com/cats-and-mouse",
   localStoragePrefix: "cat-and-mouse-game_",
 };
