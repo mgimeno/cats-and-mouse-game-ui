@@ -196,12 +196,12 @@ input.ng-valid + span.mat-form-field-label-wrapper .mat-form-field-label {
 
 .mouse-figure {
   @extend .figure;
-  background-image: url("/assets/images/mouse.svg");
+  background-image: url("assets/images/mouse.svg");
 }
 
 .cat-figure {
   @extend .figure;
-  background-image: url("/assets/images/cat.svg");
+  background-image: url("assets/images/cat.svg");
 }
 
 //Notification Service
