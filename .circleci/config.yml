@@ -55,7 +55,7 @@ jobs:
           at: ~/<< pipeline.parameters.project-folder >>
       - add_ssh_keys:
           fingerprints:
-            - "SHA256:URTfidP7xVnBRdhWO03zsI0UdDd1nk+ht5pqT1f4UcY"
+            - "SHA256:UIwOHqUMl4umSJ+Ey3v5ljwWSVGELUlFgOLF+J+yUWg"
       - run:
           name: Deploy to server
           no_output_timeout: 5m
