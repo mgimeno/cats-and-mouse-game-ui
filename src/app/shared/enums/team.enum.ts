@@ -1,5 +1,4 @@
-
 export enum TeamEnum {
-    'Cats' = 1,
-    'Mouse' = 2
+  'Cats' = 1,
+  'Mouse' = 2
 }

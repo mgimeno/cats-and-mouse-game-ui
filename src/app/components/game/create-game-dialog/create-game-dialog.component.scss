@@ -1,10 +1,17 @@
-@import "variables";
+@use 'variables' as *;
 
 .copy-link-container {
-  margin: 25px 0 15px 0;
+  margin: 25px 0 15px;
   text-align: center;
 
   .link-copied {
-    background-color: $successColor;
+    --mdc-protected-button-container-color: #{$successColor};
+    --mdc-protected-button-label-text-color: #fff;
+    color: #fff !important;
+    background-color: $successColor !important;
   }
+}
+
+.share-game {
+  margin-top: 18px;
 }

@@ -2,16 +2,16 @@ version: 2.1
 parameters:
   project-folder:
     type: string
-    default: "cats-and-mouse-ui"
+    default: 'cats-and-mouse-ui'
   temp-upload-folder-slug:
     type: string
-    default: "-temp-upload"
+    default: '-temp-upload'
   server-base-folder:
     type: string
-    default: "/home/$SSH_USER/apps/"
+    default: '/home/$SSH_USER/apps/'
   build-dist-folder:
     type: string
-    default: "dist"
+    default: 'dist'
 orbs:
   node: circleci/node@5
 
@@ -55,7 +55,7 @@ jobs:
           at: ~/<< pipeline.parameters.project-folder >>
       - add_ssh_keys:
           fingerprints:
-            - "SHA256:UIwOHqUMl4umSJ+Ey3v5ljwWSVGELUlFgOLF+J+yUWg"
+            - 'SHA256:UIwOHqUMl4umSJ+Ey3v5ljwWSVGELUlFgOLF+J+yUWg'
       - run:
           name: Deploy to server
           no_output_timeout: 5m

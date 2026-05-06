@@ -1,273 +1,185 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { SignalrService } from '../../../shared/services/signalr-service';
-import { IGameStatus } from '../../../shared/interfaces/game-status.interface';
-import { IGameStatusMessage } from '../../../shared/interfaces/game-status-message.interface';
-import { IFigure } from '../../../shared/interfaces/figure.interface';
-import { IChessBox } from '../../../shared/interfaces/chess-box.interface';
-import { COMMON_CONSTANTS } from '../../../shared/constants/common';
-import { IPlayer } from 'src/app/shared/interfaces/player.interface';
-import { TeamEnum } from 'src/app/shared/enums/team.enum';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  type OnDestroy,
+  type OnInit,
+  computed,
+  inject,
+  signal
+} from '@angular/core';
 import { Router } from '@angular/router';
-import { NotificationService } from 'src/app/shared/services/notification.service';
-import { HowToPlayDialogComponent } from '../../how-to-play-dialog/how-to-play-dialog.component';
-import { MatDialog } from '@angular/material/dialog';
-import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
-import { CommonHelper } from 'src/app/shared/helpers/common-helper';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { DrawAttentionAnimation, DrawAttentionAnimationStateEnum } from './play-game.component.animations';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
+import { CircleQuestionMark, Flag, LogOut, LucideAngularModule, RefreshCw } from 'lucide-angular';
 
+import { ChatComponent } from '../chat/chat.component';
+import { ChessBoxComponent } from '../chess-box/chess-box.component';
+import { COMMON_CONSTANTS } from '../../../shared/constants/common';
+import { CommonHelper } from 'src/app/shared/helpers/common-helper';
+import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
+import { DrawAttentionAnimation, DrawAttentionAnimationStateEnum } from './play-game.component.animations';
+import { type IChessBox } from '../../../shared/interfaces/chess-box.interface';
+import { type IFigure } from '../../../shared/interfaces/figure.interface';
+import { type IGameStatus } from '../../../shared/interfaces/game-status.interface';
+import { type IGameStatusMessage } from '../../../shared/interfaces/game-status-message.interface';
+import { type IPlayer } from 'src/app/shared/interfaces/player.interface';
+import { HowToPlayDialogComponent } from '../../how-to-play-dialog/how-to-play-dialog.component';
+import { LoaderComponent } from 'src/app/shared/components/loader/loader.component';
+import { NotificationService } from 'src/app/shared/services/notification.service';
+import { SignalrService } from '../../../shared/services/signalr-service';
+import { TeamEnum } from 'src/app/shared/enums/team.enum';
+
+interface GameInfo {
+  header: string;
+  subHeader: string | null;
+  colourClass: 'green' | 'red';
+}
 
 @Component({
+  imports: [MatButtonModule, LucideAngularModule, LoaderComponent, ChessBoxComponent, ChatComponent],
   templateUrl: './play-game.component.html',
   styleUrls: ['./play-game.component.scss'],
-  animations: [DrawAttentionAnimation]
+  animations: [DrawAttentionAnimation],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PlayGameComponent implements OnInit, OnDestroy {
+  private readonly signalrService = inject(SignalrService);
+  private readonly router = inject(Router);
+  private readonly notificationService = inject(NotificationService);
+  private readonly dialog = inject(MatDialog);
+  private readonly bottomSheet = inject(MatBottomSheet);
+  private readonly unsubscribeCallbacks: (() => void)[] = [];
+  private readonly beepAudio = new Audio(COMMON_CONSTANTS.BEEP_AUDIO_DATA);
 
-  attentionAnimation = DrawAttentionAnimationStateEnum.Initial;
+  readonly boardIndexes = [0, 1, 2, 3, 4, 5, 6, 7];
+  readonly attentionAnimation = signal(DrawAttentionAnimationStateEnum.Initial);
+  readonly gameStatus = signal<IGameStatus | null>(null);
+  readonly chessBoard = signal<IChessBox[][]>(
+    CommonHelper.buildChessBoard(COMMON_CONSTANTS.PLAY_CHESS_BOARD_ROWS, COMMON_CONSTANTS.PLAY_CHESS_BOARD_COLUMNS)
+  );
+  readonly chessBoxCurrentlySelected = signal<IChessBox | null>(null);
+  readonly hasSentRematchRequest = signal(false);
+  readonly gameInfo = computed(() => this.buildGameInfo());
+  readonly circleQuestionMarkIcon = CircleQuestionMark;
+  readonly flagIcon = Flag;
+  readonly logOutIcon = LogOut;
+  readonly refreshCwIcon = RefreshCw;
 
-  gameInfoHeader: string;
-  gameInfoSubHeader: string;
-  gameInfoHeaderColourClass: string;
-
-  private chessBoard: [IChessBox[], IChessBox[], IChessBox[], IChessBox[], IChessBox[], IChessBox[], IChessBox[], IChessBox[]] = null;
-  private chessBoxCurrentlySelected: IChessBox = null;
-
-  gameStatus: IGameStatus = null;
-
-  private beepAudio = new Audio(COMMON_CONSTANTS.BEEP_AUDIO_DATA);
-
-  private hasSentRematchRequest: boolean = false;
-
-
-  constructor(private signalrService: SignalrService,
-    private router: Router,
-    private notificationService: NotificationService,
-    private dialog: MatDialog,
-    private bottomSheet: MatBottomSheet) {
-
-    this.chessBoard = CommonHelper.buildChessBoard(COMMON_CONSTANTS.PLAY_CHESS_BOARD_ROWS, COMMON_CONSTANTS.PLAY_CHESS_BOARD_COLUMNS);
-  }
-
-  ngOnInit() : void {
-
-    this.signalrService.sendMessage("SendInProgressGameStatusToCaller")
-      .catch((reason: any) => {
-        console.error(reason);
-        this.notificationService.showError("Game does not exist");
-        this.router.navigate(['/']);
-      });
-
-
-    this.signalrService.subscribeToMethod("GameStatus", (message: IGameStatusMessage) => {
-
-      this.gameStatus = message.gameStatus;
-
-      this.chessBoxCurrentlySelected = null;
-
-      this.updateChessBoard();
-
-      this.alertUserIfItsTheirTurnOrGameOver();
-
-      this.resetSentRematchRequestIfNeeded();
-
-      this.updateGameInfo();
-
-      this.triggerGameInfoAnimation();
-      
+  ngOnInit(): void {
+    this.signalrService.sendMessage('SendInProgressGameStatusToCaller').catch(reason => {
+      console.error(reason);
+      this.notificationService.showError($localize`:@@home.game_does_not_exist:Game does not exist`);
+      void this.router.navigate(['/']);
     });
+
+    this.unsubscribeCallbacks.push(
+      this.signalrService.subscribeToMethod<IGameStatusMessage>('GameStatus', message => {
+        this.gameStatus.set(message.gameStatus);
+        this.chessBoxCurrentlySelected.set(null);
+        this.updateChessBoard();
+        this.alertUserIfItsTheirTurnOrGameOver();
+        this.resetSentRematchRequestIfNeeded();
+        this.triggerGameInfoAnimation();
+      })
+    );
   }
 
-  private updateGameInfo(): void{
-    if(this.isGameOver()){
-      if(this.amITheWinner()){
-        this.gameInfoHeader = $localize`:@@play.win:You win!`; 
-        this.gameInfoSubHeader = null;
-        this.gameInfoHeaderColourClass = "green";
-      }
-      else{
-        this.gameInfoHeader = $localize`:@@play.lose:You lose`;
-        this.gameInfoSubHeader = null;
-        this.gameInfoHeaderColourClass = "red";
-      }
-    }
-    else{
-      if(this.isMyTurn()){
-        this.gameInfoHeader = $localize`:@@play.your_turn:Your turn!`;
-        this.gameInfoSubHeader = this.amICatsPlayer() ? $localize`:@@play.cat_turn_info:select a cat and then move it` : $localize`:@@play.mouse_turn_info:move the mouse piece`;
-        this.gameInfoHeaderColourClass = "green";
-      }
-      else{
-        this.gameInfoHeader = $localize`:@@play.their_turn:Their turn`;
-        this.gameInfoSubHeader = `${this.getEnemyPlayer().name} ${$localize`:@@play.is_thinking:is thinking...`}`;
-        this.gameInfoHeaderColourClass = "red";
-      }
-    }
-  }
-
-  private triggerGameInfoAnimation(): void{
-    if(this.isGameOver()){
-      if(this.amITheWinner()){
-        this.attentionAnimation = DrawAttentionAnimationStateEnum.IWon;
-      }
-      else{
-        this.attentionAnimation = DrawAttentionAnimationStateEnum.ILost;
-      }
-    }
-    else{
-      if(this.isMyTurn()){
-        this.attentionAnimation = DrawAttentionAnimationStateEnum.MyTurn;
-      }
-      else{
-        this.attentionAnimation = DrawAttentionAnimationStateEnum.TheirTurn;
-      }
-    }
-  }
-
-  private alertUserIfItsTheirTurnOrGameOver(): void {
-    if (this.isMyTurn() || this.isGameOver()) {
-      this.beepAudio.play();
-    }
-
-  }
-
-  private resetSentRematchRequestIfNeeded(): void {
-    if (!this.isGameOver() && this.hasSentRematchRequest) {
-      this.hasSentRematchRequest = false;
-    }
-  }
-
-  getFigureInPosition = (rowIndex: number, columnIndex: number): IFigure => {
-
-    //todo Find a more elegant solution for this method.
-
-    if (!this.gameStatus) {
-      return null;
-    }
-
-    let figureInPosition: IFigure = null;
-
-    for (let playerIndex = 0; playerIndex < this.gameStatus.players.length; playerIndex++) {
-
-      for (let figureIndex = 0; figureIndex < this.gameStatus.players[playerIndex].figures.length; figureIndex++) {
-
-        const figure = this.gameStatus.players[playerIndex].figures[figureIndex];
-
-        if (figure.position.rowIndex === rowIndex && figure.position.columnIndex === columnIndex) {
-
-          figureInPosition = figure;
-
-          break;
-        }
-
-      }
-
-    }
-
-    return figureInPosition;
-
-  }
-
-  onChessBoxClicked = (rowIndex: number, columnIndex: number): void => {
-
+  onChessBoxClicked(rowIndex: number, columnIndex: number): void {
     if (!this.isMyTurn()) {
       return;
     }
 
-    let clickedChessBox = this.chessBoard[rowIndex][columnIndex];
+    const clickedChessBox = this.chessBoard()[rowIndex][columnIndex];
+    const selectedChessBox = this.chessBoxCurrentlySelected();
+    const canMoveSelectedFigure = selectedChessBox?.figure?.canMoveToPositions.some(
+      position => position.rowIndex === rowIndex && position.columnIndex === columnIndex
+    );
 
-    const canMoveCurrentlySelectedFigureToThisPosition = this.chessBoxCurrentlySelected && this.chessBoxCurrentlySelected.figure.canMoveToPositions.some(p => p.rowIndex === rowIndex && p.columnIndex === columnIndex);
-
-    if (canMoveCurrentlySelectedFigureToThisPosition) {
-
+    if (canMoveSelectedFigure) {
       this.moveCurrentlySelectedFigure(rowIndex, columnIndex);
-
+      return;
     }
-    else {
 
-      if (clickedChessBox.canFigureBeSelected && this.getNumberOfMyFiguresThatICanMove() > 1) {
-        //Select/Deselect a figure
-
-        this.deselectCurrentlySelectedChessBox();
-
-        if (clickedChessBox.isFigureSelected) {
-          clickedChessBox.isFigureSelected = false;
-        }
-        else {
-          this.selectChessBox(clickedChessBox);
-        }
-
+    if (clickedChessBox.canFigureBeSelected && this.getNumberOfMyFiguresThatICanMove() > 1) {
+      if (clickedChessBox.isFigureSelected) {
+        this.applySelection(null);
+      } else {
+        this.applySelection(clickedChessBox);
       }
-
     }
-
-  };
+  }
 
   getMyPlayer(): IPlayer {
-    return this.gameStatus.players[this.gameStatus.myPlayerIndex];
+    const gameStatus = this.getGameStatus();
+    return gameStatus.players[gameStatus.myPlayerIndex];
   }
 
   getEnemyPlayer(): IPlayer {
-    return this.gameStatus.players[(this.gameStatus.myPlayerIndex === 0 ? 1 : 0)];
+    const gameStatus = this.getGameStatus();
+    return gameStatus.players[gameStatus.myPlayerIndex === 0 ? 1 : 0];
   }
 
-  isGameOver = (): boolean => {
-    return this.gameStatus.players.some(p => p.isWinner);
+  isGameOver(): boolean {
+    return this.gameStatus()?.players.some(player => player.isWinner) ?? false;
   }
 
-  isMyTurn = (): boolean => {
-    return this.getMyPlayer().isTheirTurn;
+  isMyTurn(): boolean {
+    return this.gameStatus() ? this.getMyPlayer().isTheirTurn : false;
   }
 
-  amITheWinner = (): boolean => {
-    return this.getMyPlayer().isWinner;
+  amITheWinner(): boolean {
+    return this.gameStatus() ? this.getMyPlayer().isWinner : false;
   }
 
-  amICatsPlayer = (): boolean => {
-    return (this.getMyPlayer().teamId === TeamEnum.Cats);
-  }
-
-  hasAnyPlayerLeft = (): boolean => {
-    return this.gameStatus.players.some(p => p.hasUserLeftTheGame);
+  hasAnyPlayerLeft(): boolean {
+    return this.gameStatus()?.players.some(player => player.hasUserLeftTheGame) ?? false;
   }
 
   openHowToPlayDialog(): void {
-    this.dialog.open(HowToPlayDialogComponent, { height: "100%", width: "100%" });
+    this.dialog.open(HowToPlayDialogComponent, { height: '100%', width: '100%' });
   }
 
-  isRematchButtonVisible = (): boolean => {
+  isRematchButtonVisible(): boolean {
     return this.isGameOver() && !this.hasAnyPlayerLeft();
-  };
+  }
 
-  isRematchButtonEnabled = (): boolean => {
-    return this.isRematchButtonVisible() && !this.hasSentRematchRequest;
-  };
+  isRematchButtonEnabled(): boolean {
+    return this.isRematchButtonVisible() && !this.hasSentRematchRequest();
+  }
 
   sendRematchRequest(): void {
-    if (this.hasSentRematchRequest) {
+    const gameStatus = this.gameStatus();
+    if (!gameStatus || this.hasSentRematchRequest()) {
       return;
     }
-    this.hasSentRematchRequest = true;
-    this.signalrService.sendMessage("PlayerWantsToRematch", { gameId: this.gameStatus.gameId })
-      .catch((reason: any) => {
-        console.error(reason);
-        this.notificationService.showCommonError();
-      });
+
+    this.hasSentRematchRequest.set(true);
+    this.signalrService.sendMessage('PlayerWantsToRematch', { gameId: gameStatus.gameId }).catch(reason => {
+      console.error(reason);
+      this.notificationService.showCommonError();
+    });
   }
 
   exitGame(): void {
-    this.signalrService.sendMessage("ExitGame", { gameId: this.gameStatus.gameId })
+    const gameStatus = this.gameStatus();
+    if (!gameStatus) {
+      void this.router.navigate(['/']);
+      return;
+    }
+
+    this.signalrService
+      .sendMessage('ExitGame', { gameId: gameStatus.gameId })
       .then(() => {
-        this.router.navigate(['/']);
+        void this.router.navigate(['/']);
       })
-      .catch((reason: any) => {
+      .catch(reason => {
         console.error(reason);
         this.notificationService.showCommonError();
       });
   }
 
   surrender(): void {
-
     const bottomSheetRef = this.bottomSheet.open(ConfirmationDialogComponent, {
       data: {
         dialogTitle: $localize`:@@play.surrender_question:Surrender?`,
@@ -276,113 +188,188 @@ export class PlayGameComponent implements OnInit, OnDestroy {
     });
 
     bottomSheetRef.afterDismissed().subscribe((confirmed: boolean) => {
-
       if (confirmed) {
-
-        this.signalrService.sendMessage("Surrender")
-          .catch((reason: any) => {
-            console.error(reason);
-        this.notificationService.showCommonError();
-          });
-
+        this.signalrService.sendMessage('Surrender').catch(reason => {
+          console.error(reason);
+          this.notificationService.showCommonError();
+        });
       }
-
     });
-
   }
-
-  private updateChessBoard = (): void => {
-
-    for (let rowIndex = 0; rowIndex < COMMON_CONSTANTS.PLAY_CHESS_BOARD_ROWS; rowIndex++) {
-
-      for (let columnIndex = 0; columnIndex < COMMON_CONSTANTS.PLAY_CHESS_BOARD_COLUMNS; columnIndex++) {
-
-        const figure = this.getFigureInPosition(rowIndex, columnIndex);
-        this.chessBoard[rowIndex][columnIndex].figure = figure;
-        
-        this.chessBoard[rowIndex][columnIndex].isFigureSelected = false;
-        this.chessBoard[rowIndex][columnIndex].canFigureBeSelected = this.isMyTurn() && figure && this.isMyFigure(figure.id) && (figure.canMoveToPositions.length > 0);
-        this.chessBoard[rowIndex][columnIndex].canBeNewPositionForSelectedFigure = false;
-
-      }
-
-    }
-
-
-    if (this.isMyTurn() && this.getNumberOfMyFiguresThatICanMove() === 1) {
-      this.preSelectTheOnlyChessBoxThatICanSelect();
-    }
-
-  };
-
-  private preSelectTheOnlyChessBoxThatICanSelect = (): void => {
-
-    const onlyFigureThatICanMove = this.getMyPlayer().figures.find(f => f.canMoveToPositions.length > 0);
-    let chessBox = this.chessBoard[onlyFigureThatICanMove.position.rowIndex][onlyFigureThatICanMove.position.columnIndex];
-
-    this.selectChessBox(chessBox);
-  };
-
-  private selectChessBox = (chessBox: IChessBox): void => {
-
-    chessBox.isFigureSelected = true;
-
-    this.chessBoxCurrentlySelected = chessBox;
-
-    //highlight possible moves
-    this.chessBoxCurrentlySelected.figure.canMoveToPositions.forEach(p => {
-
-      this.chessBoard[p.rowIndex][p.columnIndex].canBeNewPositionForSelectedFigure = true;
-
-    });
-  };
-
-  private getNumberOfMyFiguresThatICanMove = (): number => {
-    return this.getMyPlayer().figures.filter(f => f.canMoveToPositions.length > 0).length;
-  };
-
-  private isMyFigure = (figureId: number): boolean => {
-    return this.getMyPlayer().figures.some(f => f.id === figureId);
-  }
-
-  private deselectCurrentlySelectedChessBox = (): void => {
-
-    if (this.chessBoxCurrentlySelected) {
-      this.chessBoard[this.chessBoxCurrentlySelected.figure.position.rowIndex][this.chessBoxCurrentlySelected.figure.position.columnIndex].isFigureSelected = false;
-
-      this.chessBoxCurrentlySelected = null;
-
-      //remove all highlighted chessboxes possible moves
-      for (let rowIndex = 0; rowIndex < COMMON_CONSTANTS.PLAY_CHESS_BOARD_ROWS; rowIndex++) {
-
-        for (let columnIndex = 0; columnIndex < COMMON_CONSTANTS.PLAY_CHESS_BOARD_COLUMNS; columnIndex++) {
-
-          this.chessBoard[rowIndex][columnIndex].canBeNewPositionForSelectedFigure = false;
-
-        }
-
-      }
-
-    }
-
-  };
-
-  private moveCurrentlySelectedFigure = (rowIndex: number, columnIndex: number): void => {
-
-    const message = {
-      figureId: this.chessBoxCurrentlySelected.figure.id,
-      rowIndex: rowIndex,
-      columnIndex: columnIndex
-    };
-
-    this.signalrService.sendMessage("Move", message)
-      .catch((reason: any) => {
-        console.error(reason);
-      });
-  };
 
   ngOnDestroy(): void {
-    this.signalrService.unsubscribeToMethod("GameStatus");
+    this.unsubscribeCallbacks.forEach(unsubscribe => unsubscribe());
   }
 
+  private buildGameInfo(): GameInfo {
+    if (!this.gameStatus()) {
+      return { header: '', subHeader: null, colourClass: 'red' };
+    }
+
+    if (this.isGameOver()) {
+      return this.amITheWinner()
+        ? { header: $localize`:@@play.win:You win!`, subHeader: null, colourClass: 'green' }
+        : { header: $localize`:@@play.lose:You lose`, subHeader: null, colourClass: 'red' };
+    }
+
+    if (this.isMyTurn()) {
+      return {
+        header: $localize`:@@play.your_turn:Your turn!`,
+        subHeader: this.amICatsPlayer()
+          ? $localize`:@@play.cat_turn_info:select a cat and then move it`
+          : $localize`:@@play.mouse_turn_info:move the mouse piece`,
+        colourClass: 'green'
+      };
+    }
+
+    return {
+      header: $localize`:@@play.their_turn:Their turn`,
+      subHeader: `${this.getEnemyPlayer().name} ${$localize`:@@play.is_thinking:is thinking...`}`,
+      colourClass: 'red'
+    };
+  }
+
+  private getGameStatus(): IGameStatus {
+    const gameStatus = this.gameStatus();
+    if (!gameStatus) {
+      throw new Error('Game status is not available');
+    }
+
+    return gameStatus;
+  }
+
+  private amICatsPlayer(): boolean {
+    return this.getMyPlayer().teamId === TeamEnum.Cats;
+  }
+
+  private triggerGameInfoAnimation(): void {
+    if (this.isGameOver()) {
+      this.attentionAnimation.set(
+        this.amITheWinner() ? DrawAttentionAnimationStateEnum.IWon : DrawAttentionAnimationStateEnum.ILost
+      );
+      return;
+    }
+
+    this.attentionAnimation.set(
+      this.isMyTurn() ? DrawAttentionAnimationStateEnum.MyTurn : DrawAttentionAnimationStateEnum.TheirTurn
+    );
+  }
+
+  private alertUserIfItsTheirTurnOrGameOver(): void {
+    if (this.isMyTurn() || this.isGameOver()) {
+      void this.beepAudio.play().catch(() => undefined);
+    }
+  }
+
+  private resetSentRematchRequestIfNeeded(): void {
+    if (!this.isGameOver() && this.hasSentRematchRequest()) {
+      this.hasSentRematchRequest.set(false);
+    }
+  }
+
+  private getFigureInPosition(rowIndex: number, columnIndex: number): IFigure | null {
+    const gameStatus = this.gameStatus();
+    if (!gameStatus) {
+      return null;
+    }
+
+    return (
+      gameStatus.players
+        .flatMap(player => player.figures)
+        .find(figure => figure.position.rowIndex === rowIndex && figure.position.columnIndex === columnIndex) ?? null
+    );
+  }
+
+  private updateChessBoard(): void {
+    const nextBoard = this.chessBoard().map((row, rowIndex) =>
+      row.map((chessBox, columnIndex) => {
+        const figure = this.getFigureInPosition(rowIndex, columnIndex);
+
+        return {
+          ...chessBox,
+          figure,
+          isFigureSelected: false,
+          canFigureBeSelected:
+            this.isMyTurn() && !!figure && this.isMyFigure(figure.id) && figure.canMoveToPositions.length > 0,
+          canBeNewPositionForSelectedFigure: false
+        };
+      })
+    );
+
+    this.chessBoard.set(nextBoard);
+
+    if (this.isMyTurn() && this.getNumberOfMyFiguresThatICanMove() === 1) {
+      const onlyFigureThatICanMove = this.getMyPlayer().figures.find(figure => figure.canMoveToPositions.length > 0);
+      if (onlyFigureThatICanMove) {
+        this.applySelection(
+          nextBoard[onlyFigureThatICanMove.position.rowIndex][onlyFigureThatICanMove.position.columnIndex]
+        );
+      }
+    }
+  }
+
+  private applySelection(selectedChessBox: IChessBox | null): void {
+    const selectedFigureId = selectedChessBox?.figure?.id ?? null;
+    const allowedMoves = selectedChessBox?.figure?.canMoveToPositions ?? [];
+    let selectedBoxInNextBoard: IChessBox | null = null;
+
+    const nextBoard = this.chessBoard().map(row =>
+      row.map(chessBox => {
+        const isSelected = selectedFigureId !== null && chessBox.figure?.id === selectedFigureId;
+        const nextChessBox = {
+          ...chessBox,
+          isFigureSelected: isSelected,
+          canBeNewPositionForSelectedFigure: allowedMoves.some(
+            position =>
+              position.rowIndex === chessBox.figure?.position.rowIndex &&
+              position.columnIndex === chessBox.figure?.position.columnIndex
+          )
+        };
+
+        if (isSelected) {
+          selectedBoxInNextBoard = nextChessBox;
+        }
+
+        return nextChessBox;
+      })
+    );
+
+    if (selectedFigureId !== null) {
+      allowedMoves.forEach(position => {
+        nextBoard[position.rowIndex][position.columnIndex] = {
+          ...nextBoard[position.rowIndex][position.columnIndex],
+          canBeNewPositionForSelectedFigure: true
+        };
+      });
+    }
+
+    this.chessBoard.set(nextBoard);
+    this.chessBoxCurrentlySelected.set(selectedBoxInNextBoard);
+  }
+
+  private getNumberOfMyFiguresThatICanMove(): number {
+    return this.getMyPlayer().figures.filter(figure => figure.canMoveToPositions.length > 0).length;
+  }
+
+  private isMyFigure(figureId: number): boolean {
+    return this.getMyPlayer().figures.some(figure => figure.id === figureId);
+  }
+
+  private moveCurrentlySelectedFigure(rowIndex: number, columnIndex: number): void {
+    const selectedFigure = this.chessBoxCurrentlySelected()?.figure;
+    if (!selectedFigure) {
+      return;
+    }
+
+    this.signalrService
+      .sendMessage('Move', {
+        figureId: selectedFigure.id,
+        rowIndex,
+        columnIndex
+      })
+      .catch(reason => {
+        console.error(reason);
+        this.notificationService.showCommonError();
+      });
+  }
 }

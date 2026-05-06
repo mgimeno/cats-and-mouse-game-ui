@@ -1,54 +1,44 @@
-import { Injectable } from '@angular/core';
-import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
+import { Injectable, inject } from '@angular/core';
+import { MatSnackBar, type MatSnackBarConfig } from '@angular/material/snack-bar';
+
 import { COMMON_CONSTANTS } from '../constants/common';
 
 @Injectable({
   providedIn: 'root'
 })
 export class NotificationService {
+  private readonly snackBar = inject(MatSnackBar);
 
-  constructor(private snackBar: MatSnackBar) { }
-
-  showSuccess(text: string): void{
-
-    let config: MatSnackBarConfig = <MatSnackBarConfig>{
-      duration: COMMON_CONSTANTS.NOTIFICATION_DURATION_MILLISECONS,
-      panelClass: "success"
-    };
-
-    this.snackBar.open(text, null,config);
+  showSuccess(text: string): void {
+    this.open(text, 'success', COMMON_CONSTANTS.NOTIFICATION_DURATION_MILLISECONS);
   }
 
-  showCommonError(): void{
+  showCommonError(): void {
     this.showError();
   }
 
-  showError(text?:string): void{
-    let config: MatSnackBarConfig = <MatSnackBarConfig>{
-      duration: COMMON_CONSTANTS.NOTIFICATION_ERROR_DURATION_MILLISECONS,
-      panelClass: "error"
-    };
-
-    let errorMessage = (text || $localize`:@@error.error_ocurred:An error has ocurred`);
-
-    this.snackBar.open(errorMessage, null ,config);
+  showError(text?: string): void {
+    this.open(
+      text ?? $localize`:@@error.error_ocurred:An error has ocurred`,
+      'error',
+      COMMON_CONSTANTS.NOTIFICATION_ERROR_DURATION_MILLISECONS
+    );
   }
 
-  showWarning(text:string): void{
-    let config: MatSnackBarConfig = <MatSnackBarConfig>{
-      duration: COMMON_CONSTANTS.NOTIFICATION_DURATION_MILLISECONS,
-      panelClass: "warning"
-    };
-
-    this.snackBar.open(text, null,config);
+  showWarning(text: string): void {
+    this.open(text, 'warning', COMMON_CONSTANTS.NOTIFICATION_DURATION_MILLISECONS);
   }
 
-  showInfo(text:string): void{
-    let config: MatSnackBarConfig = <MatSnackBarConfig>{
-      duration: COMMON_CONSTANTS.NOTIFICATION_DURATION_MILLISECONS,
-      panelClass: "info"
+  showInfo(text: string): void {
+    this.open(text, 'info', COMMON_CONSTANTS.NOTIFICATION_INFO_DURATION_MILLISECONS);
+  }
+
+  private open(text: string, panelClass: string, duration: number): void {
+    const config: MatSnackBarConfig = {
+      duration,
+      panelClass
     };
 
-    this.snackBar.open(text, null,config);
+    this.snackBar.open(text, undefined, config);
   }
 }

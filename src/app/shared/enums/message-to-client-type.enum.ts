@@ -1,4 +1,3 @@
-
 export enum MessageToClientTypeEnum {
   'GameList' = 1,
   'GameStart' = 2,

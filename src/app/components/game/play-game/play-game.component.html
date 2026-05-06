@@ -1,62 +1,87 @@
-<div *ngIf="!gameStatus">
-  <br>
-  <br>
-  <br>
-  <app-loader></app-loader>
-</div>
+@if (!gameStatus()) {
+  <div class="loading-state">
+    <app-loader />
+  </div>
+} @else {
+  <div class="play-container">
+    <div class="game-container">
+      <div class="wrapper">
+        <div class="text-center turn-info">
+          <div
+            class="turn-info-header"
+            [class.big-turn-info-header]="!gameInfo().subHeader"
+            [@DrawAttentionAnimation]="attentionAnimation()"
+          >
+            <span [class]="gameInfo().colourClass">{{ gameInfo().header }}</span>
+          </div>
 
-<div *ngIf="gameStatus" class="play-container">
-
-  <div class="game-container">
-    <div class="wrapper">
-
-      <div class="text-center turn-info" >
-
-        <div class="turn-info-header" 
-          [class.big-turn-info-header]="!gameInfoSubHeader"
-          [@DrawAttentionAnimation]="attentionAnimation">
-          <span [class]="gameInfoHeaderColourClass">{{gameInfoHeader}}</span>
+          @if (gameInfo().subHeader) {
+            <div class="turn-info-subheader">
+              {{ gameInfo().subHeader }}
+            </div>
+          }
         </div>
+      </div>
 
-        <div *ngIf="gameInfoSubHeader" class="turn-info-subheader">
-          {{gameInfoSubHeader}}
-        </div>  
-
+      <div class="game-board">
+        @for (rowIndex of boardIndexes; track rowIndex) {
+          @for (columnIndex of boardIndexes; track columnIndex) {
+            <app-chess-box
+              [chessBox]="chessBoard()[rowIndex][columnIndex]"
+              [chessBoxCurrentlySelected]="chessBoxCurrentlySelected()"
+              (click)="onChessBoxClicked(rowIndex, columnIndex)"
+            />
+          }
+        }
       </div>
     </div>
 
-
-    <div class="game-board">
-
-      <ng-container *ngFor="let rowIndex of [0,1,2,3,4,5,6,7]">
-        <app-chess-box *ngFor="let columnIndex of [0,1,2,3,4,5,6,7]" [chessBox]="chessBoard[rowIndex][columnIndex]"
-          [chessBoxCurrentlySelected]="chessBoxCurrentlySelected" (click)="onChessBoxClicked(rowIndex,columnIndex)">
-        </app-chess-box>
-      </ng-container>
-
-    </div>
-
-  </div>
-
-  <div class="options-container">
-
+    <div class="options-container">
       <div class="options-buttons">
-        <button mat-button (click)=openHowToPlayDialog()><i class="far fa-question-circle"></i>&nbsp;<span i18n="@@play.how_to_play">how to play</span></button>
-
-        <button *ngIf="isRematchButtonVisible()" [disabled]="!isRematchButtonEnabled()" mat-raised-button class="success-button" (click)=sendRematchRequest()>
-          <i class="fas fa-redo"></i>&nbsp;
-          <span *ngIf="isRematchButtonEnabled()" i18n="@@play.rematch">rematch</span>
-          <span *ngIf="!isRematchButtonEnabled()" i18n="@@play.rematch_awaiting">awaiting</span>
+        <button type="button" mat-button (click)="openHowToPlayDialog()">
+          <span class="button-content-with-icon">
+            <lucide-icon class="button-icon" aria-hidden="true" [img]="circleQuestionMarkIcon" />
+            <span i18n="@@play.how_to_play">how to play</span>
+          </span>
         </button>
 
-        <button *ngIf="!isGameOver()" mat-button color="warn" (click)=surrender()><i class="far fa-flag"></i>&nbsp;<span i18n="@@play.surrender">surrender</span></button>
-        <button *ngIf="isGameOver()" mat-raised-button color="warn" (click)=exitGame()><i class="fas fa-sign-out-alt"></i>&nbsp;<span i18n="@@play.exit_game">exit game</span></button>
+        @if (isRematchButtonVisible()) {
+          <button
+            type="button"
+            mat-raised-button
+            class="success-button"
+            [disabled]="!isRematchButtonEnabled()"
+            (click)="sendRematchRequest()"
+          >
+            <span class="button-content-with-icon">
+              <lucide-icon class="button-icon" aria-hidden="true" [img]="refreshCwIcon" />
+              @if (isRematchButtonEnabled()) {
+                <span i18n="@@play.rematch">rematch</span>
+              } @else {
+                <span i18n="@@play.rematch_awaiting">awaiting</span>
+              }
+            </span>
+          </button>
+        }
+
+        @if (!isGameOver()) {
+          <button type="button" mat-button color="warn" (click)="surrender()">
+            <span class="button-content-with-icon">
+              <lucide-icon class="button-icon" aria-hidden="true" [img]="flagIcon" />
+              <span i18n="@@play.surrender">surrender</span>
+            </span>
+          </button>
+        } @else {
+          <button type="button" mat-raised-button color="warn" (click)="exitGame()">
+            <span class="button-content-with-icon">
+              <lucide-icon class="button-icon" aria-hidden="true" [img]="logOutIcon" />
+              <span i18n="@@play.exit_game">exit game</span>
+            </span>
+          </button>
+        }
       </div>
 
-      <app-chat [gameId]="gameStatus.gameId" [canSendMessages]=!hasAnyPlayerLeft()></app-chat>
-    
+      <app-chat [gameId]="gameStatus()!.gameId" [canSendMessages]="!hasAnyPlayerLeft()" />
+    </div>
   </div>
-
-
-
-</div>
+}

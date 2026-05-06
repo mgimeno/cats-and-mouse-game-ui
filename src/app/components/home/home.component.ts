@@ -1,202 +1,189 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { TeamEnum } from 'src/app/shared/enums/team.enum';
-import { IGameListItem } from 'src/app/shared/interfaces/game-list-item.interface';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { CreateGameDialogComponent } from '../game/create-game-dialog/create-game-dialog.component';
-import { JoinGameDialogComponent } from '../game/join-game-dialog/join-game-dialog.component';
+import { ChangeDetectionStrategy, Component, type OnDestroy, type OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { SignalrService } from '../../shared/services/signalr-service';
-import { IGameListMessage } from '../../shared/interfaces/game-list-message.interface';
-import { NotificationService } from '../../shared/services/notification.service';
-import { HowToPlayDialogComponent } from '../how-to-play-dialog/how-to-play-dialog.component';
-import { IGameStartMessage } from 'src/app/shared/interfaces/game-start-message.interface';
-import { COMMON_CONSTANTS } from 'src/app/shared/constants/common';
-import { IChessBox } from 'src/app/shared/interfaces/chess-box.interface';
-import { CommonHelper } from 'src/app/shared/helpers/common-helper';
-import { FigureTypeEnum } from 'src/app/shared/enums/figure-type.enum';
-import { IFigure } from 'src/app/shared/interfaces/figure.interface';
-import { SelectLanguageComponent } from '../select-language/select-language.component';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { environment } from 'src/environments/environment';
-import { LoadingDialogComponent } from '../loading-dialog/loading-dialog.component';
-import { IGameStatusMessage } from 'src/app/shared/interfaces/game-status-message.interface';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialog, type MatDialogRef } from '@angular/material/dialog';
+import { MatTableModule } from '@angular/material/table';
 
+import { ChessBoxComponent } from '../game/chess-box/chess-box.component';
+import { COMMON_CONSTANTS } from 'src/app/shared/constants/common';
+import { CommonHelper } from 'src/app/shared/helpers/common-helper';
+import { CreateGameDialogComponent } from '../game/create-game-dialog/create-game-dialog.component';
+import { FigureTypeEnum } from 'src/app/shared/enums/figure-type.enum';
+import { HowToPlayDialogComponent } from '../how-to-play-dialog/how-to-play-dialog.component';
+import { type IChessBox } from 'src/app/shared/interfaces/chess-box.interface';
+import { type IFigure } from 'src/app/shared/interfaces/figure.interface';
+import { type IGameListItem } from 'src/app/shared/interfaces/game-list-item.interface';
+import { type IGameListMessage } from '../../shared/interfaces/game-list-message.interface';
+import { type IGameStartMessage } from 'src/app/shared/interfaces/game-start-message.interface';
+import { type IGameStatusMessage } from 'src/app/shared/interfaces/game-status-message.interface';
+import { JoinGameDialogComponent } from '../game/join-game-dialog/join-game-dialog.component';
+import { LoadingDialogComponent } from '../loading-dialog/loading-dialog.component';
+import { NotificationService } from '../../shared/services/notification.service';
+import { SelectLanguageComponent } from '../select-language/select-language.component';
+import { SignalrService } from '../../shared/services/signalr-service';
+import { TeamEnum } from 'src/app/shared/enums/team.enum';
+import { environment } from 'src/environments/environment';
 
 @Component({
+  imports: [MatButtonModule, MatTableModule, ChessBoxComponent],
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss']
+  styleUrls: ['./home.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HomeComponent implements OnInit, OnDestroy {
+  private readonly dialog = inject(MatDialog);
+  private readonly route = inject(ActivatedRoute);
+  private readonly signalrService = inject(SignalrService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly router = inject(Router);
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly bottomSheet = inject(MatBottomSheet);
+  private readonly unsubscribeCallbacks: (() => void)[] = [];
 
-  //tableColumns: string[] = ["userName", "isPasswordProtected", "gameId"];
-  tableColumns: string[] = ["userName", "gameId"];
-  teamEnum = TeamEnum;
+  readonly tableColumns = ['userName', 'gameId'];
+  readonly teamEnum = TeamEnum;
+  readonly games = signal<IGameListItem[]>([]);
+  readonly currentLanguageCode = signal(localStorage.getItem(`${environment.localStoragePrefix}language`) ?? 'en');
+  readonly chessBoard = this.setupLogoChessBoard();
 
-  games: IGameListItem[] = [];
+  private createGameDialogRef: MatDialogRef<CreateGameDialogComponent> | null = null;
+  private joinGameDialogRef: MatDialogRef<JoinGameDialogComponent> | null = null;
+  private howToPlayDialogRef: MatDialogRef<HowToPlayDialogComponent> | null = null;
 
-  createGameDialogRef: MatDialogRef<CreateGameDialogComponent>;
-  joinGameDialogRef: MatDialogRef<JoinGameDialogComponent>;
-  howToPlayDialogRef: MatDialogRef<HowToPlayDialogComponent>;
-
-  currentLanguageCode: string = localStorage.getItem(`${environment.localStoragePrefix}language`);
-
-  private chessBoard: [IChessBox[], IChessBox[], IChessBox[], IChessBox[], IChessBox[], IChessBox[], IChessBox[], IChessBox[]] = null;
-
-  constructor(
-    private dialog: MatDialog,
-    private route: ActivatedRoute,
-    private signalrService: SignalrService,
-    private notificationService: NotificationService,
-    private router: Router,
-    private activatedRoute: ActivatedRoute,
-    private bottomSheet: MatBottomSheet) {
-
-    this.setupLogoChessBoard();
-
-  }
-
-  ngOnInit() : void {
-
-    this.signalrService.sendMessage("SendWhetherHasInProgressGameToCaller")
-      .catch((reason: any) => {
-        console.error(reason);
-        this.notificationService.showCommonError();
-      });
-
-    this.signalrService.sendMessage("SendGamesAwaitingForSecondPlayerToCallerAsync")
-      .catch((reason: any) => {
-        console.error(reason);
-        this.notificationService.showCommonError();
-      });
-
-    this.signalrService.subscribeToMethod("GameList", (message: IGameListMessage) => {
-
-      const userId = localStorage.getItem(`${environment.localStoragePrefix}user-id`);
-
-      this.games = message.gameList.filter(g => g.userId !== userId);
-
-      const gameThisUserHasCreatedInAnotherDeviceOrTab = message.gameList.find(g=> g.userId === userId);
-
-      if(gameThisUserHasCreatedInAnotherDeviceOrTab && !this.createGameDialogRef){
-        this.openCreateGameDialog(gameThisUserHasCreatedInAnotherDeviceOrTab);
-      }
-      else{
-        this.openJoinGameDialogIfGameInUrl();
-      }
-      
+  ngOnInit(): void {
+    this.signalrService.sendMessage('SendWhetherHasInProgressGameToCaller').catch(reason => {
+      console.error(reason);
+      this.notificationService.showCommonError();
     });
 
-    this.signalrService.subscribeToMethod("GameStart", (message: IGameStartMessage) => {
-      this.goToPlay();
+    this.signalrService.sendMessage('SendGamesAwaitingForSecondPlayerToCallerAsync').catch(reason => {
+      console.error(reason);
+      this.notificationService.showCommonError();
     });
 
-    this.signalrService.subscribeToMethod("GameStatus", (message: IGameStatusMessage) => {
-      this.goToPlay();
-    });
-  }
+    this.unsubscribeCallbacks.push(
+      this.signalrService.subscribeToMethod<IGameListMessage>('GameList', message => {
+        const userId = localStorage.getItem(`${environment.localStoragePrefix}user-id`);
 
-  private goToPlay(): void{
-    if (this.createGameDialogRef) {
-      this.createGameDialogRef.close();
-    }
+        this.games.set(message.gameList.filter(game => game.userId !== userId));
 
-    if (this.joinGameDialogRef) {
-      this.joinGameDialogRef.close();
-    }
+        const gameThisUserHasCreatedInAnotherDeviceOrTab = message.gameList.find(game => game.userId === userId);
 
-    if (this.howToPlayDialogRef) {
-      this.howToPlayDialogRef.close();
-    }
-
-    this.router.navigate(['/play']);
-    
+        if (gameThisUserHasCreatedInAnotherDeviceOrTab && !this.createGameDialogRef) {
+          this.openCreateGameDialog(gameThisUserHasCreatedInAnotherDeviceOrTab);
+        } else {
+          this.openJoinGameDialogIfGameInUrl();
+        }
+      }),
+      this.signalrService.subscribeToMethod<IGameStartMessage>('GameStart', () => {
+        this.goToPlay();
+      }),
+      this.signalrService.subscribeToMethod<IGameStatusMessage>('GameStatus', () => {
+        this.goToPlay();
+      })
+    );
   }
 
   openSelectLanguage(): void {
     const bottomSheetRef = this.bottomSheet.open(SelectLanguageComponent);
 
-    bottomSheetRef.afterDismissed().subscribe((newLanguageCode: string) => {
-
-      if (newLanguageCode) {
-
-        if (newLanguageCode !== this.currentLanguageCode) {
-          localStorage.setItem(`${environment.localStoragePrefix}language`, newLanguageCode);
-          this.dialog.open(LoadingDialogComponent, { data: { dialogTitle: $localize`:@@loading_dialog.loading:Loading...` }, height: "100%", width: "100%" });
-          window.location.reload();
-        }
-
+    bottomSheetRef.afterDismissed().subscribe((newLanguageCode?: string) => {
+      if (newLanguageCode && newLanguageCode !== this.currentLanguageCode()) {
+        localStorage.setItem(`${environment.localStoragePrefix}language`, newLanguageCode);
+        this.dialog.open(LoadingDialogComponent, {
+          data: { dialogTitle: $localize`:@@loading_dialog.loading:Loading...` },
+          height: '100%',
+          width: '100%'
+        });
+        window.location.reload();
       }
-
     });
   }
 
-  private setupLogoChessBoard(): void {
-    this.chessBoard = CommonHelper.buildChessBoard(COMMON_CONSTANTS.LOGO_CHESS_BOARD_ROWS, COMMON_CONSTANTS.LOGO_CHESS_BOARD_COLUMNS);
-
-    this.chessBoard[0][5].figure = <IFigure>{ typeId: FigureTypeEnum.Cat };
-    this.chessBoard[0][7].figure = <IFigure>{ typeId: FigureTypeEnum.Cat };
-    this.chessBoard[2][5].figure = <IFigure>{ typeId: FigureTypeEnum.Cat };
-    this.chessBoard[2][7].figure = <IFigure>{ typeId: FigureTypeEnum.Cat };
-
-    this.chessBoard[1][6].figure = <IFigure>{ typeId: FigureTypeEnum.Mouse };
-
-    const logoTitle = $localize`:@@home.title:CATS & MOUSE`;
-
-    this.chessBoard[0][0].text = logoTitle[0];
-    this.chessBoard[0][1].text = logoTitle[1];
-    this.chessBoard[0][2].text = logoTitle[2];
-    this.chessBoard[0][3].text = logoTitle[3];
-
-    this.chessBoard[1][2].text = logoTitle[5];
-
-    this.chessBoard[2][0].text = logoTitle[7];
-    this.chessBoard[2][1].text = logoTitle[8];
-    this.chessBoard[2][2].text = logoTitle[9];
-    this.chessBoard[2][3].text = logoTitle[10];
-    this.chessBoard[2][4].text = logoTitle[11];
-  }
-
-
-  openJoinGameDialogIfGameInUrl = (): void => {
-
-    const gameIdFromUrl: string = (this.route.snapshot.queryParams["joinGame"] || null);
-    if (gameIdFromUrl) {
-      //This removes the 'joinGame' url param to avoid issues.
-      this.router.navigate(
-        [],
-        {
-          relativeTo: this.activatedRoute
-        });
-      this.openJoinGameDialog(gameIdFromUrl);
+  openJoinGameDialogIfGameInUrl(): void {
+    const gameIdFromUrl = this.route.snapshot.queryParamMap.get('joinGame');
+    if (!gameIdFromUrl) {
+      return;
     }
-  }
 
+    void this.router.navigate([], { relativeTo: this.activatedRoute });
+    this.openJoinGameDialog(gameIdFromUrl);
+  }
 
   openCreateGameDialog(gameToLoad?: IGameListItem): void {
-    this.createGameDialogRef = this.dialog.open(CreateGameDialogComponent, { data: gameToLoad, height: "100%", width: "100%" });
+    this.createGameDialogRef = this.dialog.open(CreateGameDialogComponent, {
+      data: gameToLoad ?? null,
+      height: '100%',
+      width: '100%'
+    });
   }
 
   openJoinGameDialog(gameId: string): void {
-    const game = this.games.find(g => g.gameId == gameId);
+    const game = this.games().find(currentGame => currentGame.gameId === gameId);
 
     if (!game) {
-      this.notificationService.showError("Game does not exist");
-    }
-    else {
-      this.joinGameDialogRef = this.dialog.open(JoinGameDialogComponent, { data: game, height: "100%", width: "100%" });
+      this.notificationService.showError($localize`:@@home.game_does_not_exist:Game does not exist`);
+      return;
     }
 
+    this.joinGameDialogRef = this.dialog.open(JoinGameDialogComponent, {
+      data: game,
+      height: '100%',
+      width: '100%'
+    });
   }
 
   openHowToPlayDialog(): void {
-    this.howToPlayDialogRef = this.dialog.open(HowToPlayDialogComponent, { height: "100%", width: "100%" });
+    this.howToPlayDialogRef = this.dialog.open(HowToPlayDialogComponent, {
+      height: '100%',
+      width: '100%'
+    });
   }
 
   ngOnDestroy(): void {
+    this.unsubscribeCallbacks.forEach(unsubscribe => unsubscribe());
+  }
 
-    this.signalrService.unsubscribeToMethod("GameList");
-    this.signalrService.unsubscribeToMethod("GameStart");
-    this.signalrService.unsubscribeToMethod("GameStatus");
-    
+  private goToPlay(): void {
+    this.createGameDialogRef?.close();
+    this.joinGameDialogRef?.close();
+    this.howToPlayDialogRef?.close();
+
+    void this.router.navigate(['/play']);
+  }
+
+  private setupLogoChessBoard(): IChessBox[][] {
+    const chessBoard = CommonHelper.buildChessBoard(
+      COMMON_CONSTANTS.LOGO_CHESS_BOARD_ROWS,
+      COMMON_CONSTANTS.LOGO_CHESS_BOARD_COLUMNS
+    );
+
+    chessBoard[0][5].figure = { typeId: FigureTypeEnum.Cat } as IFigure;
+    chessBoard[0][7].figure = { typeId: FigureTypeEnum.Cat } as IFigure;
+    chessBoard[2][5].figure = { typeId: FigureTypeEnum.Cat } as IFigure;
+    chessBoard[2][7].figure = { typeId: FigureTypeEnum.Cat } as IFigure;
+    chessBoard[1][6].figure = { typeId: FigureTypeEnum.Mouse } as IFigure;
+
+    const logoTitle = $localize`:@@home.title:CATS & MOUSE`;
+    const titlePositions = [
+      [0, 0],
+      [0, 1],
+      [0, 2],
+      [0, 3],
+      [1, 2],
+      [2, 0],
+      [2, 1],
+      [2, 2],
+      [2, 3],
+      [2, 4]
+    ];
+    const titleCharacters = [0, 1, 2, 3, 5, 7, 8, 9, 10, 11];
+
+    titlePositions.forEach(([rowIndex, columnIndex], index) => {
+      chessBoard[rowIndex][columnIndex].text = logoTitle[titleCharacters[index]];
+    });
+
+    return chessBoard;
   }
 }

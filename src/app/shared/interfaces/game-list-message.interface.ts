@@ -1,6 +1,6 @@
-import { IGameListItem } from './game-list-item.interface';
-import { IMessageToClient } from './message-to-client.interface';
+import { type IGameListItem } from './game-list-item.interface';
+import { type IMessageToClient } from './message-to-client.interface';
 
-export interface IGameListMessage extends IMessageToClient  {
+export interface IGameListMessage extends IMessageToClient {
   gameList: IGameListItem[];
 }

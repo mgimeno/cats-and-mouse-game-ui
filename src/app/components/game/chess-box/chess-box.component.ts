@@ -1,27 +1,22 @@
-import { Component, Input } from '@angular/core';
-import { FigureTypeEnum } from '../../../shared/enums/figure-type.enum';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+
 import { ChessBoxColorEnum } from '../../../shared/enums/chess-box-color.enum';
-import { IChessBox } from '../../../shared/interfaces/chess-box.interface';
+import { FigureTypeEnum } from '../../../shared/enums/figure-type.enum';
+import { type IChessBox } from '../../../shared/interfaces/chess-box.interface';
 
 @Component({
   selector: 'app-chess-box',
   templateUrl: './chess-box.component.html',
-  styleUrls: ['./chess-box.component.scss']
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ChessBoxComponent {
+  readonly chessBox = input.required<IChessBox>();
+  readonly chessBoxCurrentlySelected = input<IChessBox | null>(null);
 
-  @Input() chessBox: IChessBox;
-  @Input() chessBoxCurrentlySelected?: IChessBox = null;
+  readonly figureTypeEnum = FigureTypeEnum;
+  readonly chessBoxColorEnum = ChessBoxColorEnum;
 
-  figureTypeEnum = FigureTypeEnum;
-  chessBoxColorEnum = ChessBoxColorEnum;
-
-  hasFigureOfType = (figureType: FigureTypeEnum): boolean => {
-    return this.chessBox.figure != null && (this.chessBox.figure.typeId === figureType);
+  hasFigureOfType(figureType: FigureTypeEnum): boolean {
+    return this.chessBox().figure?.typeId === figureType;
   }
-
-  isThereAFigureSelected = (): boolean => {
-    return this.chessBoxCurrentlySelected != null;
-  }
-  
 }

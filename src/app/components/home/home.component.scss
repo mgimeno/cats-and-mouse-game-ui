@@ -1,24 +1,43 @@
-.game-description {
-    margin: 75px 0 40px;
+.home-hero {
+  padding-bottom: clamp(36px, 8vw, 72px);
 }
 
-h2 {
-    margin: 60px 0 25px;
+.game-description {
+  margin: clamp(42px, 9vw, 78px) 0 clamp(28px, 6vw, 44px);
+}
+
+.games-title {
+  margin: clamp(44px, 8vw, 64px) 0 18px;
+}
+
+.empty-games {
+  padding: 22px 0;
+  border: 1px dashed rgb(122 67 29 / 0.34);
+  border-radius: 8px;
+  background: rgb(255 247 231 / 0.62);
 }
 
 table {
-    .player-cell {
-        display: flex;
-        align-items: center;
+  overflow: hidden;
+  border-radius: 8px;
+  background: rgb(255 247 231 / 0.86);
+  box-shadow: 0 14px 30px rgb(77 39 19 / 0.12);
 
-        .cat-figure,
-        .mouse-figure {
-            width: 25px;
-            height: 25px;
-        }
+  .player-cell {
+    display: flex;
+    gap: 14px;
+    align-items: center;
 
-        .player-name {
-            margin-left: 15px;
-        }
+    .cat-figure,
+    .mouse-figure {
+      width: 28px;
+      height: 28px;
+      background-size: contain;
     }
+
+    .player-name {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+  }
 }

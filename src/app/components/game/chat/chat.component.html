@@ -1,30 +1,37 @@
-<div class="chat">
-
+<section class="chat">
   <b class="chat-box-title" i18n="@@chat.chat">Chat box</b>
 
-  <div *ngIf="chatLines.length" class="chat-history" #scrollMe [scrollTop]="scrollMe.scrollHeight">
-
-    <div *ngFor="let chatLine of chatLines" class="chat-line" [class.text-right]="chatLine.teamId == teamEnum.Mouse">
-      
-      <b [class]="chatLine.class">
-        {{chatLine.message}}
-      </b>
-
+  @if (chatLines().length) {
+    <div #scrollMe class="chat-history" [scrollTop]="scrollMe.scrollHeight">
+      @for (chatLine of chatLines(); track $index) {
+        <div class="chat-line" [class.text-right]="chatLine.teamId === teamEnum.Mouse">
+          <b [class]="chatLine.class">
+            {{ chatLine.message }}
+          </b>
+        </div>
+      }
     </div>
+  }
 
-  </div>
+  @if (canSendMessages()) {
+    <form autocomplete="off" class="chat-form" [formGroup]="formGroup" (ngSubmit)="onSubmit()">
+      <mat-form-field class="do-not-use-red-for-invalid">
+        <input type="text" matInput formControlName="message" autocomplete="off" [placeholder]="sendPlaceholder" />
+      </mat-form-field>
 
-  <form *ngIf="canSendMessages" [formGroup]="formGroup" (ngSubmit)="onSubmit()" autocomplete="false" class="chat-form">
-    <mat-form-field [formGroup]="formGroup" class="do-not-use-red-for-invalid" >
-      <input type="text" matInput [placeholder]="sendPlaceholder" formControlName="message" autocomplete="false">
-    </mat-form-field>
-
-    <button class="send-message-button" type="submit" [disabled]="isSubmitButtonDisabled()" mat-raised-button
-      color="primary" cdkFocusInitial i18n="@@chat.send">
-      Send
-    </button>
-  </form>
-
-
-
-</div>
+      <button
+        class="send-message-button"
+        type="submit"
+        mat-raised-button
+        color="primary"
+        cdkFocusInitial
+        [disabled]="isSubmitButtonDisabled()"
+      >
+        <span class="button-content-with-icon">
+          <lucide-icon class="button-icon" aria-hidden="true" [img]="sendIcon" />
+          <span i18n="@@chat.send">Send</span>
+        </span>
+      </button>
+    </form>
+  }
+</section>

@@ -1,4 +1,3 @@
-import { IMessageToClient } from './message-to-client.interface';
+import { type IMessageToClient } from './message-to-client.interface';
 
-export interface IGameStartMessage extends IMessageToClient  {
-}
+export type IGameStartMessage = IMessageToClient;

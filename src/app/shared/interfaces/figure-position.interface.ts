@@ -1,5 +1,4 @@
-
-export interface IFigurePosition  {
+export interface IFigurePosition {
   rowIndex: number;
   columnIndex: number;
 }

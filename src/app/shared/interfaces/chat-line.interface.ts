@@ -1,5 +1,4 @@
-import { TeamEnum } from '../enums/team.enum';
-
+import { type TeamEnum } from '../enums/team.enum';
 
 export interface IChatLine {
   userName: string;

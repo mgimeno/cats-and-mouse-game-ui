@@ -1,46 +1,116 @@
-@import "variables";
+@use 'variables' as *;
 
 .chat {
-  margin-top: 25px;
+  margin-top: 24px;
+  padding: 18px;
+  border: 1px solid rgb(77 39 19 / 0.22);
+  border-radius: 8px;
+
+  background: linear-gradient(180deg, rgb(255 247 231 / 0.92), rgb(236 207 160 / 0.84)), $surfaceColor;
+  box-shadow:
+    0 14px 28px rgb(77 39 19 / 0.16),
+    0 1px 0 rgb(255 255 255 / 0.65) inset;
+
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+
+  &:focus-within {
+    border-color: rgb(122 67 29 / 0.42);
+    box-shadow:
+      0 16px 32px rgb(77 39 19 / 0.2),
+      0 0 0 3px rgb(122 67 29 / 0.12);
+  }
 
   .chat-box-title {
+    display: block;
     color: $primaryColor;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
   }
 
   .chat-history {
-    margin-top: 15px;
-    max-height: 200px;
-    overflow-y: scroll;
+    scroll-behavior: smooth;
+
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    max-height: 220px;
+    margin-top: 14px;
+    padding: 12px;
+    border: 1px solid rgb(77 39 19 / 0.12);
+    border-radius: 8px;
+
+    background: rgb(255 250 239 / 0.58);
 
     .chat-line {
-      margin: 0 15px 9px 0;
+      margin: 0;
+      overflow-wrap: anywhere;
+
+      b {
+        display: inline-block;
+
+        max-width: min(100%, 86%);
+        padding: 8px 10px;
+        border-radius: 8px;
+
+        line-height: 1.35;
+
+        background: rgb(255 247 231 / 0.88);
+        box-shadow: 0 4px 10px rgb(77 39 19 / 0.1);
+
+        transition:
+          background-color 160ms ease,
+          box-shadow 160ms ease,
+          transform 160ms ease;
+      }
 
       .black {
-        color: #333;
+        color: $primaryColorDark;
       }
 
       .white {
-        color: #888;
+        color: $secondaryColor;
       }
 
       .red {
         color: $errorColor;
+        background: rgb(184 55 74 / 0.12);
       }
 
       .green {
         color: $successColor;
+        background: rgb(37 122 72 / 0.12);
       }
+    }
+
+    .chat-line.text-right b {
+      background: rgb(236 207 160 / 0.9);
     }
   }
 
   .chat-form {
     display: flex;
-    flex-direction: row;
-    align-items: baseline;
+    gap: 10px;
+    align-items: flex-start;
+    margin-top: 14px;
 
     .send-message-button {
-      margin-left: 10px;
-      width: 80px;
+      flex: 0 0 84px;
+      min-height: 48px;
+    }
+  }
+}
+
+@media only screen and (width <= 460px) {
+  .chat .chat-form {
+    flex-direction: column;
+
+    .send-message-button {
+      width: 100%;
     }
   }
 }

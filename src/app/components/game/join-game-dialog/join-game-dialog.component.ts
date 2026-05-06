@@ -1,52 +1,66 @@
-import { Component, Inject, OnInit } from '@angular/core';
-import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms';
-import { ILabelValue } from 'src/app/shared/interfaces/label-value.interface';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { IGameListItem } from 'src/app/shared/interfaces/game-list-item.interface';
-import { TeamEnum } from 'src/app/shared/enums/team.enum';
-import { SignalrService } from '../../../shared/services/signalr-service';
-import { environment } from 'src/environments/environment';
-import { NotificationService } from 'src/app/shared/services/notification.service';
-import { COMMON_CONSTANTS } from 'src/app/shared/constants/common';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
+import { COMMON_CONSTANTS } from 'src/app/shared/constants/common';
+import { TeamEnum } from 'src/app/shared/enums/team.enum';
+import { type IGameListItem } from 'src/app/shared/interfaces/game-list-item.interface';
+import { type ILabelValue } from 'src/app/shared/interfaces/label-value.interface';
+import { NotificationService } from 'src/app/shared/services/notification.service';
+import { SignalrService } from '../../../shared/services/signalr-service';
+import {
+  TeamSelectComponent,
+  type TeamFormControls
+} from 'src/app/shared/components/team-select/team-select.component';
+import { environment } from 'src/environments/environment';
 
 @Component({
+  imports: [
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    TeamSelectComponent
+  ],
   templateUrl: './join-game-dialog.component.html',
-  styleUrls: ['./join-game-dialog.component.scss']
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class JoinGameDialogComponent implements OnInit {
+export class JoinGameDialogComponent {
+  private readonly dialogRef = inject(MatDialogRef<JoinGameDialogComponent>);
+  readonly data = inject<IGameListItem>(MAT_DIALOG_DATA);
+  private readonly signalrService = inject(SignalrService);
+  private readonly notificationService = inject(NotificationService);
 
-  formGroup: UntypedFormGroup = null;
-  maxUsernameLength: number = COMMON_CONSTANTS.MAX_USERNAME_LENGTH;
+  readonly maxUsernameLength = COMMON_CONSTANTS.MAX_USERNAME_LENGTH;
+  readonly teamId = this.data.teamId === TeamEnum.Cats ? TeamEnum.Mouse : TeamEnum.Cats;
+  readonly teams: ILabelValue[] = [
+    { label: TeamEnum[TeamEnum.Cats], value: TeamEnum.Cats },
+    { label: TeamEnum[TeamEnum.Mouse], value: TeamEnum.Mouse }
+  ];
 
-  teams: ILabelValue[] = [{ label: TeamEnum[TeamEnum.Cats], value: TeamEnum.Cats }, { label: TeamEnum[TeamEnum.Mouse], value: TeamEnum.Mouse }];
+  readonly formGroup = new FormGroup<TeamFormControls>({
+    userName: new FormControl<string | null>(localStorage.getItem(`${environment.localStoragePrefix}user-name`), [
+      control => Validators.required(control),
+      control => Validators.maxLength(this.maxUsernameLength)(control)
+    ]),
+    teamId: new FormControl<TeamEnum | null>({ value: this.teamId, disabled: true }, control =>
+      Validators.required(control)
+    ),
+    gamePassword: new FormControl<string | null>(null)
+  });
 
-  teamId: number = null;
-
-  constructor(
-    public dialogRef: MatDialogRef<JoinGameDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: IGameListItem,
-    private signalrService: SignalrService,
-    private notificationService: NotificationService) {
-  }
-
-  ngOnInit(): void {
-
-    const previousUserName = localStorage.getItem(`${environment.localStoragePrefix}user-name`);
-    this.teamId = (this.data.teamId == TeamEnum.Cats ? TeamEnum.Mouse : TeamEnum.Cats);
-
-    this.formGroup = new UntypedFormGroup({
-      'userName': new UntypedFormControl(previousUserName || null, [Validators.required, Validators.maxLength(this.maxUsernameLength)]),
-      'teamId': new UntypedFormControl({ value: this.teamId, disabled: true }, Validators.required)
-    });
-
-    if (this.data.isPasswordProtected) {
-      this.formGroup.addControl("gamePassword", new UntypedFormControl(null, Validators.required));
-    }
+  constructor() {
+    this.formGroup.controls.gamePassword.setValidators(
+      this.data.isPasswordProtected ? control => Validators.required(control) : null
+    );
+    this.formGroup.controls.gamePassword.updateValueAndValidity();
   }
 
   onSubmit(): void {
-
     if (this.formGroup.invalid) {
       if (this.formGroup.controls.userName.invalid) {
         this.notificationService.showError($localize`:@@error.missing_name:Type your name`);
@@ -55,29 +69,32 @@ export class JoinGameDialogComponent implements OnInit {
       return;
     }
 
-    const userName = this.formGroup.controls.userName.value;
+    const userName = this.formGroup.controls.userName.value?.trim();
+    if (!userName) {
+      return;
+    }
 
-    let message: any = {
+    const message: { gameId: string; userName: string; gamePassword?: string } = {
       gameId: this.data.gameId,
-      userName: userName
+      userName
     };
 
     localStorage.setItem(`${environment.localStoragePrefix}user-name`, userName);
 
     if (this.data.isPasswordProtected) {
-      message.gamePassword = this.formGroup.controls.gamePassword.value;
+      const gamePassword = this.formGroup.controls.gamePassword.value;
+      if (gamePassword) {
+        message.gamePassword = gamePassword;
+      }
     }
 
-    this.signalrService.sendMessage("JoinGame", message)
-      .catch((reason: any) => {
-        console.error(reason);
-        this.notificationService.showCommonError();
-      });
-
+    this.signalrService.sendMessage('JoinGame', message).catch(reason => {
+      console.error(reason);
+      this.notificationService.showCommonError();
+    });
   }
 
   onCancel(): void {
     this.dialogRef.close();
   }
-
 }

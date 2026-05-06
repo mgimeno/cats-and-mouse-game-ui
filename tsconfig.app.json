@@ -4,11 +4,6 @@
     "outDir": "./out-tsc/app",
     "types": []
   },
-  "files": [
-    "src/main.ts",
-    "src/polyfills.ts"
-  ],
-  "include": [
-    "src/**/*.d.ts"
-  ]
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/app/components/page-not-found/page-not-found.component.ts"]
 }

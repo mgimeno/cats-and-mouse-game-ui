@@ -1,5 +1,4 @@
-
 export enum FigureTypeEnum {
-    'Cat' = 1,
-    'Mouse' = 2
+  'Cat' = 1,
+  'Mouse' = 2
 }

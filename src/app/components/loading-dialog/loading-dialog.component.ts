@@ -1,12 +1,14 @@
-import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+
+import { LoaderComponent } from 'src/app/shared/components/loader/loader.component';
 
 @Component({
+  imports: [MatDialogModule, LoaderComponent],
   templateUrl: './loading-dialog.component.html',
-  styleUrls: ['./loading-dialog.component.scss']
+  styleUrls: ['./loading-dialog.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LoadingDialogComponent {
-
-  constructor(@Inject(MAT_DIALOG_DATA) public data: {dialogTitle:string}) { }
-
+  readonly data = inject<{ dialogTitle: string }>(MAT_DIALOG_DATA);
 }

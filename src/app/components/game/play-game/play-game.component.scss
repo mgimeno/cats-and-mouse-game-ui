@@ -1,43 +1,61 @@
-@import "variables";
+@use 'variables' as *;
+
+.loading-state {
+  display: grid;
+  place-items: center;
+  min-height: 60vh;
+}
 
 .play-container {
-  margin-top: 40px;
+  margin-top: clamp(18px, 5vw, 42px);
+  padding-bottom: clamp(28px, 8vw, 64px);
 
   .options-container {
-    margin: 13px auto 0 auto;
-    width: 530px;
+    width: min(100% - 28px, 540px);
+    margin: 18px auto 0;
 
     .options-buttons {
-      text-align: right;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
 
-      button:not(:nth-child(1)) {
-        margin-left: 3px;
+      button {
+        min-height: 42px;
       }
     }
   }
 
   .turn-info {
-    font-weight: bold;
-    margin: 15px 0 30px;
-    height: $turnInfoHeight;
+    min-height: $turnInfoHeight;
+    margin: 12px 0 clamp(18px, 4vw, 30px);
+    font-weight: 800;
 
     .green,
     .red {
-      text-shadow: -1px 0 #333, 0 1px #333, 1px 0 #333, 0 -1px #333;
+      text-shadow: 0 1px 0 rgb(255 247 231 / 0.8);
     }
 
-    .turn-info-header{
-        height: 39px;
-      &.big-turn-info-header{
-        height: $turnInfoHeight;
+    .turn-info-header {
+      min-height: 39px;
+      font-size: clamp(1.5rem, 6vw, 2.35rem);
+
+      &.big-turn-info-header {
+        min-height: $turnInfoHeight;
       }
     }
 
     .turn-info-subheader {
-      font-size: 15px;
-      font-weight: bold;
+      margin-top: 8px;
+      font-size: clamp(0.92rem, 2.8vw, 1rem);
+      font-weight: 700;
       color: $secondaryColor;
-      margin-top: 10px;
     }
+  }
+}
+
+@media only screen and (width <= 520px) {
+  .play-container .options-container .options-buttons {
+    justify-content: center;
   }
 }

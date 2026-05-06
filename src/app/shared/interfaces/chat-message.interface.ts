@@ -1,7 +1,7 @@
-import { IMessageToClient } from './message-to-client.interface';
-import { IChatLine } from './chat-line.interface';
+import { type IMessageToClient } from './message-to-client.interface';
+import { type IChatLine } from './chat-line.interface';
 
-export interface IChatMessage extends IMessageToClient  {
+export interface IChatMessage extends IMessageToClient {
   gameId: string;
   chatLine: IChatLine;
 }

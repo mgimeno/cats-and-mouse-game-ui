@@ -1,96 +1,147 @@
-import { Injectable } from '@angular/core';
-import * as signalR from "@microsoft/signalr";
+import { Injectable, computed, signal } from '@angular/core';
+import * as signalR from '@microsoft/signalr';
+
 import { environment } from '../../../environments/environment';
+
+type HubCallback<T> = (message: T) => void;
 
 @Injectable({
   providedIn: 'root'
 })
 export class SignalrService {
+  private hubConnection: signalR.HubConnection | null = null;
+  private startPromise: Promise<void> | null = null;
+  private readonly reconnectPolicy = new ServerReconnectPolicy();
+  private readonly connectionStateSignal = signal(signalR.HubConnectionState.Disconnected);
 
-  private hubConnection: signalR.HubConnection;
+  readonly connectionState = this.connectionStateSignal.asReadonly();
+  readonly connected = computed(() => this.connectionState() === signalR.HubConnectionState.Connected);
 
-  constructor( ) {
+  get isConnected(): boolean {
+    return this.connected();
   }
 
-  startConnection = (): void => {
+  startConnection(): void {
+    this.ensureConnection();
+    void this.start();
+  }
+
+  subscribeToMethod<T>(methodName: string, callback: HubCallback<T>): () => void {
+    const connection = this.ensureConnection();
+    connection.on(methodName, callback);
+
+    return () => connection.off(methodName, callback);
+  }
+
+  unsubscribeToMethod(methodName: string): void {
+    this.hubConnection?.off(methodName);
+  }
+
+  async sendMessage<TResponse = unknown, TParameters = unknown>(
+    method: string,
+    parameters?: TParameters
+  ): Promise<TResponse> {
+    await this.start();
+
+    const connection = this.ensureConnection();
+    if (parameters === undefined || parameters === null) {
+      return connection.invoke<TResponse>(method);
+    }
+
+    return connection.invoke<TResponse>(method, parameters);
+  }
+
+  private ensureConnection(): signalR.HubConnection {
+    if (this.hubConnection) {
+      return this.hubConnection;
+    }
+
     this.hubConnection = new signalR.HubConnectionBuilder()
       .withUrl(environment.apiGameHubUrl)
-      .configureLogging(signalR.LogLevel.Information)
-      .withAutomaticReconnect(this.getRetryDelaysArray())
+      .configureLogging(environment.production ? signalR.LogLevel.Warning : signalR.LogLevel.Information)
+      .withAutomaticReconnect(this.reconnectPolicy)
       .build();
 
-    this.hubConnection.serverTimeoutInMilliseconds = 15 * 60 * 1000;
+    this.hubConnection.serverTimeoutInMilliseconds = 2 * 60 * 1000;
+    this.hubConnection.keepAliveIntervalInMilliseconds = 15 * 1000;
 
-    this.hubConnection.onclose((error: Error) => {
-      console.error("Error when closing connection", error);
+    this.hubConnection.onreconnecting(() => {
+      this.connectionStateSignal.set(signalR.HubConnectionState.Reconnecting);
     });
 
     this.hubConnection.onreconnected(() => {
-      this.registerConnection();
-    })
-
-    this.start();
-  }
-
-  subscribeToMethod = (methodName: string, callback: any) => {
-    this.hubConnection.on(methodName, data => {
-      callback(data);
+      this.connectionStateSignal.set(signalR.HubConnectionState.Connected);
+      void this.registerConnection();
     });
-  };
 
-  unsubscribeToMethod = (methodName: string) => {
-    this.hubConnection.off(methodName);
-  };
+    this.hubConnection.onclose(error => {
+      this.connectionStateSignal.set(signalR.HubConnectionState.Disconnected);
+      this.startPromise = null;
 
-  get isConnected(): boolean {
-    return this.hubConnection.state === signalR.HubConnectionState.Connected;
+      if (error) {
+        console.error('SignalR connection closed', error);
+      }
+
+      void this.start();
+    });
+
+    return this.hubConnection;
   }
 
-  private registerConnection(): void {
+  private async start(): Promise<void> {
+    const connection = this.ensureConnection();
 
-    this.sendMessage("RegisterConnection", localStorage[`${environment.localStoragePrefix}user-id`]);
-  }
+    if (connection.state === signalR.HubConnectionState.Connected) {
+      return;
+    }
 
-  private start(): void {
+    if (this.startPromise !== null) {
+      return this.startPromise;
+    }
 
-    if (!this.isConnected) {
-      this.hubConnection.start()
-        .then(() => {
-          this.registerConnection();
-        })
-        .catch(async err => {
-          await new Promise(r => setTimeout(r, 100));
-          this.start();
-        });
+    this.connectionStateSignal.set(signalR.HubConnectionState.Connecting);
+    this.startPromise = this.startWithRetry();
+
+    try {
+      await this.startPromise;
+    } finally {
+      this.startPromise = null;
     }
   }
 
-  async sendMessage(method: string, parameters: any = null): Promise<any> {
+  private async startWithRetry(): Promise<void> {
+    const connection = this.ensureConnection();
 
-    while (!this.isConnected) {
-      await new Promise(r => setTimeout(r, 100));
+    while (connection.state === signalR.HubConnectionState.Disconnected) {
+      try {
+        await connection.start();
+        this.connectionStateSignal.set(signalR.HubConnectionState.Connected);
+        await this.registerConnection();
+      } catch (error) {
+        this.connectionStateSignal.set(signalR.HubConnectionState.Disconnected);
+        console.error('SignalR connection failed; retrying', error);
+        await this.delay(1500);
+      }
     }
-
-    if (parameters) {
-      return this.hubConnection.invoke(method, parameters);
-    }
-    else {
-      return this.hubConnection.invoke(method);
-    }
-
   }
 
-  private getRetryDelaysArray(): number[] {
-
-    let result = [];
-    const oneHourInSeconds = 3600;
-    for (let sec = 0; sec <= oneHourInSeconds; sec++) {
-      result.push(sec * 1000);
+  private async registerConnection(): Promise<void> {
+    const userId = localStorage.getItem(`${environment.localStoragePrefix}user-id`);
+    if (!userId || !this.isConnected) {
+      return;
     }
 
-    return result;
+    await this.ensureConnection().invoke('RegisterConnection', userId);
   }
 
+  private delay(milliseconds: number): Promise<void> {
+    return new Promise(resolve => window.setTimeout(resolve, milliseconds));
+  }
 }
 
-
+class ServerReconnectPolicy implements signalR.IRetryPolicy {
+  nextRetryDelayInMilliseconds(context: signalR.RetryContext): number {
+    const fastReconnectDelays = [0, 2000, 5000, 10000, 30000];
+    return fastReconnectDelays[context.previousRetryCount] ?? 30000;
+  }
+}

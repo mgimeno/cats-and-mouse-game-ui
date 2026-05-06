@@ -1,5 +1,4 @@
-
 export enum ChessBoxColorEnum {
-    'White' = 1,
-    'Black' = 2
+  'White' = 1,
+  'Black' = 2
 }
