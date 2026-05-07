@@ -44,7 +44,6 @@ export class CreateGameDialogComponent {
   readonly joinGameUrl = signal<string | null>(null);
   readonly createdGame = signal<IGameListItem | null>(null);
   readonly maxUsernameLength = COMMON_CONSTANTS.MAX_USERNAME_LENGTH;
-  readonly shareText = $localize`:@@create.share_text:Join my Cats & Mouse game:`;
   readonly shareLinkText = $localize`:@@create.share_link:Share link`;
 
   readonly teams: ILabelValue[] = [
@@ -116,7 +115,6 @@ export class CreateGameDialogComponent {
     try {
       if (navigator.share) {
         await navigator.share({
-          text: this.shareText,
           url: joinGameUrl
         });
         return;

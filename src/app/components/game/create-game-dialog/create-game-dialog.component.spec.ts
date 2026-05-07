@@ -99,6 +99,18 @@ describe('CreateGameDialogComponent', () => {
     expect(notificationService.showSuccess).toHaveBeenCalledWith('Link copied');
   });
 
+  it('shares only the game URL when native share is available', async () => {
+    const share = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'share', { value: share, configurable: true });
+    component.joinGameUrl.set('https://example.test?joinGame=game-1');
+
+    await component.onShareLinkClick();
+
+    expect(share).toHaveBeenCalledWith({
+      url: 'https://example.test?joinGame=game-1'
+    });
+  });
+
   it('cancels a created game before closing the dialog', () => {
     localStorage.setItem(`${environment.localStoragePrefix}user-id`, 'user-1');
     component.createdGame.set(createdGame());
