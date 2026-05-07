@@ -87,6 +87,25 @@ describe('CreateGameDialogComponent', () => {
     expect(component.joinGameUrl()).toBe(`${environment.websiteUrl}?joinGame=game-1`);
   });
 
+  it('keeps the join link query after the production subpath slash redirect', async () => {
+    const originalWebsiteUrl = environment.websiteUrl;
+    try {
+      environment.websiteUrl = 'https://www.marcosgimeno.com/cats-and-mouse';
+      component.formGroup.setValue({
+        userName: 'Marta',
+        teamId: TeamEnum.Cats,
+        gamePassword: null
+      });
+
+      component.onSubmit();
+      await Promise.resolve();
+
+      expect(component.joinGameUrl()).toBe('https://www.marcosgimeno.com/cats-and-mouse/?joinGame=game-1');
+    } finally {
+      environment.websiteUrl = originalWebsiteUrl;
+    }
+  });
+
   it('copies the share link when native share is not available', async () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, 'share', { value: undefined, configurable: true });
