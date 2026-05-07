@@ -48,9 +48,6 @@ if (language === 'es') {
 
     'select-language.select': 'Selecciona un idioma',
 
-    'page-not-found.not-found': '404 - Página no encontrada',
-    'page-not-found.back': 'Volver',
-
     'play.win': 'Ganaste!',
     'play.lose': 'Perdiste',
     'play.your_turn': 'Tu turno!',

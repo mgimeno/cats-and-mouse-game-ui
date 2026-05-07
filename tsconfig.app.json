@@ -5,5 +5,5 @@
     "types": []
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["src/app/components/page-not-found/page-not-found.component.ts"]
+  "exclude": []
 }

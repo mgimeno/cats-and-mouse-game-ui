@@ -28,24 +28,10 @@
             "inlineStyleLanguage": "scss",
             "assets": [
               "src/favicon.ico",
-              "src/favicon-114.png",
-              "src/favicon-120.png",
-              "src/favicon-144.png",
-              "src/favicon-150.png",
-              "src/favicon-152.png",
               "src/favicon-16.png",
-              "src/favicon-160.png",
               "src/favicon-180.png",
               "src/favicon-192.png",
-              "src/favicon-310.png",
               "src/favicon-32.png",
-              "src/favicon-57.png",
-              "src/favicon-60.png",
-              "src/favicon-64.png",
-              "src/favicon-70.png",
-              "src/favicon-72.png",
-              "src/favicon-76.png",
-              "src/favicon-96.png",
               "src/browserconfig.xml",
               "src/humans.txt",
               "src/robots.txt",
@@ -60,6 +46,12 @@
           },
           "configurations": {
             "production": {
+              "sourceMap": false,
+              "optimization": true,
+              "aot": true,
+              "namedChunks": true,
+              "extractLicenses": true,
+              "outputHashing": "all",
               "baseHref": "/cats-and-mouse/",
               "budgets": [
                 {
@@ -79,7 +71,6 @@
                   "with": "src/environments/environment.prod.ts"
                 }
               ],
-              "outputHashing": "all"
             },
             "development": {
               "buildOptimizer": false,
