@@ -311,16 +311,14 @@ export class PlayGameComponent implements OnInit, OnDestroy {
     const allowedMoves = selectedChessBox?.figure?.canMoveToPositions ?? [];
     let selectedBoxInNextBoard: IChessBox | null = null;
 
-    const nextBoard = this.chessBoard().map(row =>
-      row.map(chessBox => {
+    const nextBoard = this.chessBoard().map((row, rowIndex) =>
+      row.map((chessBox, columnIndex) => {
         const isSelected = selectedFigureId !== null && chessBox.figure?.id === selectedFigureId;
         const nextChessBox = {
           ...chessBox,
           isFigureSelected: isSelected,
           canBeNewPositionForSelectedFigure: allowedMoves.some(
-            position =>
-              position.rowIndex === chessBox.figure?.position.rowIndex &&
-              position.columnIndex === chessBox.figure?.position.columnIndex
+            position => position.rowIndex === rowIndex && position.columnIndex === columnIndex
           )
         };
 

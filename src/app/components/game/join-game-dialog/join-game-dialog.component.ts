@@ -44,7 +44,7 @@ export class JoinGameDialogComponent {
 
   readonly formGroup = new FormGroup<TeamFormControls>({
     userName: new FormControl<string | null>(localStorage.getItem(`${environment.localStoragePrefix}user-name`), [
-      control => Validators.required(control),
+      control => ((control.value as string | null)?.trim() ? null : { required: true }),
       control => Validators.maxLength(this.maxUsernameLength)(control)
     ]),
     teamId: new FormControl<TeamEnum | null>({ value: this.teamId, disabled: true }, control =>

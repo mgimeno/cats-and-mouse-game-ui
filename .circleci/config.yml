@@ -25,6 +25,9 @@ jobs:
           name: Install dependencies
           command: npm ci
       - run:
+          name: Test
+          command: npm test
+      - run:
           name: Build
           command: npm run ng build -c production
       # No need to precompress since Cloudflare does it. (Uncomment this if I don't use Cloudflare and handle compression on my own nginx)
