@@ -1,5 +1,12 @@
-.angular
-coverage
-dist
-node_modules
-out-tsc
+.angular/
+.cache/
+.circleci/
+.github/
+.husky/
+.vscode/
+app-mocks/
+coverage/
+dist/
+infra/
+node_modules/
+.npm/
