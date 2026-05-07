@@ -3,7 +3,7 @@ import { TestBed, type ComponentFixture } from '@angular/core/testing';
 
 import { TeamEnum } from 'src/app/shared/enums/team.enum';
 import { NotificationService } from 'src/app/shared/services/notification.service';
-import { SignalrService } from 'src/app/shared/services/signalr-service';
+import { type GameFeedEvent, SignalrService } from 'src/app/shared/services/signalr-service';
 import { ChatComponent } from './chat.component';
 
 describe('ChatComponent', () => {
@@ -11,17 +11,17 @@ describe('ChatComponent', () => {
   let component: ChatComponent;
   let signalrService: {
     sendMessage: ReturnType<typeof vi.fn>;
-    subscribeToMethod: ReturnType<typeof vi.fn>;
+    subscribeToGameFeed: ReturnType<typeof vi.fn>;
   };
   let notificationService: { showCommonError: ReturnType<typeof vi.fn> };
-  let subscriptions: Map<string, (message: unknown) => void>;
+  let subscriptions: Map<string, (event: GameFeedEvent) => void>;
 
   beforeEach(async () => {
     subscriptions = new Map();
     signalrService = {
       sendMessage: vi.fn().mockResolvedValue(undefined),
-      subscribeToMethod: vi.fn((methodName: string, callback: (message: unknown) => void) => {
-        subscriptions.set(methodName, callback);
+      subscribeToGameFeed: vi.fn((callback: (event: GameFeedEvent) => boolean) => {
+        subscriptions.set('game-feed', callback);
         return vi.fn();
       })
     };
@@ -48,6 +48,7 @@ describe('ChatComponent', () => {
     fixture.componentRef.setInput('gameId', 'game-1');
     fixture.componentRef.setInput('canSendMessages', true);
     component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
   afterEach(() => {
@@ -56,8 +57,6 @@ describe('ChatComponent', () => {
   });
 
   it('adds only messages for the current game and maps team colors', () => {
-    component.ngOnInit();
-
     emit('ChatMessage', {
       gameId: 'game-1',
       chatLine: { userName: 'Marta', teamId: TeamEnum.Cats, message: 'hello' }
@@ -80,8 +79,6 @@ describe('ChatComponent', () => {
   });
 
   it('keeps only the latest 100 chat lines', () => {
-    component.ngOnInit();
-
     for (let index = 0; index < 105; index++) {
       emit('PlayerHasLeftGame', {
         gameId: 'game-1',
@@ -121,10 +118,9 @@ describe('ChatComponent', () => {
     await vi.waitFor(() => expect(notificationService.showCommonError).toHaveBeenCalledOnce());
   });
 
-  function emit(methodName: string, message: unknown): void {
-    const callback = subscriptions.get(methodName);
+  function emit(methodName: GameFeedEvent['methodName'], message: { gameId: string } & Record<string, unknown>): void {
+    const callback = subscriptions.get('game-feed');
 
-    expect(callback).toBeDefined();
-    callback?.(message);
+    callback?.({ methodName, message } as unknown as GameFeedEvent);
   }
 });

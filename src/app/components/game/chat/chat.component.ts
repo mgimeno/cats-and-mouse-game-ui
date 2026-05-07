@@ -16,15 +16,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { type IPlayerHasLeftGameMessage } from 'src/app/shared/interfaces/player-has-left-game-message';
-import { type IPlayerHasSurrenderedMessage } from 'src/app/shared/interfaces/player-has-surrendered-message';
-import { type IPlayerOnlyConnectionStatusChangedMessage } from 'src/app/shared/interfaces/player-only-connection-status-changed-message';
-import { type IPlayerWantsRematchMessage } from 'src/app/shared/interfaces/player-wants-rematch-message';
 import { NotificationService } from 'src/app/shared/services/notification.service';
 import { TeamEnum } from '../../../shared/enums/team.enum';
 import { type IChatLine } from '../../../shared/interfaces/chat-line.interface';
-import { type IChatMessage } from '../../../shared/interfaces/chat-message.interface';
-import { SignalrService } from '../../../shared/services/signalr-service';
+import { type GameFeedEvent, SignalrService } from '../../../shared/services/signalr-service';
 
 @Component({
   selector: 'app-chat',
@@ -52,57 +47,14 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.unsubscribeCallbacks.push(
-      this.signalrService.subscribeToMethod<IChatMessage>('ChatMessage', message => {
-        if (message.gameId === this.gameId()) {
-          this.addMessage({
-            ...message.chatLine,
-            class: message.chatLine.teamId === TeamEnum.Cats ? 'black' : 'white'
-          });
+      this.signalrService.subscribeToGameFeed(event => {
+        if (event.message.gameId !== this.gameId()) {
+          return false;
         }
-      }),
-      this.signalrService.subscribeToMethod<IPlayerHasLeftGameMessage>('PlayerHasLeftGame', message => {
-        if (message.gameId === this.gameId()) {
-          this.addMessage({
-            userName: message.userName,
-            teamId: message.teamId,
-            message: `${message.userName} ${$localize`:@@chat.player_has_left:has left the game`}`,
-            class: 'red'
-          });
-        }
-      }),
-      this.signalrService.subscribeToMethod<IPlayerWantsRematchMessage>('PlayerWantsRematch', message => {
-        if (message.gameId === this.gameId()) {
-          this.addMessage({
-            userName: message.userName,
-            teamId: message.teamId,
-            message: `${message.userName} ${$localize`:@@chat.player_wants_rematch: wants a rematch`}`,
-            class: message.teamId === TeamEnum.Cats ? 'black' : 'white'
-          });
-        }
-      }),
-      this.signalrService.subscribeToMethod<IPlayerHasSurrenderedMessage>('PlayerHasSurrendered', message => {
-        if (message.gameId === this.gameId()) {
-          this.addMessage({
-            userName: message.userName,
-            teamId: message.teamId,
-            message: `${message.userName} ${$localize`:@@chat.player_has_surrendered:has surrendered`}`,
-            class: message.teamId === TeamEnum.Cats ? 'black' : 'white'
-          });
-        }
-      }),
-      this.signalrService.subscribeToMethod<IPlayerOnlyConnectionStatusChangedMessage>(
-        'PlayerOnlyConnectionStatusChanged',
-        message => {
-          if (message.gameId === this.gameId()) {
-            this.addMessage({
-              userName: message.userName,
-              teamId: message.teamId,
-              message: `${message.userName} ${message.isConnected ? $localize`:@@chat.player_has_reconnected:has reconnected` : $localize`:@@chat.player_has_disconnected:has disconnected`}`,
-              class: message.isConnected ? 'green' : 'red'
-            });
-          }
-        }
-      )
+
+        this.addGameFeedEvent(event);
+        return true;
+      })
     );
   }
 
@@ -137,6 +89,53 @@ export class ChatComponent implements OnInit, OnDestroy {
   private addMessage(chatLine: IChatLine): void {
     this.chatLines.update(chatLines => [...chatLines.slice(-99), chatLine]);
     this.scrollConversationToBottom();
+  }
+
+  private addGameFeedEvent(event: GameFeedEvent): void {
+    switch (event.methodName) {
+      case 'ChatMessage':
+        this.addMessage({
+          ...event.message.chatLine,
+          class: event.message.chatLine.teamId === TeamEnum.Cats ? 'black' : 'white'
+        });
+        return;
+
+      case 'PlayerHasLeftGame':
+        this.addMessage({
+          userName: event.message.userName,
+          teamId: event.message.teamId,
+          message: `${event.message.userName} ${$localize`:@@chat.player_has_left:has left the game`}`,
+          class: 'red'
+        });
+        return;
+
+      case 'PlayerWantsRematch':
+        this.addMessage({
+          userName: event.message.userName,
+          teamId: event.message.teamId,
+          message: `${event.message.userName} ${$localize`:@@chat.player_wants_rematch: wants a rematch`}`,
+          class: event.message.teamId === TeamEnum.Cats ? 'black' : 'white'
+        });
+        return;
+
+      case 'PlayerHasSurrendered':
+        this.addMessage({
+          userName: event.message.userName,
+          teamId: event.message.teamId,
+          message: `${event.message.userName} ${$localize`:@@chat.player_has_surrendered:has surrendered`}`,
+          class: event.message.teamId === TeamEnum.Cats ? 'black' : 'white'
+        });
+        return;
+
+      case 'PlayerOnlyConnectionStatusChanged':
+        this.addMessage({
+          userName: event.message.userName,
+          teamId: event.message.teamId,
+          message: `${event.message.userName} ${event.message.isConnected ? $localize`:@@chat.player_has_reconnected:has reconnected` : $localize`:@@chat.player_has_disconnected:has disconnected`}`,
+          class: event.message.isConnected ? 'green' : 'red'
+        });
+        return;
+    }
   }
 
   private scrollConversationToBottom(): void {
