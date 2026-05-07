@@ -1,16 +1,19 @@
-$primaryColor: #7a431d;
-$primaryColorDark: #4d2713;
-$primaryColorLight: #b9783c;
-$secondaryColor: #5f5144;
-$secondaryColorLight: #7a6c5f;
-$surfaceColor: #fff7e7;
-$surfaceColorStrong: #f7e3be;
-$surfaceColorMuted: #ead0a3;
-$successColor: #257a48;
-$errorColor: #b8374a;
-$warnColor: #b98318;
-$infoColor: #3b7481;
-$boardFrameColor: #6f3a18;
-$boardFrameHighlightColor: #b57738;
-$boardLightSquareColor: #f2d7a5;
-$boardDarkSquareColor: #b8783f;
+:root {
+  --primary-colour: #7a431d;
+  --primary-colour-dark: #4d2713;
+  --primary-colour-light: #b9783c;
+  --secondary-colour: #5f5144;
+  --secondary-colour-light: #7a6c5f;
+  --surface-colour: #fff7e7;
+  --surface-colour-strong: #f7e3be;
+  --surface-colour-muted: #ead0a3;
+  --success-colour: #257a48;
+  --error-colour: #b8374a;
+  --warn-colour: #b98318;
+  --info-colour: #3b7481;
+  --board-frame-colour: #6f3a18;
+  --board-frame-highlight-colour: #b57738;
+  --board-light-square-colour: #f2d7a5;
+  --board-dark-square-colour: #b8783f;
+  --turn-info-height: 60px;
+}

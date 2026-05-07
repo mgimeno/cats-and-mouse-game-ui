@@ -20,6 +20,6 @@ The mouse is to reach the last row of the board, whereas the cats are to corner 
 
 ## Development
 
-The website (client) is built using Angular 14, SignalR, responsive design (mobile first) and it's available in English & Spanish.
+Built using Angular 21, SignalR, responsive design (mobile first) and available in English & Spanish.
 
-The server is built using .NET Web API Core 9.0 and SignalR.
+API built using .NET 9.0 and SignalR.

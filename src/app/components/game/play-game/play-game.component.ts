@@ -18,7 +18,6 @@ import { ChessBoxComponent } from '../chess-box/chess-box.component';
 import { COMMON_CONSTANTS } from '../../../shared/constants/common';
 import { CommonHelper } from 'src/app/shared/helpers/common-helper';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
-import { DrawAttentionAnimation, DrawAttentionAnimationStateEnum } from './play-game.component.animations';
 import { type IChessBox } from '../../../shared/interfaces/chess-box.interface';
 import { type IFigure } from '../../../shared/interfaces/figure.interface';
 import { type IGameStatus } from '../../../shared/interfaces/game-status.interface';
@@ -36,11 +35,18 @@ interface GameInfo {
   colourClass: 'green' | 'red';
 }
 
+enum TurnInfoStateEnum {
+  Initial = 'Initial',
+  MyTurn = 'MyTurn',
+  TheirTurn = 'TheirTurn',
+  IWon = 'IWon',
+  ILost = 'ILost'
+}
+
 @Component({
   imports: [MatButtonModule, LucideAngularModule, LoaderComponent, ChessBoxComponent, ChatComponent],
   templateUrl: './play-game.component.html',
   styleUrls: ['./play-game.component.scss'],
-  animations: [DrawAttentionAnimation],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PlayGameComponent implements OnInit, OnDestroy {
@@ -53,7 +59,7 @@ export class PlayGameComponent implements OnInit, OnDestroy {
   private readonly beepAudio = new Audio(COMMON_CONSTANTS.BEEP_AUDIO_DATA);
 
   readonly boardIndexes = [0, 1, 2, 3, 4, 5, 6, 7];
-  readonly attentionAnimation = signal(DrawAttentionAnimationStateEnum.Initial);
+  readonly turnInfoState = signal(TurnInfoStateEnum.Initial);
   readonly gameStatus = signal<IGameStatus | null>(null);
   readonly chessBoard = signal<IChessBox[][]>(
     CommonHelper.buildChessBoard(COMMON_CONSTANTS.PLAY_CHESS_BOARD_ROWS, COMMON_CONSTANTS.PLAY_CHESS_BOARD_COLUMNS)
@@ -80,7 +86,7 @@ export class PlayGameComponent implements OnInit, OnDestroy {
         this.updateChessBoard();
         this.alertUserIfItsTheirTurnOrGameOver();
         this.resetSentRematchRequestIfNeeded();
-        this.triggerGameInfoAnimation();
+        this.updateTurnInfoState();
       })
     );
   }
@@ -242,17 +248,13 @@ export class PlayGameComponent implements OnInit, OnDestroy {
     return this.getMyPlayer().teamId === TeamEnum.Cats;
   }
 
-  private triggerGameInfoAnimation(): void {
+  private updateTurnInfoState(): void {
     if (this.isGameOver()) {
-      this.attentionAnimation.set(
-        this.amITheWinner() ? DrawAttentionAnimationStateEnum.IWon : DrawAttentionAnimationStateEnum.ILost
-      );
+      this.turnInfoState.set(this.amITheWinner() ? TurnInfoStateEnum.IWon : TurnInfoStateEnum.ILost);
       return;
     }
 
-    this.attentionAnimation.set(
-      this.isMyTurn() ? DrawAttentionAnimationStateEnum.MyTurn : DrawAttentionAnimationStateEnum.TheirTurn
-    );
+    this.turnInfoState.set(this.isMyTurn() ? TurnInfoStateEnum.MyTurn : TurnInfoStateEnum.TheirTurn);
   }
 
   private alertUserIfItsTheirTurnOrGameOver(): void {

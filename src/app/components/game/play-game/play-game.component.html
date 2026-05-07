@@ -10,7 +10,11 @@
           <div
             class="turn-info-header"
             [class.big-turn-info-header]="!gameInfo().subHeader"
-            [@DrawAttentionAnimation]="attentionAnimation()"
+            [class.Initial]="turnInfoState() === 'Initial'"
+            [class.MyTurn]="turnInfoState() === 'MyTurn'"
+            [class.TheirTurn]="turnInfoState() === 'TheirTurn'"
+            [class.IWon]="turnInfoState() === 'IWon'"
+            [class.ILost]="turnInfoState() === 'ILost'"
           >
             <span [class]="gameInfo().colourClass">{{ gameInfo().header }}</span>
           </div>

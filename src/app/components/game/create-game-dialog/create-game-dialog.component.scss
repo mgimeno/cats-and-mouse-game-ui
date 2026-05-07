@@ -1,14 +1,52 @@
-@use 'variables' as *;
+.share-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
 
-.copy-link-container {
   margin: 25px 0 15px;
+
   text-align: center;
 
+  .share-action {
+    min-width: 104px;
+    min-height: 40px;
+    padding: 0 14px;
+
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+
+  .whatsapp {
+    --mdc-protected-button-container-color: #1f8f4d;
+    --mdc-protected-button-label-text-color: #fff;
+  }
+
+  .telegram {
+    --mdc-protected-button-container-color: #2478a8;
+    --mdc-protected-button-label-text-color: #fff;
+  }
+
+  .messenger {
+    --mdc-protected-button-container-color: #6b4bc4;
+    --mdc-protected-button-label-text-color: #fff;
+  }
+
+  .instagram {
+    --mdc-protected-button-container-color: #9d3c63;
+    --mdc-protected-button-label-text-color: #fff;
+  }
+
+  .copy-link {
+    --mdc-protected-button-container-color: var(--primary-colour);
+    --mdc-protected-button-label-text-color: #fff;
+  }
+
   .link-copied {
-    --mdc-protected-button-container-color: #{$successColor};
+    --mdc-protected-button-container-color: var(--success-colour);
     --mdc-protected-button-label-text-color: #fff;
     color: #fff !important;
-    background-color: $successColor !important;
+    background-color: var(--success-colour) !important;
   }
 }
 

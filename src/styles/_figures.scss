@@ -1,0 +1,14 @@
+.figure {
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+}
+
+.mouse-figure {
+  @extend .figure;
+  background-image: url('../assets/images/mouse.svg');
+}
+
+.cat-figure {
+  @extend .figure;
+  background-image: url('../assets/images/cat.svg');
+}

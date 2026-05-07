@@ -1,4 +1,14 @@
-import { ChangeDetectionStrategy, Component, type OnDestroy, type OnInit, inject, input, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  type ElementRef,
+  type OnDestroy,
+  type OnInit,
+  inject,
+  input,
+  signal,
+  viewChild
+} from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -34,9 +44,11 @@ export class ChatComponent implements OnInit, OnDestroy {
     message: new FormControl<string | null>(null, control => Validators.required(control))
   });
   readonly chatLines = signal<IChatLine[]>([]);
+  readonly chatHistory = viewChild<ElementRef<HTMLElement>>('chatHistory');
   readonly teamEnum = TeamEnum;
   readonly sendIcon = Send;
   readonly sendPlaceholder = $localize`:@@chat.send_placeholder:Send a message...`;
+  readonly sendLabel = $localize`:@@chat.send:Send`;
 
   ngOnInit(): void {
     this.unsubscribeCallbacks.push(
@@ -128,5 +140,17 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   private addMessage(chatLine: IChatLine): void {
     this.chatLines.update(chatLines => [...chatLines.slice(-99), chatLine]);
+    this.scrollConversationToBottom();
+  }
+
+  private scrollConversationToBottom(): void {
+    requestAnimationFrame(() => {
+      const chatHistoryElement = this.chatHistory()?.nativeElement;
+      if (!chatHistoryElement) {
+        return;
+      }
+
+      chatHistoryElement.scrollTop = chatHistoryElement.scrollHeight;
+    });
   }
 }

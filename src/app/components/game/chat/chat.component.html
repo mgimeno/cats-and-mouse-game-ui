@@ -2,7 +2,7 @@
   <b class="chat-box-title" i18n="@@chat.chat">Chat box</b>
 
   @if (chatLines().length) {
-    <div #scrollMe class="chat-history" [scrollTop]="scrollMe.scrollHeight">
+    <div #chatHistory class="chat-history">
       @for (chatLine of chatLines(); track $index) {
         <div class="chat-line" [class.text-right]="chatLine.teamId === teamEnum.Mouse">
           <b [class]="chatLine.class">
@@ -17,21 +17,19 @@
     <form autocomplete="off" class="chat-form" [formGroup]="formGroup" (ngSubmit)="onSubmit()">
       <mat-form-field class="do-not-use-red-for-invalid">
         <input type="text" matInput formControlName="message" autocomplete="off" [placeholder]="sendPlaceholder" />
-      </mat-form-field>
-
-      <button
-        class="send-message-button"
-        type="submit"
-        mat-raised-button
-        color="primary"
-        cdkFocusInitial
-        [disabled]="isSubmitButtonDisabled()"
-      >
-        <span class="button-content-with-icon">
+        <button
+          class="send-message-button"
+          type="submit"
+          mat-icon-button
+          matSuffix
+          color="primary"
+          cdkFocusInitial
+          [attr.aria-label]="sendLabel"
+          [disabled]="isSubmitButtonDisabled()"
+        >
           <lucide-icon class="button-icon" aria-hidden="true" [img]="sendIcon" />
-          <span i18n="@@chat.send">Send</span>
-        </span>
-      </button>
+        </button>
+      </mat-form-field>
     </form>
   }
 </section>

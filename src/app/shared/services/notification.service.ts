@@ -36,7 +36,7 @@ export class NotificationService {
   private open(text: string, panelClass: string, duration: number): void {
     const config: MatSnackBarConfig = {
       duration,
-      panelClass
+      panelClass: [panelClass]
     };
 
     this.snackBar.open(text, undefined, config);

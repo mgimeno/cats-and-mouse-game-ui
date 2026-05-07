@@ -1,32 +1,12 @@
-$grey: #333;
-$l-grey: #333;
-$dark: #1f1f1f;
-$white: #ccc;
-$time: 3s;
-
-@mixin animation($name) {
-  @keyframes #{$name} {
-    @content;
-  }
-
-  @keyframes #{$name} {
-    @content;
-  }
-
-  @keyframes #{$name} {
-    @content;
-  }
-
-  @keyframes #{$name} {
-    @content;
-  }
+:host {
+  --loader-grey: #333;
+  --loader-light-grey: #333;
+  --loader-dark: #1f1f1f;
+  --loader-white: #ccc;
+  --loader-animation-duration: 3s;
 }
 
-@mixin animation-use($name) {
-  animation: $name $time infinite linear;
-}
-
-@mixin turn() {
+@keyframes rotate {
   0% {
     transform: rotate(-0.08turn);
   }
@@ -36,11 +16,7 @@ $time: 3s;
   }
 }
 
-@include animation(rotate) {
-  @include turn;
-}
-
-@include animation(hideEye) {
+@keyframes hide-eye {
   0%,
   10%,
   85% {
@@ -55,7 +31,7 @@ $time: 3s;
   }
 }
 
-@include animation(blink) {
+@keyframes blink {
   0%,
   10%,
   85% {
@@ -67,7 +43,9 @@ $time: 3s;
     bottom: 20px;
   }
 
-  @include turn;
+  100% {
+    transform: rotate(-1.08turn);
+  }
 }
 
 .loader-container {
@@ -95,12 +73,12 @@ $time: 3s;
       height: 100%;
       margin-top: -3px;
       margin-left: -3px;
-      border: solid $white;
+      border: solid var(--loader-white);
       border-width: 5px 5px 3px 0;
       border-top-color: transparent;
       border-radius: 50%;
 
-      @include animation-use(rotate);
+      animation: rotate var(--loader-animation-duration) infinite linear;
 
       .mouse {
         position: absolute;
@@ -112,7 +90,7 @@ $time: 3s;
         height: 25px;
         border-radius: 80% 0 55% 50% / 55% 0 80% 50%;
 
-        background: $white;
+        background: var(--loader-white);
 
         &::before,
         &::after {
@@ -160,14 +138,14 @@ $time: 3s;
       &::before {
         border-top-left-radius: 65px;
         border-bottom-left-radius: 55px;
-        background: $grey;
+        background: var(--loader-grey);
       }
 
       &::after {
         left: 50%;
         border-top-right-radius: 65px;
         border-bottom-right-radius: 55px;
-        background: $l-grey;
+        background: var(--loader-light-grey);
       }
 
       .ears-container {
@@ -189,12 +167,12 @@ $time: 3s;
         }
 
         &::before {
-          border-left: 35px solid $grey;
+          border-left: 35px solid var(--loader-grey);
         }
 
         &::after {
           right: 0;
-          border-right: 35px solid $l-grey;
+          border-right: 35px solid var(--loader-light-grey);
         }
       }
 
@@ -210,7 +188,7 @@ $time: 3s;
         height: 50px;
         margin-left: -53px;
 
-        @include animation-use(hideEye);
+        animation: hide-eye var(--loader-animation-duration) infinite linear;
 
         .eye {
           position: relative;
@@ -222,11 +200,11 @@ $time: 3s;
           height: 50px;
           border-radius: 50%;
 
-          color: $grey;
+          color: var(--loader-grey);
 
-          background: $white;
+          background: var(--loader-white);
 
-          @include animation-use(blink);
+          animation: blink var(--loader-animation-duration) infinite linear;
 
           &::after {
             content: '';
@@ -239,12 +217,12 @@ $time: 3s;
             height: 12px;
             border-radius: inherit;
 
-            background: $dark;
+            background: var(--loader-dark);
           }
 
           &:last-child {
             float: right;
-            color: $l-grey;
+            color: var(--loader-light-grey);
           }
         }
       }
@@ -263,7 +241,7 @@ $time: 3s;
           width: 100%;
           height: 15px;
           border-radius: 5px 5px 25px 25px;
-          background: $dark;
+          background: var(--loader-dark);
         }
 
         .lip {
@@ -274,7 +252,7 @@ $time: 3s;
           height: 12px;
           margin-left: -2px;
 
-          background: $dark;
+          background: var(--loader-dark);
 
           &::before {
             content: '';
@@ -295,11 +273,11 @@ $time: 3s;
           width: 20px;
           height: 6px;
           margin-left: -13px;
-          border: 3px solid $dark;
+          border: 3px solid var(--loader-dark);
           border-bottom-right-radius: 12px;
           border-bottom-left-radius: 12px;
 
-          background: $white;
+          background: var(--loader-white);
         }
       }
     }

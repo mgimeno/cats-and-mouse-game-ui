@@ -46,14 +46,25 @@
           <b class="secondary" i18n="@@create.share_link_description">Share this link to join your game</b>
         </p>
 
-        <div class="copy-link-container">
+        <div class="share-actions">
+          @for (shareLink of shareLinks(); track shareLink.label) {
+            <button
+              type="button"
+              mat-raised-button
+              [class]="'share-action ' + shareLink.className"
+              (click)="onShareLinkClick(shareLink)"
+            >
+              {{ shareLink.label }}
+            </button>
+          }
+
           <button
-            class="big-button"
+            class="share-action copy-link"
             type="button"
             mat-raised-button
             cdkFocusInitial
-            color="primary"
             [class.link-copied]="isJoinGameLinkCopiedToClipboard()"
+            [attr.aria-label]="copyLinkText"
             (click)="onCopyLinkClick()"
           >
             @if (!isJoinGameLinkCopiedToClipboard()) {

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -17,6 +17,12 @@ import {
   type TeamFormControls
 } from 'src/app/shared/components/team-select/team-select.component';
 import { environment } from 'src/environments/environment';
+
+interface ShareLink {
+  label: string;
+  href: string;
+  className: string;
+}
 
 @Component({
   imports: [
@@ -42,8 +48,42 @@ export class CreateGameDialogComponent {
   readonly joinGameUrl = signal<string | null>(null);
   readonly isJoinGameLinkCopiedToClipboard = signal(false);
   readonly createdGame = signal<IGameListItem | null>(null);
-
   readonly maxUsernameLength = COMMON_CONSTANTS.MAX_USERNAME_LENGTH;
+  readonly copyLinkText = $localize`:@@create.copy_link:Copy link`;
+  readonly shareText = $localize`:@@create.share_text:Join my Cats & Mouse game:`;
+  readonly shareLinks = computed<ShareLink[]>(() => {
+    const joinGameUrl = this.joinGameUrl();
+    if (!joinGameUrl) {
+      return [];
+    }
+
+    const encodedUrl = encodeURIComponent(joinGameUrl);
+    const shareText = encodeURIComponent(`${this.shareText} ${joinGameUrl}`);
+
+    return [
+      {
+        label: 'WhatsApp',
+        href: `https://wa.me/?text=${shareText}`,
+        className: 'whatsapp'
+      },
+      {
+        label: 'Telegram',
+        href: `https://t.me/share/url?url=${encodedUrl}&text=${encodeURIComponent(this.shareText)}`,
+        className: 'telegram'
+      },
+      {
+        label: 'Messenger',
+        href: `fb-messenger://share?link=${encodedUrl}`,
+        className: 'messenger'
+      },
+      {
+        label: 'Instagram',
+        href: `instagram://sharesheet?text=${shareText}`,
+        className: 'instagram'
+      }
+    ];
+  });
+
   readonly teams: ILabelValue[] = [
     { label: TeamEnum[TeamEnum.Cats], value: TeamEnum.Cats },
     { label: TeamEnum[TeamEnum.Mouse], value: TeamEnum.Mouse }
@@ -117,6 +157,15 @@ export class CreateGameDialogComponent {
       console.error(reason);
       this.notificationService.showCommonError();
     }
+  }
+
+  onShareLinkClick(shareLink: ShareLink): void {
+    if (shareLink.href.startsWith('http')) {
+      window.open(shareLink.href, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
+    window.location.href = shareLink.href;
   }
 
   onCancel(): void {

@@ -7,6 +7,7 @@ import { type IChessBox } from '../../../shared/interfaces/chess-box.interface';
 @Component({
   selector: 'app-chess-box',
   templateUrl: './chess-box.component.html',
+  styleUrl: './chess-box.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ChessBoxComponent {
