@@ -65,7 +65,7 @@ if (language === 'es') {
     'play.their_turn': 'Turno del oponente',
     'play.is_thinking': 'esta pensando...',
     'play.how_to_play': 'como jugar',
-    'play.exit_game': 'salir',
+    'play.exit': 'salir',
     'play.surrender': 'rendirse',
     'play.surrender_question': 'Te rindes?',
     'play.rematch': 'revancha',

@@ -84,7 +84,7 @@ describe('CreateGameDialogComponent', () => {
     expect(localStorage.getItem(`${environment.localStoragePrefix}user-name`)).toBe('Marta');
     expect(component.isGameCreated()).toBe(true);
     expect(component.createdGame()).toEqual(createdGame());
-    expect(component.joinGameUrl()).toBe(`${environment.websiteUrl}?joinGame=game-1`);
+    expect(component.joinGameUrl()).toBe(`${environment.websiteUrl}?game=game-1`);
   });
 
   it('keeps the join link query after the production subpath slash redirect', async () => {
@@ -100,7 +100,7 @@ describe('CreateGameDialogComponent', () => {
       component.onSubmit();
       await Promise.resolve();
 
-      expect(component.joinGameUrl()).toBe('https://www.marcosgimeno.com/cats-and-mouse/?joinGame=game-1');
+      expect(component.joinGameUrl()).toBe('https://www.marcosgimeno.com/cats-and-mouse/?game=game-1');
     } finally {
       environment.websiteUrl = originalWebsiteUrl;
     }
@@ -110,23 +110,23 @@ describe('CreateGameDialogComponent', () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, 'share', { value: undefined, configurable: true });
     Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
-    component.joinGameUrl.set('https://example.test?joinGame=game-1');
+    component.joinGameUrl.set('https://example.test?game=game-1');
 
     await component.onShareLinkClick();
 
-    expect(writeText).toHaveBeenCalledWith('https://example.test?joinGame=game-1');
+    expect(writeText).toHaveBeenCalledWith('https://example.test?game=game-1');
     expect(notificationService.showSuccess).toHaveBeenCalledWith('Link copied');
   });
 
   it('shares only the game URL when native share is available', async () => {
     const share = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, 'share', { value: share, configurable: true });
-    component.joinGameUrl.set('https://example.test?joinGame=game-1');
+    component.joinGameUrl.set('https://example.test?game=game-1');
 
     await component.onShareLinkClick();
 
     expect(share).toHaveBeenCalledWith({
-      url: 'https://example.test?joinGame=game-1'
+      url: 'https://example.test?game=game-1'
     });
   });
 

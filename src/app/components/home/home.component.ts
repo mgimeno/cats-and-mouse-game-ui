@@ -102,7 +102,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   openJoinGameDialogIfGameInUrl(): void {
-    const gameIdFromUrl = this.route.snapshot.queryParamMap.get('joinGame');
+    const gameIdFromUrl = this.route.snapshot.queryParamMap.get('game');
     if (!gameIdFromUrl) {
       return;
     }

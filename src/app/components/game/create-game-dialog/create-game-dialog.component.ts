@@ -159,7 +159,7 @@ export class CreateGameDialogComponent {
   private getJoinGameUrl(gameId: string): string {
     const websiteUrl = environment.websiteUrl.endsWith('/') ? environment.websiteUrl : `${environment.websiteUrl}/`;
     const url = new URL(websiteUrl);
-    url.searchParams.set('joinGame', gameId);
+    url.searchParams.set('game', gameId);
 
     return url.toString();
   }
