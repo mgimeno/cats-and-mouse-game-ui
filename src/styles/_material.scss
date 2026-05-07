@@ -33,8 +33,14 @@
   padding-left: 0;
 }
 
+mat-bottom-sheet-container.mat-bottom-sheet-container,
 .mat-bottom-sheet-container {
+  --mat-bottom-sheet-container-shape: var(--border-radius);
+
+  overflow: auto;
   padding: 16px 0 46px !important;
+  border-radius: var(--border-radius) var(--border-radius) 0 0 !important;
+  background-clip: padding-box;
 }
 
 .mat-mdc-form-field {

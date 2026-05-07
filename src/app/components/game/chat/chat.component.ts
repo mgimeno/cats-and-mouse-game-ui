@@ -16,15 +16,15 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { type IChatLine } from '../../../shared/interfaces/chat-line.interface';
-import { type IChatMessage } from '../../../shared/interfaces/chat-message.interface';
 import { type IPlayerHasLeftGameMessage } from 'src/app/shared/interfaces/player-has-left-game-message';
 import { type IPlayerHasSurrenderedMessage } from 'src/app/shared/interfaces/player-has-surrendered-message';
 import { type IPlayerOnlyConnectionStatusChangedMessage } from 'src/app/shared/interfaces/player-only-connection-status-changed-message';
 import { type IPlayerWantsRematchMessage } from 'src/app/shared/interfaces/player-wants-rematch-message';
 import { NotificationService } from 'src/app/shared/services/notification.service';
-import { SignalrService } from '../../../shared/services/signalr-service';
 import { TeamEnum } from '../../../shared/enums/team.enum';
+import { type IChatLine } from '../../../shared/interfaces/chat-line.interface';
+import { type IChatMessage } from '../../../shared/interfaces/chat-message.interface';
+import { SignalrService } from '../../../shared/services/signalr-service';
 
 @Component({
   selector: 'app-chat',
@@ -65,7 +65,7 @@ export class ChatComponent implements OnInit, OnDestroy {
           this.addMessage({
             userName: message.userName,
             teamId: message.teamId,
-            message: `${message.userName} ${$localize`:@@chat.player_has_left:has left the game.`}`,
+            message: `${message.userName} ${$localize`:@@chat.player_has_left:has left the game`}`,
             class: 'red'
           });
         }
@@ -75,7 +75,7 @@ export class ChatComponent implements OnInit, OnDestroy {
           this.addMessage({
             userName: message.userName,
             teamId: message.teamId,
-            message: `${message.userName} ${$localize`:@@chat.player_wants_rematch: wants a rematch.`}`,
+            message: `${message.userName} ${$localize`:@@chat.player_wants_rematch: wants a rematch`}`,
             class: message.teamId === TeamEnum.Cats ? 'black' : 'white'
           });
         }
@@ -85,7 +85,7 @@ export class ChatComponent implements OnInit, OnDestroy {
           this.addMessage({
             userName: message.userName,
             teamId: message.teamId,
-            message: `${message.userName} ${$localize`:@@chat.player_has_surrendered:has surrendered.`}`,
+            message: `${message.userName} ${$localize`:@@chat.player_has_surrendered:has surrendered`}`,
             class: message.teamId === TeamEnum.Cats ? 'black' : 'white'
           });
         }
@@ -97,7 +97,7 @@ export class ChatComponent implements OnInit, OnDestroy {
             this.addMessage({
               userName: message.userName,
               teamId: message.teamId,
-              message: `${message.userName} ${message.isConnected ? $localize`:@@chat.player_has_reconnected:has reconnected.` : $localize`:@@chat.player_has_disconnected:has disconnected.`}`,
+              message: `${message.userName} ${message.isConnected ? $localize`:@@chat.player_has_reconnected:has reconnected` : $localize`:@@chat.player_has_disconnected:has disconnected`}`,
               class: message.isConnected ? 'green' : 'red'
             });
           }

@@ -1,19 +1,17 @@
 h1,
 .mat-mdc-dialog-title {
   margin: clamp(24px, 5vw, 42px) 0 clamp(28px, 5vw, 46px) !important;
-
-  font-size: clamp(1.22rem, 3.2vw, 1.48rem);
-  font-weight: 500;
-  line-height: 1.24;
-  color: var(--primary-colour);
+  font-size: clamp(1.22rem, 3.2vw, 1.48rem) !important;
+  font-weight: 500 !important;
+  line-height: 1.24 !important;
+  color: var(--primary-colour) !important;
   text-align: center;
 }
 
 h2 {
   margin: 0;
-
   font-size: clamp(1.05rem, 3vw, 1.25rem);
-  font-weight: 650;
+  font-weight: normal;
   line-height: 1.35;
   color: var(--secondary-colour);
 }

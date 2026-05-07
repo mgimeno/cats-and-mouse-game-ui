@@ -19,9 +19,18 @@ import '@angular/localize/init';
 import { loadTranslations } from '@angular/localize';
 import { environment } from './environments/environment';
 
-const language = (
-  localStorage.getItem(`${environment.localStoragePrefix}language`) ?? navigator.language.substring(0, 2)
-).toLowerCase();
+const supportedLanguages = ['en', 'es'] as const;
+type SupportedLanguage = (typeof supportedLanguages)[number];
+
+function getSupportedLanguage(language: string | null): SupportedLanguage | null {
+  const languageCode = language?.toLowerCase().split('-')[0];
+  return supportedLanguages.find(supportedLanguage => supportedLanguage === languageCode) ?? null;
+}
+
+const language =
+  getSupportedLanguage(localStorage.getItem(`${environment.localStoragePrefix}language`)) ??
+  getSupportedLanguage(navigator.languages?.[0] ?? navigator.language) ??
+  'en';
 
 localStorage.setItem(`${environment.localStoragePrefix}language`, language);
 
@@ -33,7 +42,7 @@ if (language === 'es') {
     'index.meta_og_description': 'Juega gratis al Gato y el Ratón con amigos',
 
     'home.title': 'GATO Y RATON',
-    'home.description': 'Juega al gato y el ratón gratis',
+    'home.description': 'Juega al gato y el ratón online',
     'home.create_game': 'Crear partida',
     'home.how_to_play': 'Como jugar',
     'home.language': 'Idioma',
@@ -90,11 +99,11 @@ if (language === 'es') {
     'chat.chat': 'Chat',
     'chat.send': 'Enviar',
     'chat.send_placeholder': 'Envia un mensaje...',
-    'chat.player_has_left': 'ha dejado la partida.',
-    'chat.player_wants_rematch': 'quiere la revancha.',
-    'chat.player_has_surrendered': 'se ha rendido.',
-    'chat.player_has_disconnected': 'se ha desconectado.',
-    'chat.player_has_reconnected': 'se ha reconectado.',
+    'chat.player_has_left': 'ha dejado la partida',
+    'chat.player_wants_rematch': 'quiere la revancha',
+    'chat.player_has_surrendered': 'se ha rendido',
+    'chat.player_has_disconnected': 'se ha desconectado',
+    'chat.player_has_reconnected': 'se ha reconectado',
 
     'select_team.select': 'Elige tu equipo',
     'select_team.cats': 'gatos',
@@ -109,17 +118,3 @@ if (language === 'es') {
     'error.error_ocurred': 'Ha ocurrido un error'
   });
 }
-
-/** IE10 and IE11 requires the following for NgClass support on SVG elements */
-// import 'classlist.js';  // Run `npm install --save classlist.js`.
-
-/**
- * Web Animations `@angular/platform-browser/animations`
- * Only required if AnimationBuilder is used within the application and using IE/Edge or Safari.
- * Standard animation support in Angular DOES NOT require any polyfills (as of Angular 6.0).
- */
-// import 'web-animations-js';  // Run `npm install --save web-animations-js`.
-
-/***************************************************************************************************
- * APPLICATION IMPORTS
- */
