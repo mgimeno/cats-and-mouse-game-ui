@@ -7,7 +7,7 @@ import { MatTableModule } from '@angular/material/table';
 
 import { ChessBoxComponent } from '../game/chess-box/chess-box.component';
 import { COMMON_CONSTANTS } from 'src/app/shared/constants/common';
-import { CommonHelper } from 'src/app/shared/helpers/common-helper';
+import { CommonHelper } from 'src/app/shared/utils/common-util';
 import { CreateGameDialogComponent } from '../game/create-game-dialog/create-game-dialog.component';
 import { FigureTypeEnum } from 'src/app/shared/enums/figure-type.enum';
 import { HowToPlayDialogComponent } from '../how-to-play-dialog/how-to-play-dialog.component';

@@ -15,7 +15,7 @@ h2 {
     min-width: 0;
     padding: 12px 10px;
     border: 2px solid rgb(95 111 120 / 0.38);
-    border-radius: 8px;
+    border-radius: var(--border-radius);
 
     color: inherit;
     text-align: center;

@@ -9,11 +9,12 @@ import {
   signal,
   viewChild
 } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { LucideAngularModule, Send } from 'lucide-angular';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { type IChatLine } from '../../../shared/interfaces/chat-line.interface';
 import { type IChatMessage } from '../../../shared/interfaces/chat-message.interface';
@@ -27,7 +28,7 @@ import { TeamEnum } from '../../../shared/enums/team.enum';
 
 @Component({
   selector: 'app-chat',
-  imports: [ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, LucideAngularModule],
+  imports: [ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTooltipModule],
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -41,12 +42,11 @@ export class ChatComponent implements OnInit, OnDestroy {
   private readonly unsubscribeCallbacks: (() => void)[] = [];
 
   readonly formGroup = new FormGroup({
-    message: new FormControl<string | null>(null, control => Validators.required(control))
+    message: new FormControl<string | null>(null)
   });
   readonly chatLines = signal<IChatLine[]>([]);
   readonly chatHistory = viewChild<ElementRef<HTMLElement>>('chatHistory');
   readonly teamEnum = TeamEnum;
-  readonly sendIcon = Send;
   readonly sendPlaceholder = $localize`:@@chat.send_placeholder:Send a message...`;
   readonly sendLabel = $localize`:@@chat.send:Send`;
 
@@ -107,14 +107,10 @@ export class ChatComponent implements OnInit, OnDestroy {
   }
 
   isSubmitButtonDisabled(): boolean {
-    return this.formGroup.controls.message.invalid;
+    return !this.formGroup.controls.message.value?.trim();
   }
 
   onSubmit(): void {
-    if (this.formGroup.invalid) {
-      return;
-    }
-
     const message = this.formGroup.controls.message.value?.trim();
     if (!message) {
       return;

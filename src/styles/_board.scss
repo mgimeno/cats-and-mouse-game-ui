@@ -8,16 +8,16 @@
   width: var(--board-size);
   margin: 0 auto;
   border: clamp(12px, 3.5vw, 24px) solid transparent;
-  border-radius: 8px;
+  border-radius: var(--border-radius);
 
   background:
     linear-gradient(135deg, rgb(255 255 255 / 0.12), rgb(0 0 0 / 0.06)) padding-box,
     linear-gradient(
         135deg,
-        #3f1d0b 0%,
-        var(--board-frame-colour) 26%,
-        var(--board-frame-highlight-colour) 52%,
-        #efd08e 67%,
+        #2c1409 0%,
+        #4d2410 24%,
+        var(--board-frame-colour) 46%,
+        #8a552b 68%,
         var(--primary-colour-dark) 100%
       )
       border-box;

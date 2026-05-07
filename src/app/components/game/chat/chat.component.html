@@ -1,17 +1,15 @@
 <section class="chat">
   <b class="chat-box-title" i18n="@@chat.chat">Chat box</b>
 
-  @if (chatLines().length) {
-    <div #chatHistory class="chat-history">
-      @for (chatLine of chatLines(); track $index) {
-        <div class="chat-line" [class.text-right]="chatLine.teamId === teamEnum.Mouse">
-          <b [class]="chatLine.class">
-            {{ chatLine.message }}
-          </b>
-        </div>
-      }
-    </div>
-  }
+  <div #chatHistory class="chat-history">
+    @for (chatLine of chatLines(); track $index) {
+      <div class="chat-line" [class.text-right]="chatLine.teamId === teamEnum.Mouse">
+        <b [class]="chatLine.class">
+          {{ chatLine.message }}
+        </b>
+      </div>
+    }
+  </div>
 
   @if (canSendMessages()) {
     <form autocomplete="off" class="chat-form" [formGroup]="formGroup" (ngSubmit)="onSubmit()">
@@ -24,10 +22,12 @@
           matSuffix
           color="primary"
           cdkFocusInitial
+          matTooltipPosition="above"
+          [matTooltip]="sendLabel"
           [attr.aria-label]="sendLabel"
           [disabled]="isSubmitButtonDisabled()"
         >
-          <lucide-icon class="button-icon" aria-hidden="true" [img]="sendIcon" />
+          <mat-icon class="button-icon" aria-hidden="true">send</mat-icon>
         </button>
       </mat-form-field>
     </form>

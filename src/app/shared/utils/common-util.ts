@@ -9,7 +9,7 @@ export class CommonHelper {
   }
 
   public static buildChessBoard = (numberOfRows: number, numberOfColumns: number): IChessBox[][] => {
-    const result: IChessBox[][] = Array.from({ length: numberOfRows }, () => []);
+    const result: IChessBox[][] = Array.from({ length: numberOfRows }, (): IChessBox[] => []);
 
     let currentChessBoxColorId: ChessBoxColorEnum = ChessBoxColorEnum.White;
 

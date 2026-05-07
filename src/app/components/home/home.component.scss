@@ -1,7 +1,8 @@
 .home-hero {
   --home-board-width: min(92vw, 560px);
 
-  padding-bottom: clamp(36px, 8vw, 72px);
+  padding-bottom: clamp(24px, 5vh, 56px);
+  padding-bottom: clamp(24px, 5dvh, 56px);
 }
 
 .game-board.logo-game-board {
@@ -14,32 +15,39 @@
 }
 
 .game-description {
-  margin: clamp(42px, 9vw, 78px) 0 clamp(28px, 6vw, 44px);
+  margin: clamp(28px, 6vh, 58px) 0 clamp(18px, 4vh, 34px);
+  margin: clamp(28px, 6dvh, 58px) 0 clamp(18px, 4dvh, 34px);
 }
 
 .games-title {
-  margin: clamp(44px, 8vw, 64px) 0 18px;
+  margin: clamp(28px, 5vh, 48px) 0 14px;
+  margin: clamp(28px, 5dvh, 48px) 0 14px;
 }
 
 .empty-games {
-  width: min(100%, var(--home-board-width));
-  margin: 0 auto;
   padding: 22px 0;
   border: 1px dashed rgb(122 67 29 / 0.34);
-  border-radius: 8px;
-
+  border-radius: var(--border-radius);
   background: rgb(255 247 231 / 0.62);
 }
 
-table {
-  overflow: hidden;
-
-  width: min(100%, var(--home-board-width)) !important;
+.empty-games,
+.games-table-container {
+  width: var(--home-board-width) !important;
   margin: 0 auto;
-  border-radius: 8px;
+}
 
+.games-table-container {
+  overflow: hidden;
+  border-radius: var(--border-radius);
   background: rgb(255 247 231 / 0.86);
   box-shadow: 0 14px 30px rgb(77 39 19 / 0.12);
+}
+
+table {
+  table-layout: fixed;
+  width: 100% !important;
+  min-width: 0 !important;
 
   .player-cell {
     display: flex;
@@ -57,5 +65,9 @@ table {
       min-width: 0;
       overflow-wrap: anywhere;
     }
+  }
+
+  .mat-column-gameId {
+    width: 104px;
   }
 }

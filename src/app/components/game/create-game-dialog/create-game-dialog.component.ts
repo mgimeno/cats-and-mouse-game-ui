@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 
 import { COMMON_CONSTANTS } from 'src/app/shared/constants/common';
@@ -18,18 +19,13 @@ import {
 } from 'src/app/shared/components/team-select/team-select.component';
 import { environment } from 'src/environments/environment';
 
-interface ShareLink {
-  label: string;
-  href: string;
-  className: string;
-}
-
 @Component({
   imports: [
     ReactiveFormsModule,
     MatButtonModule,
     MatDialogModule,
     MatFormFieldModule,
+    MatIconModule,
     MatInputModule,
     LoaderComponent,
     TeamSelectComponent
@@ -46,43 +42,10 @@ export class CreateGameDialogComponent {
 
   readonly isGameCreated = signal(false);
   readonly joinGameUrl = signal<string | null>(null);
-  readonly isJoinGameLinkCopiedToClipboard = signal(false);
   readonly createdGame = signal<IGameListItem | null>(null);
   readonly maxUsernameLength = COMMON_CONSTANTS.MAX_USERNAME_LENGTH;
-  readonly copyLinkText = $localize`:@@create.copy_link:Copy link`;
   readonly shareText = $localize`:@@create.share_text:Join my Cats & Mouse game:`;
-  readonly shareLinks = computed<ShareLink[]>(() => {
-    const joinGameUrl = this.joinGameUrl();
-    if (!joinGameUrl) {
-      return [];
-    }
-
-    const encodedUrl = encodeURIComponent(joinGameUrl);
-    const shareText = encodeURIComponent(`${this.shareText} ${joinGameUrl}`);
-
-    return [
-      {
-        label: 'WhatsApp',
-        href: `https://wa.me/?text=${shareText}`,
-        className: 'whatsapp'
-      },
-      {
-        label: 'Telegram',
-        href: `https://t.me/share/url?url=${encodedUrl}&text=${encodeURIComponent(this.shareText)}`,
-        className: 'telegram'
-      },
-      {
-        label: 'Messenger',
-        href: `fb-messenger://share?link=${encodedUrl}`,
-        className: 'messenger'
-      },
-      {
-        label: 'Instagram',
-        href: `instagram://sharesheet?text=${shareText}`,
-        className: 'instagram'
-      }
-    ];
-  });
+  readonly shareLinkText = $localize`:@@create.share_link:Share link`;
 
   readonly teams: ILabelValue[] = [
     { label: TeamEnum[TeamEnum.Cats], value: TeamEnum.Cats },
@@ -144,28 +107,31 @@ export class CreateGameDialogComponent {
       });
   }
 
-  async onCopyLinkClick(): Promise<void> {
+  async onShareLinkClick(): Promise<void> {
     const joinGameUrl = this.joinGameUrl();
     if (!joinGameUrl) {
       return;
     }
 
     try {
+      if (navigator.share) {
+        await navigator.share({
+          text: this.shareText,
+          url: joinGameUrl
+        });
+        return;
+      }
+
       await navigator.clipboard.writeText(joinGameUrl);
-      this.isJoinGameLinkCopiedToClipboard.set(true);
+      this.notificationService.showSuccess($localize`:@@create.link_copied:Link copied`);
     } catch (reason) {
+      if (reason instanceof DOMException && reason.name === 'AbortError') {
+        return;
+      }
+
       console.error(reason);
       this.notificationService.showCommonError();
     }
-  }
-
-  onShareLinkClick(shareLink: ShareLink): void {
-    if (shareLink.href.startsWith('http')) {
-      window.open(shareLink.href, '_blank', 'noopener,noreferrer');
-      return;
-    }
-
-    window.location.href = shareLink.href;
   }
 
   onCancel(): void {

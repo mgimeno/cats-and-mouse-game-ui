@@ -33,10 +33,10 @@
       </button>
 
       <button class="big-button" type="button" mat-raised-button (click)="openSelectLanguage()">
-        <span class="button-with-right-icon">
-          <span i18n="@@home.language">Language</span>
-          <img alt="" width="24" height="24" [src]="'assets/images/flag-' + currentLanguageCode() + '.png'" />
-        </span>
+        <div class="button-with-right-icon">
+          <div i18n="@@home.language">Language</div>
+          <img alt="" width="20" height="20" [src]="'assets/images/flags/' + currentLanguageCode() + '.svg'" />
+        </div>
       </button>
     </div>
 
@@ -45,42 +45,44 @@
     @if (!games().length) {
       <div class="empty-games text-center secondary" i18n="@@home.no_games_available">0 available games</div>
     } @else {
-      <table mat-table class="full-width mat-elevation-z0 max-container-width" [dataSource]="games()">
-        <ng-container matColumnDef="userName">
-          <th *matHeaderCellDef mat-header-cell i18n="@@home.table.player">Player</th>
-          <td *matCellDef="let element" mat-cell>
-            <div class="player-cell">
-              @if (element.teamId === teamEnum.Cats) {
-                <div class="cat-figure"></div>
-              }
-              @if (element.teamId === teamEnum.Mouse) {
-                <div class="mouse-figure"></div>
-              }
-              <div class="player-name secondary">
-                <b>{{ element.userName }}</b>
+      <div class="games-table-container">
+        <table mat-table class="mat-elevation-z0" [dataSource]="games()">
+          <ng-container matColumnDef="userName">
+            <th *matHeaderCellDef mat-header-cell i18n="@@home.table.player">Player</th>
+            <td *matCellDef="let element" mat-cell>
+              <div class="player-cell">
+                @if (element.teamId === teamEnum.Cats) {
+                  <div class="cat-figure"></div>
+                }
+                @if (element.teamId === teamEnum.Mouse) {
+                  <div class="mouse-figure"></div>
+                }
+                <div class="player-name secondary">
+                  <b>{{ element.userName }}</b>
+                </div>
               </div>
-            </div>
-          </td>
-        </ng-container>
+            </td>
+          </ng-container>
 
-        <ng-container matColumnDef="gameId">
-          <th *matHeaderCellDef mat-header-cell></th>
-          <td *matCellDef="let element" mat-cell class="text-right">
-            <button
-              type="button"
-              mat-raised-button
-              color="primary"
-              i18n="@@home.table.join"
-              (click)="openJoinGameDialog(element.gameId)"
-            >
-              Join
-            </button>
-          </td>
-        </ng-container>
+          <ng-container matColumnDef="gameId">
+            <th *matHeaderCellDef mat-header-cell></th>
+            <td *matCellDef="let element" mat-cell class="text-right">
+              <button
+                type="button"
+                mat-raised-button
+                color="primary"
+                i18n="@@home.table.join"
+                (click)="openJoinGameDialog(element.gameId)"
+              >
+                Join
+              </button>
+            </td>
+          </ng-container>
 
-        <tr *matHeaderRowDef="tableColumns" mat-header-row></tr>
-        <tr *matRowDef="let row; columns: tableColumns" mat-row></tr>
-      </table>
+          <tr *matHeaderRowDef="tableColumns" mat-header-row></tr>
+          <tr *matRowDef="let row; columns: tableColumns" mat-row></tr>
+        </table>
+      </div>
     }
   </div>
 </section>

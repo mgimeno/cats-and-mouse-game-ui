@@ -47,31 +47,19 @@
         </p>
 
         <div class="share-actions">
-          @for (shareLink of shareLinks(); track shareLink.label) {
-            <button
-              type="button"
-              mat-raised-button
-              [class]="'share-action ' + shareLink.className"
-              (click)="onShareLinkClick(shareLink)"
-            >
-              {{ shareLink.label }}
-            </button>
-          }
-
           <button
-            class="share-action copy-link"
+            class="share-action"
             type="button"
             mat-raised-button
+            color="primary"
             cdkFocusInitial
-            [class.link-copied]="isJoinGameLinkCopiedToClipboard()"
-            [attr.aria-label]="copyLinkText"
-            (click)="onCopyLinkClick()"
+            [attr.aria-label]="shareLinkText"
+            (click)="onShareLinkClick()"
           >
-            @if (!isJoinGameLinkCopiedToClipboard()) {
-              <span i18n="@@create.copy_link">Copy link</span>
-            } @else {
-              <span i18n="@@create.copied">Copied!</span>
-            }
+            <span class="button-content-with-icon">
+              <mat-icon class="button-icon" aria-hidden="true">share</mat-icon>
+              <span i18n="@@create.share_link">Share link</span>
+            </span>
           </button>
         </div>
       </div>

@@ -9,12 +9,17 @@ html {
   color: #2c221b;
 
   color-scheme: light;
+
+  // background:
+  //   linear-gradient(135deg, rgb(77 39 19 / 0.2) 0%, rgb(37 122 72 / 0.1) 46%, rgb(185 131 24 / 0.14) 100%),
+  //   linear-gradient(180deg, #f9ebcb 0%, #e9d4aa 48%, #d7e4d2 100%);
   background: var(--primary-colour-dark);
+  background-attachment: fixed;
 }
 
 body {
-  height: 100%;
-  min-height: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
   margin: 0;
 
   font-family:
@@ -33,8 +38,9 @@ body {
 }
 
 app-root {
-  display: block;
-  min-height: 100%;
+  display: flow-root;
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 a {

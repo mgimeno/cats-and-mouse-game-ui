@@ -44,7 +44,7 @@
       <div class="options-buttons">
         <button type="button" mat-button (click)="openHowToPlayDialog()">
           <span class="button-content-with-icon">
-            <lucide-icon class="button-icon" aria-hidden="true" [img]="circleQuestionMarkIcon" />
+            <mat-icon class="button-icon" aria-hidden="true">help</mat-icon>
             <span i18n="@@play.how_to_play">how to play</span>
           </span>
         </button>
@@ -58,7 +58,7 @@
             (click)="sendRematchRequest()"
           >
             <span class="button-content-with-icon">
-              <lucide-icon class="button-icon" aria-hidden="true" [img]="refreshCwIcon" />
+              <mat-icon class="button-icon" aria-hidden="true">refresh</mat-icon>
               @if (isRematchButtonEnabled()) {
                 <span i18n="@@play.rematch">rematch</span>
               } @else {
@@ -71,14 +71,14 @@
         @if (!isGameOver()) {
           <button type="button" mat-button color="warn" (click)="surrender()">
             <span class="button-content-with-icon">
-              <lucide-icon class="button-icon" aria-hidden="true" [img]="flagIcon" />
+              <mat-icon class="button-icon" aria-hidden="true">flag</mat-icon>
               <span i18n="@@play.surrender">surrender</span>
             </span>
           </button>
         } @else {
           <button type="button" mat-raised-button color="warn" (click)="exitGame()">
             <span class="button-content-with-icon">
-              <lucide-icon class="button-icon" aria-hidden="true" [img]="logOutIcon" />
+              <mat-icon class="button-icon" aria-hidden="true">logout</mat-icon>
               <span i18n="@@play.exit_game">exit game</span>
             </span>
           </button>

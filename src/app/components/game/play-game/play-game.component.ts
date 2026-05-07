@@ -11,12 +11,12 @@ import { Router } from '@angular/router';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { CircleQuestionMark, Flag, LogOut, LucideAngularModule, RefreshCw } from 'lucide-angular';
+import { MatIconModule } from '@angular/material/icon';
 
 import { ChatComponent } from '../chat/chat.component';
 import { ChessBoxComponent } from '../chess-box/chess-box.component';
 import { COMMON_CONSTANTS } from '../../../shared/constants/common';
-import { CommonHelper } from 'src/app/shared/helpers/common-helper';
+import { CommonHelper } from 'src/app/shared/utils/common-util';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { type IChessBox } from '../../../shared/interfaces/chess-box.interface';
 import { type IFigure } from '../../../shared/interfaces/figure.interface';
@@ -44,7 +44,7 @@ enum TurnInfoStateEnum {
 }
 
 @Component({
-  imports: [MatButtonModule, LucideAngularModule, LoaderComponent, ChessBoxComponent, ChatComponent],
+  imports: [MatButtonModule, MatIconModule, LoaderComponent, ChessBoxComponent, ChatComponent],
   templateUrl: './play-game.component.html',
   styleUrls: ['./play-game.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -67,10 +67,6 @@ export class PlayGameComponent implements OnInit, OnDestroy {
   readonly chessBoxCurrentlySelected = signal<IChessBox | null>(null);
   readonly hasSentRematchRequest = signal(false);
   readonly gameInfo = computed(() => this.buildGameInfo());
-  readonly circleQuestionMarkIcon = CircleQuestionMark;
-  readonly flagIcon = Flag;
-  readonly logOutIcon = LogOut;
-  readonly refreshCwIcon = RefreshCw;
 
   ngOnInit(): void {
     this.signalrService.sendMessage('SendInProgressGameStatusToCaller').catch(reason => {
@@ -259,7 +255,7 @@ export class PlayGameComponent implements OnInit, OnDestroy {
 
   private alertUserIfItsTheirTurnOrGameOver(): void {
     if (this.isMyTurn() || this.isGameOver()) {
-      void this.beepAudio.play().catch(() => undefined);
+      void this.beepAudio.play().catch((): void => undefined);
     }
   }
 

@@ -5,10 +5,10 @@
 
 .mouse-figure {
   @extend .figure;
-  background-image: url('../assets/images/mouse.svg');
+  background-image: url('../assets/images/pieces/mouse.svg');
 }
 
 .cat-figure {
   @extend .figure;
-  background-image: url('../assets/images/cat.svg');
+  background-image: url('../assets/images/pieces/cat.svg');
 }

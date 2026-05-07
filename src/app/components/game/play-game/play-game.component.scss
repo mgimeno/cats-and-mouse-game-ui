@@ -5,11 +5,17 @@
 }
 
 .play-container {
-  --play-board-size: min(82vw, 520px);
+  --play-page-top-space: clamp(18px, 5vw, 42px);
+  --play-page-bottom-space: clamp(28px, 8vw, 64px);
   --board-top-offset: calc(var(--turn-info-height) + 12px + clamp(18px, 4vw, 30px));
+  --play-board-size: min(82vw, 520px, calc(100vh - var(--play-page-top-space) - var(--board-top-offset) - var(--play-page-bottom-space)));
 
-  margin-top: clamp(18px, 5vw, 42px);
-  padding-bottom: clamp(28px, 8vw, 64px);
+  padding-top: var(--play-page-top-space);
+  padding-bottom: var(--play-page-bottom-space);
+
+  .game-board {
+    --board-size: var(--play-board-size);
+  }
 
   .options-container {
     width: min(100% - 28px, 540px);
@@ -77,6 +83,12 @@
   }
 }
 
+@supports (height: 100dvh) {
+  .play-container {
+    --play-board-size: min(82vw, 520px, calc(100dvh - var(--play-page-top-space) - var(--board-top-offset) - var(--play-page-bottom-space)));
+  }
+}
+
 @media only screen and (width <= 520px) {
   .play-container .options-container .options-buttons {
     gap: 6px;
@@ -84,8 +96,11 @@
   }
 }
 
-@media only screen and (width >= 900px) {
+@media only screen and (width >= 1024px) {
   .play-container {
+    --play-page-top-space: clamp(8px, 2vh, 18px);
+    --play-page-bottom-space: 16px;
+
     display: grid;
     grid-template-columns: minmax(0, 560px) minmax(320px, 380px);
     gap: clamp(24px, 4vw, 56px);
@@ -93,8 +108,8 @@
     justify-content: center;
 
     width: min(1180px, 100%);
-    margin-top: clamp(8px, 2vh, 18px);
-    padding: 0 clamp(18px, 3vw, 32px) 16px;
+    margin: 0 auto;
+    padding: var(--play-page-top-space) clamp(18px, 3vw, 32px) var(--play-page-bottom-space);
 
     .game-container {
       min-width: 0;
@@ -127,7 +142,7 @@
   }
 }
 
-@media only screen and (width >= 900px) and (height <= 760px) {
+@media only screen and (width >= 1024px) and (height <= 760px) {
   .play-container {
     --board-top-offset: calc(var(--turn-info-height) + 18px);
 

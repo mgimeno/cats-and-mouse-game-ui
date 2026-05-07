@@ -23,6 +23,14 @@
 
 .fullscreen-dialog .mat-mdc-dialog-container .mdc-dialog__surface {
   overflow-y: auto;
+  padding: clamp(14px, 4vw, 28px) 30px !important;
+}
+
+.fullscreen-dialog .mat-mdc-dialog-container .mat-mdc-dialog-title,
+.fullscreen-dialog .mat-mdc-dialog-container .mat-mdc-dialog-content,
+.fullscreen-dialog .mat-mdc-dialog-container .mat-mdc-dialog-actions {
+  padding-right: 0;
+  padding-left: 0;
 }
 
 .mat-bottom-sheet-container {
@@ -55,7 +63,7 @@
     border-bottom: 2px solid rgb(77 39 19 / 0.52);
     border-radius: 0;
 
-    background: transparent;
+    background-color: transparent !important;
     box-shadow: 0 1px 0 rgb(255 255 255 / 0.72);
 
     transition:
@@ -76,6 +84,10 @@
 
   .mat-mdc-form-field-focus-overlay {
     background: transparent;
+  }
+
+  .mdc-text-field--filled:not(.mdc-text-field--disabled) {
+    background-color: transparent;
   }
 
   .mat-mdc-input-element {
@@ -136,7 +148,7 @@
 
 .mat-mdc-button,
 .mat-mdc-raised-button {
-  border-radius: 8px !important;
+  border-radius: 15px !important;
   letter-spacing: 0;
   transition:
     transform 160ms ease,
@@ -156,18 +168,35 @@
   gap: 8px;
   align-items: center;
   justify-content: center;
+
+  line-height: 1;
 }
 
 .button-icon {
+  overflow: visible;
+  display: inline-flex !important;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+
   width: 18px;
   height: 18px;
-  stroke-width: 2.4px;
+
+  font-size: 18px;
+  line-height: 18px;
+  vertical-align: middle;
 }
 
 .success-button {
   --mdc-protected-button-container-color: var(--success-colour);
   --mdc-protected-button-label-text-color: #fff;
+  --mat-protected-button-disabled-label-text-color: rgb(255 255 255 / 0.72);
+  color: #fff !important;
   background-color: var(--success-colour) !important;
+
+  .mat-icon {
+    color: #fff !important;
+  }
 }
 
 .big-button {
@@ -211,14 +240,18 @@ input {
   justify-content: center;
 
   img {
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
   }
 }
 
 .mat-mdc-snack-bar-container {
   --mdc-snackbar-supporting-text-color: #fff;
   min-width: 270px !important;
+
+  .mdc-snackbar__surface {
+    border-radius: var(--border-radius) !important;
+  }
 
   .mdc-snackbar__label {
     font-weight: 700;
