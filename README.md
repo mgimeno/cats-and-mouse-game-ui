@@ -18,8 +18,12 @@ All pieces move diagonally on the black squares, but cats cannot move backwards,
 
 The mouse is to reach the last row of the board, whereas the cats are to corner the mouse so that it's not able to make any movement.
 
+## Languages
+
+Available in English & Spanish.
+
 ## Development
 
-Built using Angular 21, SignalR, responsive design (mobile first) and available in English & Spanish.
+Built with Angular 21 & SignalR. Responsive design for mobile/tablet/desktop.
 
 API built using .NET 9.0 and SignalR.
