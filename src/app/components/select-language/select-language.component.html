@@ -7,6 +7,7 @@
         type="button"
         class="big-button language-button"
         mat-raised-button
+        [color]="getLanguageButtonColor(languageOption.code)"
         (click)="selectLanguage(languageOption.code)"
       >
         <div class="button-with-right-icon language-button-content">

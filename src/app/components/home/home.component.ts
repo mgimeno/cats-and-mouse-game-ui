@@ -86,7 +86,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   openSelectLanguage(): void {
-    const bottomSheetRef = this.bottomSheet.open(SelectLanguageComponent);
+    const bottomSheetRef = this.bottomSheet.open(SelectLanguageComponent, {
+      data: { currentLanguageCode: this.currentLanguageCode() }
+    });
 
     bottomSheetRef.afterDismissed().subscribe((newLanguageCode?: string) => {
       if (newLanguageCode && newLanguageCode !== this.currentLanguageCode()) {
