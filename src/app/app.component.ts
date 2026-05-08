@@ -1,14 +1,16 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatDialog, type MatDialogRef } from '@angular/material/dialog';
 import { Meta, Title } from '@angular/platform-browser';
+import { NavigationError, Router, RouterOutlet } from '@angular/router';
 
-import { LoadingDialogComponent } from './components/loading-dialog/loading-dialog.component';
-import { CommonHelper } from './shared/utils/common-util';
-import { type IPlayerHasInProgressGameMessage } from './shared/interfaces/player-has-in-progress-game-message';
-import { SignalrService } from './shared/services/signalr-service';
+import { filter } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { getSupportedLanguage, localeByLanguage, supportedLanguages } from 'src/translations';
+import { LoadingDialogComponent } from './components/loading-dialog/loading-dialog.component';
+import { type IPlayerHasInProgressGameMessage } from './shared/interfaces/player-has-in-progress-game-message';
+import { SignalrService } from './shared/services/signalr-service';
+import { CommonHelper } from './shared/utils/common-util';
 
 @Component({
   selector: 'app-root',
@@ -25,6 +27,19 @@ export class AppComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   private reconnectingDialogRef: MatDialogRef<LoadingDialogComponent> | null = null;
+
+  private readonly CHUNK_ERROR_PATTERNS = [
+    /Loading chunk [\w.-]+ failed/i,
+    /ChunkLoadError/i,
+    /Failed to fetch dynamically imported module/i,
+    /error loading dynamically imported module/i,
+    /Importing a module script failed/i
+  ];
+
+  private isStaleChunkError(event: NavigationError): boolean {
+    const msg = event.error?.message ?? String(event.error ?? '');
+    return this.CHUNK_ERROR_PATTERNS.some(pattern => pattern.test(msg));
+  }
 
   constructor() {
     this.watchConnectionStatus();
@@ -43,6 +58,21 @@ export class AppComponent {
       unsubscribe();
       this.reconnectingDialogRef?.close();
     });
+
+    this.router.events
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        filter(event => event instanceof NavigationError),
+        filter((event: NavigationError) => this.isStaleChunkError(event))
+      )
+      .subscribe((event: NavigationError) => {
+        // A new deployment has produced new chunk filenames.  The currently
+        // running (old) app still references the deleted chunks, so lazy-load
+        // navigations fail.  Reload to fetch the new index.html and its
+        // up-to-date chunk references.
+        console.error(`Stale chunk detected. Reloading: ${event.url}`, event);
+        window.location.assign(event.url || window.location.href);
+      });
   }
 
   private createBrowserUserId(): void {
