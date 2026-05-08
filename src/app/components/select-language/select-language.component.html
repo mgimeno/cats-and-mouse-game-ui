@@ -2,18 +2,23 @@
   <h1 i18n="@@select-language.select">Select language</h1>
 
   <div class="buttons-container">
-    <button type="button" class="big-button" mat-raised-button (click)="selectLanguage('en')">
-      <div class="button-with-right-icon">
-        <div>English</div>
-        <img src="assets/images/flags/en.svg" alt="uk-flag" width="20" height="20" />
-      </div>
-    </button>
-
-    <button type="button" class="big-button" mat-raised-button (click)="selectLanguage('es')">
-      <div class="button-with-right-icon">
-        <div>Español</div>
-        <img src="assets/images/flags/es.svg" alt="spain-flag" width="20" height="20" />
-      </div>
-    </button>
+    @for (languageOption of languageOptions; track languageOption.code) {
+      <button
+        type="button"
+        class="big-button language-button"
+        mat-raised-button
+        (click)="selectLanguage(languageOption.code)"
+      >
+        <div class="button-with-right-icon language-button-content">
+          <div>{{ languageOption.name }}</div>
+          <img
+            width="20"
+            height="20"
+            [src]="'assets/images/flags/' + languageOption.code + '.svg'"
+            [alt]="languageOption.flagAlt"
+          />
+        </div>
+      </button>
+    }
   </div>
 </div>

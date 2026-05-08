@@ -8,6 +8,7 @@ import { CommonHelper } from './shared/utils/common-util';
 import { type IPlayerHasInProgressGameMessage } from './shared/interfaces/player-has-in-progress-game-message';
 import { SignalrService } from './shared/services/signalr-service';
 import { environment } from 'src/environments/environment';
+import { getSupportedLanguage, localeByLanguage, supportedLanguages } from 'src/translations';
 
 @Component({
   selector: 'app-root',
@@ -63,9 +64,23 @@ export class AppComponent {
       content: $localize`:@@index.meta_og_description:Play for free Cats and Mouse with friends`
     });
 
-    const languageCode = localStorage.getItem(`${environment.localStoragePrefix}language`);
-    this.meta.updateTag({ property: 'og:locale', content: languageCode === 'en' ? 'en_GB' : 'es_ES' });
-    this.meta.updateTag({ property: 'og:locale:alternate', content: languageCode === 'en' ? 'es_ES' : 'en_GB' });
+    const languageCode =
+      getSupportedLanguage(localStorage.getItem(`${environment.localStoragePrefix}language`)) ?? 'en';
+    this.meta.updateTag({ property: 'og:locale', content: localeByLanguage[languageCode] });
+
+    while (this.meta.getTag('property="og:locale:alternate"')) {
+      this.meta.removeTag('property="og:locale:alternate"');
+    }
+
+    this.meta.addTags(
+      supportedLanguages
+        .filter(supportedLanguage => supportedLanguage !== languageCode)
+        .map(supportedLanguage => ({
+          property: 'og:locale:alternate',
+          content: localeByLanguage[supportedLanguage]
+        })),
+      true
+    );
   }
 
   private watchConnectionStatus(): void {

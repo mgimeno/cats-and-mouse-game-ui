@@ -20,7 +20,7 @@ The mouse is to reach the last row of the board, whereas the cats are to corner 
 
 ## Languages
 
-Available in English & Spanish.
+Available in English, Spanish, French, Portuguese, German & Italian.
 
 ## Development
 

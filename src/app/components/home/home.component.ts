@@ -181,7 +181,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     const titleCharacters = [0, 1, 2, 3, 5, 7, 8, 9, 10, 11];
 
     titlePositions.forEach(([rowIndex, columnIndex], index) => {
-      chessBoard[rowIndex][columnIndex].text = logoTitle[titleCharacters[index]];
+      chessBoard[rowIndex][columnIndex].text = logoTitle[titleCharacters[index]] ?? null;
     });
 
     return chessBoard;
