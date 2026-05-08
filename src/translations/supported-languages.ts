@@ -11,8 +11,8 @@ export interface LanguageOption {
 export const languageOptions: readonly LanguageOption[] = [
   { code: 'en', name: 'English', flagAlt: 'United Kingdom flag' },
   { code: 'es', name: 'Español', flagAlt: 'Spain flag' },
-  { code: 'de', name: 'Deutsch', flagAlt: 'Germany flag' },
   { code: 'fr', name: 'Français', flagAlt: 'France flag' },
+  { code: 'de', name: 'Deutsch', flagAlt: 'Germany flag' },
   { code: 'it', name: 'Italiano', flagAlt: 'Italy flag' },
   { code: 'pt', name: 'Português', flagAlt: 'Portugal flag' }
 ];
