@@ -1,4 +1,4 @@
-# Cats and Mouse online multiplayer game
+# Cats and Mouse online multiplayer game (UI)
 
 ## Demo URL
 
@@ -26,4 +26,4 @@ Available in English, Spanish, French, Portuguese, German & Italian.
 
 Built with Angular 21 & SignalR. Responsive design for mobile/tablet/desktop.
 
-API built using .NET 9.0 and SignalR.
+API built using .NET 10.0 and SignalR.
