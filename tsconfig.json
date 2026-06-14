@@ -14,7 +14,9 @@
     "skipLibCheck": true,
     "isolatedModules": true,
     "importHelpers": true,
-    "baseUrl": ".",
+    "paths": {
+      "src/*": ["./src/*"]
+    },
     "target": "ES2024",
     "module": "preserve",
     "moduleResolution": "bundler"

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ViewEncapsulation, inject } from '@angular/core';
 import { MAT_BOTTOM_SHEET_DATA, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatButtonModule } from '@angular/material/button';
 import { type ThemePalette } from '@angular/material/core';
@@ -13,6 +13,7 @@ export interface SelectLanguageData {
   imports: [MatButtonModule],
   templateUrl: './select-language.component.html',
   styleUrls: ['./select-language.component.scss'],
+  encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SelectLanguageComponent {

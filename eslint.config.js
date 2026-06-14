@@ -67,6 +67,7 @@ module.exports = tseslint.config(
         }
       ],
       '@typescript-eslint/no-non-null-assertion': 'error',
+      '@typescript-eslint/prefer-nullish-coalescing': 'off',
       '@typescript-eslint/no-unused-vars': [
         'error',
         {

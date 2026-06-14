@@ -1,31 +1,29 @@
-import { gzipSync } from "node:zlib";
-import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
-import { extname, join } from "node:path";
+import { gzipSync } from 'node:zlib';
+import { readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { extname, join } from 'node:path';
 
-const DIST_DIR = "dist";
+const DIST_DIR = 'dist';
 const MIN_BYTES = 1024;
 const GZIP_LEVEL = 9;
 const COMPRESSIBLE_EXTENSIONS = new Set([
-  ".css",
-  ".html",
-  ".js",
-  ".json",
-  ".mjs",
-  ".svg",
-  ".txt",
-  ".webmanifest",
-  ".xml",
+  '.css',
+  '.html',
+  '.js',
+  '.json',
+  '.mjs',
+  '.svg',
+  '.txt',
+  '.webmanifest',
+  '.xml'
 ]);
 
 let compressedCount = 0;
 let skippedCount = 0;
 
 const shouldCompress = (filePath, size) =>
-  size >= MIN_BYTES &&
-  !filePath.endsWith(".gz") &&
-  COMPRESSIBLE_EXTENSIONS.has(extname(filePath).toLowerCase());
+  size >= MIN_BYTES && !filePath.endsWith('.gz') && COMPRESSIBLE_EXTENSIONS.has(extname(filePath).toLowerCase());
 
-const preGzipFile = (filePath) => {
+const preGzipFile = filePath => {
   const source = readFileSync(filePath);
   const compressed = gzipSync(source, { level: GZIP_LEVEL });
 
@@ -38,7 +36,7 @@ const preGzipFile = (filePath) => {
   compressedCount++;
 };
 
-const walk = (dirPath) => {
+const walk = dirPath => {
   for (const dirent of readdirSync(dirPath, { withFileTypes: true })) {
     const filePath = join(dirPath, dirent.name);
 

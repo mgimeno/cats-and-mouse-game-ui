@@ -8,7 +8,11 @@
   --play-page-top-space: clamp(18px, 5vw, 42px);
   --play-page-bottom-space: clamp(28px, 8vw, 64px);
   --board-top-offset: calc(var(--turn-info-height) + 12px + clamp(18px, 4vw, 30px));
-  --play-board-size: min(82vw, 520px, calc(100vh - var(--play-page-top-space) - var(--board-top-offset) - var(--play-page-bottom-space)));
+  --play-board-size: min(
+    82vw,
+    520px,
+    calc(100vh - var(--play-page-top-space) - var(--board-top-offset) - var(--play-page-bottom-space))
+  );
 
   padding-top: var(--play-page-top-space);
   padding-bottom: var(--play-page-bottom-space);
@@ -85,7 +89,11 @@
 
 @supports (height: 100dvh) {
   .play-container {
-    --play-board-size: min(82vw, 520px, calc(100dvh - var(--play-page-top-space) - var(--board-top-offset) - var(--play-page-bottom-space)));
+    --play-board-size: min(
+      82vw,
+      520px,
+      calc(100dvh - var(--play-page-top-space) - var(--board-top-offset) - var(--play-page-bottom-space))
+    );
   }
 }
 

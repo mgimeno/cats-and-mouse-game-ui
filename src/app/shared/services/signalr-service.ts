@@ -88,11 +88,7 @@ export class SignalrService {
       .withAutomaticReconnect(this.reconnectPolicy)
       .build();
 
-    this.registerGameFeedHandler('ChatMessage');
-    this.registerGameFeedHandler('PlayerHasLeftGame');
-    this.registerGameFeedHandler('PlayerWantsRematch');
-    this.registerGameFeedHandler('PlayerHasSurrendered');
-    this.registerGameFeedHandler('PlayerOnlyConnectionStatusChanged');
+    this.registerGameFeedHandlers();
 
     this.hubConnection.serverTimeoutInMilliseconds = 2 * 60 * 1000;
     this.hubConnection.keepAliveIntervalInMilliseconds = 15 * 1000;
@@ -166,9 +162,27 @@ export class SignalrService {
     await this.ensureConnection().invoke('RegisterConnection', userId);
   }
 
-  private registerGameFeedHandler(methodName: GameFeedEvent['methodName']): void {
-    this.ensureConnection().on(methodName, message => {
-      this.handleGameFeedEvent({ methodName, message } as GameFeedEvent);
+  private registerGameFeedHandlers(): void {
+    const connection = this.ensureConnection();
+
+    connection.on('ChatMessage', (message: IChatMessage) => {
+      this.handleGameFeedEvent({ methodName: 'ChatMessage', message });
+    });
+
+    connection.on('PlayerHasLeftGame', (message: IPlayerHasLeftGameMessage) => {
+      this.handleGameFeedEvent({ methodName: 'PlayerHasLeftGame', message });
+    });
+
+    connection.on('PlayerWantsRematch', (message: IPlayerWantsRematchMessage) => {
+      this.handleGameFeedEvent({ methodName: 'PlayerWantsRematch', message });
+    });
+
+    connection.on('PlayerHasSurrendered', (message: IPlayerHasSurrenderedMessage) => {
+      this.handleGameFeedEvent({ methodName: 'PlayerHasSurrendered', message });
+    });
+
+    connection.on('PlayerOnlyConnectionStatusChanged', (message: IPlayerOnlyConnectionStatusChangedMessage) => {
+      this.handleGameFeedEvent({ methodName: 'PlayerOnlyConnectionStatusChanged', message });
     });
   }
 
@@ -217,7 +231,7 @@ export class SignalrService {
       !this.pendingGameFeedEvents.has(event.message.gameId) &&
       this.pendingGameFeedEvents.size >= GAME_FEED_GAME_BUFFER_LIMIT
     ) {
-      const oldestGameId = this.pendingGameFeedEvents.keys().next().value as string | undefined;
+      const oldestGameId = this.pendingGameFeedEvents.keys().next().value;
       if (oldestGameId) {
         this.pendingGameFeedEvents.delete(oldestGameId);
       }
