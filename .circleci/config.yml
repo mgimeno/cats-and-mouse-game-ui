@@ -12,15 +12,17 @@ parameters:
   build-dist-folder:
     type: string
     default: 'dist'
-orbs:
-  node: circleci/node@5
 
 jobs:
   build:
-    executor: node/default
     working_directory: ~/<< pipeline.parameters.project-folder >>
+    docker:
+      - image: cimg/node:24.15.0
     steps:
       - checkout
+      - run:
+          name: Verify Node version
+          command: node -p "process.platform + ' ' + process.arch + ' node ' + process.version"
       - run:
           name: Install dependencies
           command: npm ci
@@ -29,25 +31,11 @@ jobs:
           command: npm test
       - run:
           name: Build
-          command: npm run ng build -c production
-      # No need to precompress since Cloudflare does it. (Uncomment this if I don't use Cloudflare and handle compression on my own nginx)
-      # Also in that case, make sure I have gzip_static, and brotli enabled on my nginx config file for this project.
-      # - run:
-      #     name: Compress build files
-      #     command: |
-      #       sudo apt-get install -y brotli
-
-      #       find << pipeline.parameters.build-dist-folder >> -type f \
-      #         \( -name "*.js" -o -name "*.css" -o -name "*.html" \
-      #         -o -name "*.svg" -o -name "*.json" -o -name "*.ico" \
-      #         -o -name "*.txt" -o -name "*.xml" \) | while read f; do
-      #           gzip -9 -k "$f"
-      #           brotli -9 -k "$f"
-      #       done
+          command: npm run build:prod
       - persist_to_workspace:
           root: ~/<< pipeline.parameters.project-folder >>
           paths:
-            - .
+            - << pipeline.parameters.build-dist-folder >>
 
   deploy:
     working_directory: ~/<< pipeline.parameters.project-folder >>
