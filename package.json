@@ -20,7 +20,9 @@
     "format:check": "prettier . --check",
     "format:write": "prettier . --write",
     "test": "ng test --watch=false",
-    "validate": "npm run lint && npm run build"
+    "validate": "npm run lint && npm run build",
+    "check-all-updatable-dependencies": "npx npm-check-updates -u",
+    "update-all-dependencies": "npx npm-check-updates -u && npm i -f"
   },
   "browserslist": [
     "last 2 Chrome versions",
