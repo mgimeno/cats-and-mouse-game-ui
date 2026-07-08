@@ -10,6 +10,7 @@ import { getSupportedLanguage, localeByLanguage, supportedLanguages } from 'src/
 import { LoadingDialogComponent } from './components/loading-dialog/loading-dialog.component';
 import { type IPlayerHasInProgressGameMessage } from './shared/interfaces/player-has-in-progress-game-message';
 import { SignalrService } from './shared/services/signalr-service';
+import { ChunkLoadReloadService } from './shared/services/chunk-load-reload.service';
 import { CommonHelper } from './shared/utils/common-util';
 
 @Component({
@@ -25,21 +26,9 @@ export class AppComponent {
   private readonly meta = inject(Meta);
   private readonly title = inject(Title);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly chunkLoadReloadService = inject(ChunkLoadReloadService);
 
   private reconnectingDialogRef: MatDialogRef<LoadingDialogComponent> | null = null;
-
-  private readonly CHUNK_ERROR_PATTERNS = [
-    /Loading chunk [\w.-]+ failed/i,
-    /ChunkLoadError/i,
-    /Failed to fetch dynamically imported module/i,
-    /error loading dynamically imported module/i,
-    /Importing a module script failed/i
-  ];
-
-  private isStaleChunkError(event: NavigationError): boolean {
-    const msg = event.error?.message ?? String(event.error ?? '');
-    return this.CHUNK_ERROR_PATTERNS.some(pattern => pattern.test(msg));
-  }
 
   constructor() {
     this.watchConnectionStatus();
@@ -62,16 +51,11 @@ export class AppComponent {
     this.router.events
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        filter(event => event instanceof NavigationError),
-        filter((event: NavigationError) => this.isStaleChunkError(event))
+        filter((event): event is NavigationError => event instanceof NavigationError),
+        filter(event => this.chunkLoadReloadService.isChunkLoadError(event.error))
       )
       .subscribe((event: NavigationError) => {
-        // A new deployment has produced new chunk filenames.  The currently
-        // running (old) app still references the deleted chunks, so lazy-load
-        // navigations fail.  Reload to fetch the new index.html and its
-        // up-to-date chunk references.
-        console.error(`Stale chunk detected. Reloading: ${event.url}`, event);
-        window.location.assign(event.url || window.location.href);
+        this.chunkLoadReloadService.reloadIfChunkLoadError(event.error, event.url);
       });
   }
 
