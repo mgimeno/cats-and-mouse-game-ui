@@ -82,6 +82,7 @@ workflows:
     jobs:
       - build
       - deploy:
+          serial-group: << pipeline.project.slug >>/<< pipeline.parameters.project-folder >>/prod-deploy
           requires:
             - build
           filters:
