@@ -34,12 +34,18 @@ export class AppComponent {
     this.watchConnectionStatus();
     this.addTitleAndMetaTags();
     this.createBrowserUserId();
-    this.signalrService.startConnection();
 
     const unsubscribe = this.signalrService.subscribeToMethod<IPlayerHasInProgressGameMessage>(
       'HasInProgressGame',
       message => {
-        void this.router.navigate([message.hasInProgressGame ? '/play' : '/']);
+        if (message.hasInProgressGame) {
+          void this.router.navigate(['/play']);
+          return;
+        }
+
+        if (this.isOnPlayRoute()) {
+          void this.router.navigate(['/']);
+        }
       }
     );
 
@@ -57,6 +63,10 @@ export class AppComponent {
       .subscribe((event: NavigationError) => {
         this.chunkLoadReloadService.reloadIfChunkLoadError(event.error, event.url);
       });
+  }
+
+  private isOnPlayRoute(): boolean {
+    return this.router.url.split(/[?#]/, 1)[0] === '/play';
   }
 
   private createBrowserUserId(): void {

@@ -100,6 +100,15 @@ describe('HomeComponent', () => {
     expect(dialog.open).toHaveBeenCalledOnce();
   });
 
+  it('subscribes to lobby messages before requesting lobby state', () => {
+    component.ngOnInit();
+
+    expect(signalrService.subscribeToMethod).toHaveBeenCalledWith('GameList', expect.any(Function));
+    expect(signalrService.subscribeToMethod.mock.invocationCallOrder[0]).toBeLessThan(
+      signalrService.sendMessage.mock.invocationCallOrder[0]
+    );
+  });
+
   it('opens join dialog from the URL only when the game exists', () => {
     queryParamGet.mockReturnValue('game-2');
     component.ngOnInit();

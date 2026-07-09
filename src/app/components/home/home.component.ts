@@ -52,16 +52,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   private howToPlayDialogRef: MatDialogRef<HowToPlayDialogComponent> | null = null;
 
   ngOnInit(): void {
-    this.signalrService.sendMessage('SendWhetherHasInProgressGameToCaller').catch(reason => {
-      console.error(reason);
-      this.notificationService.showCommonError();
-    });
-
-    this.signalrService.sendMessage('SendGamesAwaitingForSecondPlayerToCallerAsync').catch(reason => {
-      console.error(reason);
-      this.notificationService.showCommonError();
-    });
-
     this.unsubscribeCallbacks.push(
       this.signalrService.subscribeToMethod<IGameListMessage>('GameList', message => {
         const userId = localStorage.getItem(`${environment.localStoragePrefix}user-id`);
@@ -83,6 +73,16 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.goToPlay();
       })
     );
+
+    this.signalrService.sendMessage('SendWhetherHasInProgressGameToCaller').catch(reason => {
+      console.error(reason);
+      this.notificationService.showCommonError();
+    });
+
+    this.signalrService.sendMessage('SendGamesAwaitingForSecondPlayerToCallerAsync').catch(reason => {
+      console.error(reason);
+      this.notificationService.showCommonError();
+    });
   }
 
   openSelectLanguage(): void {

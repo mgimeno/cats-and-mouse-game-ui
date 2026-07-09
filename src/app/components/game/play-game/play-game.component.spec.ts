@@ -91,6 +91,15 @@ describe('PlayGameComponent', () => {
     expect(audioPlay).toHaveBeenCalledOnce();
   });
 
+  it('subscribes to game status before requesting the current game', () => {
+    component.ngOnInit();
+
+    expect(signalrService.subscribeToMethod).toHaveBeenCalledWith('GameStatus', expect.any(Function));
+    expect(signalrService.subscribeToMethod.mock.invocationCallOrder[0]).toBeLessThan(
+      signalrService.sendMessage.mock.invocationCallOrder[0]
+    );
+  });
+
   it('selects among multiple movable figures and sends the selected move', () => {
     component.ngOnInit();
     emitGameStatus(gameStatusWithTwoMovableCats());

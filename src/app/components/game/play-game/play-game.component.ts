@@ -69,12 +69,6 @@ export class PlayGameComponent implements OnInit, OnDestroy {
   readonly gameInfo = computed(() => this.buildGameInfo());
 
   ngOnInit(): void {
-    this.signalrService.sendMessage('SendInProgressGameStatusToCaller').catch(reason => {
-      console.error(reason);
-      this.notificationService.showError($localize`:@@home.game_does_not_exist:Game does not exist`);
-      void this.router.navigate(['/']);
-    });
-
     this.unsubscribeCallbacks.push(
       this.signalrService.subscribeToMethod<IGameStatusMessage>('GameStatus', message => {
         this.gameStatus.set(message.gameStatus);
@@ -85,6 +79,12 @@ export class PlayGameComponent implements OnInit, OnDestroy {
         this.updateTurnInfoState();
       })
     );
+
+    this.signalrService.sendMessage('SendInProgressGameStatusToCaller').catch(reason => {
+      console.error(reason);
+      this.notificationService.showError($localize`:@@home.game_does_not_exist:Game does not exist`);
+      void this.router.navigate(['/']);
+    });
   }
 
   onChessBoxClicked(rowIndex: number, columnIndex: number): void {
