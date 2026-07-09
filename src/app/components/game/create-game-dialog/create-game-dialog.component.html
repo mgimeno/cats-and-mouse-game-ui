@@ -1,4 +1,32 @@
-@if (!isGameCreated()) {
+@if (isGameCreated() && joinGameUrl()) {
+  <div class="text-center">
+    <h1 mat-dialog-title i18n="@@create.awaiting_title">Awaiting for another player</h1>
+    <app-loader />
+
+    <div class="buttons-container mt-20">
+      <p>
+        <b class="secondary" i18n="@@create.share_link_description">Share this link to join your game</b>
+      </p>
+
+      <button
+        type="submit"
+        class="big-button"
+        mat-raised-button
+        color="primary"
+        cdkFocusInitial
+        [attr.aria-label]="shareLinkText"
+        (click)="onShareLinkClick()"
+      >
+        <mat-icon class="button-icon">share</mat-icon>
+        {{ shareLinkText }}
+      </button>
+
+      <button class="big-button" type="button" mat-button i18n="@@button.cancel" (click)="onCancelGame()">
+        Cancel
+      </button>
+    </div>
+  </div>
+} @else {
   <h1 mat-dialog-title i18n="@@create.title">Create game</h1>
 
   <form class="max-container-width" autocomplete="off" [formGroup]="formGroup" (ngSubmit)="onSubmit()">
@@ -18,7 +46,7 @@
 
     <app-team-select [formGroup]="formGroup" [game]="createdGame()" />
 
-    <div class="buttons-container">
+    <div class="buttons-container mt-20">
       <button
         class="big-button"
         type="submit"
@@ -33,38 +61,4 @@
       <button class="big-button" type="button" mat-button i18n="@@button.cancel" (click)="onCancel()">Cancel</button>
     </div>
   </form>
-}
-
-@if (isGameCreated()) {
-  <div class="text-center">
-    <h1 mat-dialog-title i18n="@@create.awaiting_title">Awaiting for another player</h1>
-    <app-loader />
-
-    @if (joinGameUrl()) {
-      <div class="share-game">
-        <p>
-          <b class="secondary" i18n="@@create.share_link_description">Share this link to join your game</b>
-        </p>
-
-        <div class="share-actions">
-          <button
-            class="share-action"
-            type="button"
-            mat-raised-button
-            color="primary"
-            cdkFocusInitial
-            [attr.aria-label]="shareLinkText"
-            (click)="onShareLinkClick()"
-          >
-            <span class="button-content-with-icon">
-              <mat-icon class="button-icon" aria-hidden="true">share</mat-icon>
-              <span i18n="@@create.share_link">Share link</span>
-            </span>
-          </button>
-        </div>
-      </div>
-    }
-
-    <button class="big-button" type="button" mat-button i18n="@@button.cancel" (click)="onCancelGame()">Cancel</button>
-  </div>
 }
