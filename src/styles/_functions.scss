@@ -1,0 +1,17 @@
+@use 'sass:math';
+
+@function px-to-rem($px, $base: 16px) {
+  @if math.unit($px) != 'px' {
+    @error "px-to-rem() expects a px value, got #{$px}.";
+  }
+
+  @if math.unit($base) != 'px' {
+    @error "px-to-rem() expects a px base, got #{$base}.";
+  }
+
+  @if $base <= 0px {
+    @error "px-to-rem() expects a positive px base, got #{$base}.";
+  }
+
+  @return math.div($px, $base) * 1rem;
+}

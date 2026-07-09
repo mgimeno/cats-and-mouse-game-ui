@@ -1,5 +1,7 @@
+@use 'functions' as *;
+
 .mat-mdc-dialog-title {
-  margin: 25px 0 !important;
+  margin: px-to-rem(25px) 0 !important;
 }
 
 .mat-mdc-dialog-actions {

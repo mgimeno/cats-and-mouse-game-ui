@@ -1,5 +1,7 @@
+@use 'functions' as *;
+
 .game-board {
-  --board-size: min(82vw, 520px);
+  --board-size: min(82vw, #{px-to-rem(520px)});
   overflow: hidden;
   display: grid;
   grid-template-columns: repeat(8, 1fr);
@@ -7,7 +9,7 @@
   aspect-ratio: 1;
   width: var(--board-size);
   margin: 0 auto;
-  border: clamp(12px, 3.5vw, 24px) solid transparent;
+  border: clamp(px-to-rem(12px), 3.5vw, px-to-rem(24px)) solid transparent;
   border-radius: var(--border-radius);
 
   background:
@@ -22,17 +24,17 @@
       )
       border-box;
   box-shadow:
-    0 26px 48px rgb(77 39 19 / 0.32),
-    0 10px 24px rgb(77 39 19 / 0.2),
-    0 7px 0 rgb(255 255 255 / 0.28) inset,
-    0 -8px 0 rgb(59 27 12 / 0.28) inset;
+    0 px-to-rem(26px) px-to-rem(48px) rgb(77 39 19 / 0.32),
+    0 px-to-rem(10px) px-to-rem(24px) rgb(77 39 19 / 0.2),
+    0 px-to-rem(7px) 0 rgb(255 255 255 / 0.28) inset,
+    0 px-to-rem(-8px) 0 rgb(59 27 12 / 0.28) inset;
 
   transition:
     box-shadow 200ms ease,
     transform 200ms ease;
 
   &.logo-game-board {
-    --board-size: min(92vw, 560px);
+    --board-size: min(92vw, #{px-to-rem(560px)});
     aspect-ratio: 8 / 3;
     border-top: 0;
     border-top-left-radius: 0;

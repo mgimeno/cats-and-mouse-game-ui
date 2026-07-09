@@ -1,32 +1,34 @@
-.home-hero {
-  --home-board-width: min(92vw, 560px);
+@use 'functions' as *;
 
-  padding-bottom: clamp(24px, 5vh, 56px);
-  padding-bottom: clamp(24px, 5dvh, 56px);
+.home-hero {
+  --home-board-width: min(92vw, #{px-to-rem(560px)});
+
+  padding-bottom: clamp(px-to-rem(24px), 5vh, px-to-rem(56px));
+  padding-bottom: clamp(px-to-rem(24px), 5dvh, px-to-rem(56px));
 }
 
 .game-board.logo-game-board {
   --board-size: var(--home-board-width);
   box-shadow:
-    0 30px 56px rgb(77 39 19 / 0.36),
-    0 12px 28px rgb(77 39 19 / 0.22),
-    0 7px 0 rgb(255 255 255 / 0.3) inset,
-    0 -8px 0 rgb(59 27 12 / 0.3) inset;
+    0 px-to-rem(30px) px-to-rem(56px) rgb(77 39 19 / 0.36),
+    0 px-to-rem(12px) px-to-rem(28px) rgb(77 39 19 / 0.22),
+    0 px-to-rem(7px) 0 rgb(255 255 255 / 0.3) inset,
+    0 px-to-rem(-8px) 0 rgb(59 27 12 / 0.3) inset;
 }
 
 .game-description {
-  margin: clamp(28px, 6vh, 58px) 0 clamp(18px, 4vh, 34px);
-  margin: clamp(28px, 6dvh, 58px) 0 clamp(18px, 4dvh, 34px);
+  margin: clamp(px-to-rem(28px), 6vh, px-to-rem(58px)) 0 clamp(px-to-rem(18px), 4vh, px-to-rem(34px));
+  margin: clamp(px-to-rem(28px), 6dvh, px-to-rem(58px)) 0 clamp(px-to-rem(18px), 4dvh, px-to-rem(34px));
 }
 
 .games-title {
-  margin: clamp(28px, 5vh, 48px) 0 14px;
-  margin: clamp(28px, 5dvh, 48px) 0 14px;
+  margin: clamp(px-to-rem(28px), 5vh, px-to-rem(48px)) 0 px-to-rem(14px);
+  margin: clamp(px-to-rem(28px), 5dvh, px-to-rem(48px)) 0 px-to-rem(14px);
 }
 
 .empty-games {
-  padding: 22px 0;
-  border: 1px dashed rgb(122 67 29 / 0.34);
+  padding: px-to-rem(22px) 0;
+  border: px-to-rem(1px) dashed rgb(122 67 29 / 0.34);
   border-radius: var(--border-radius);
   background: rgb(255 247 231 / 0.62);
 }
@@ -41,7 +43,7 @@
   overflow: hidden;
   border-radius: var(--border-radius);
   background: rgb(255 247 231 / 0.86);
-  box-shadow: 0 14px 30px rgb(77 39 19 / 0.12);
+  box-shadow: 0 px-to-rem(14px) px-to-rem(30px) rgb(77 39 19 / 0.12);
 }
 
 table {
@@ -51,13 +53,13 @@ table {
 
   .player-cell {
     display: flex;
-    gap: 14px;
+    gap: px-to-rem(14px);
     align-items: center;
 
     .cat-figure,
     .mouse-figure {
-      width: 28px;
-      height: 28px;
+      width: px-to-rem(28px);
+      height: px-to-rem(28px);
       background-size: contain;
     }
 
@@ -68,6 +70,6 @@ table {
   }
 
   .mat-column-gameId {
-    width: 104px;
+    width: px-to-rem(104px);
   }
 }

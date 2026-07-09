@@ -1,6 +1,8 @@
+@use 'functions' as *;
+
 h1,
 .mat-mdc-dialog-title {
-  margin: clamp(24px, 5vw, 42px) 0 clamp(28px, 5vw, 46px) !important;
+  margin: clamp(px-to-rem(24px), 5vw, px-to-rem(42px)) 0 clamp(px-to-rem(28px), 5vw, px-to-rem(46px)) !important;
   font-size: clamp(1.22rem, 3.2vw, 1.48rem) !important;
   font-weight: 500 !important;
   line-height: 1.24 !important;

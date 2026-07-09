@@ -1,3 +1,5 @@
+@use 'functions' as *;
+
 .mat-mdc-dialog-container .mdc-dialog__surface,
 .mat-bottom-sheet-container {
   color: #2c221b;
@@ -23,7 +25,7 @@
 
 .fullscreen-dialog .mat-mdc-dialog-container .mdc-dialog__surface {
   overflow-y: auto;
-  padding: clamp(14px, 4vw, 28px) 30px !important;
+  padding: clamp(px-to-rem(14px), 4vw, px-to-rem(28px)) px-to-rem(30px) !important;
 }
 
 .fullscreen-dialog .mat-mdc-dialog-container .mat-mdc-dialog-title,
@@ -38,7 +40,7 @@ mat-bottom-sheet-container.mat-bottom-sheet-container,
   --mat-bottom-sheet-container-shape: var(--border-radius);
 
   overflow: auto;
-  padding: 16px 0 46px !important;
+  padding: px-to-rem(16px) 0 px-to-rem(46px) !important;
   border-radius: var(--border-radius) var(--border-radius) 0 0 !important;
   background-clip: padding-box;
 }
@@ -58,19 +60,19 @@ mat-bottom-sheet-container.mat-bottom-sheet-container,
   --mdc-filled-text-field-error-hover-active-indicator-color: transparent;
   --mdc-filled-text-field-error-label-text-color: var(--error-colour);
   --mdc-filled-text-field-error-focus-label-text-color: var(--error-colour);
-  --mat-form-field-container-height: 56px;
-  --mat-form-field-container-vertical-padding: 17px;
+  --mat-form-field-container-height: #{px-to-rem(56px)};
+  --mat-form-field-container-vertical-padding: #{px-to-rem(17px)};
   width: 100%;
 
   .mat-mdc-text-field-wrapper {
     overflow: visible;
 
     border: 0;
-    border-bottom: 2px solid rgb(77 39 19 / 0.52);
+    border-bottom: px-to-rem(2px) solid rgb(77 39 19 / 0.52);
     border-radius: 0;
 
     background-color: transparent !important;
-    box-shadow: 0 1px 0 rgb(255 255 255 / 0.72);
+    box-shadow: 0 px-to-rem(1px) 0 rgb(255 255 255 / 0.72);
 
     transition:
       background 180ms ease,
@@ -98,18 +100,18 @@ mat-bottom-sheet-container.mat-bottom-sheet-container,
 
   .mat-mdc-input-element {
     font-weight: 720;
-    text-shadow: 0 1px 0 rgb(255 255 255 / 0.62);
+    text-shadow: 0 px-to-rem(1px) 0 rgb(255 255 255 / 0.62);
     letter-spacing: 0;
   }
 
   .mat-mdc-floating-label {
     font-weight: 760;
-    text-shadow: 0 1px 0 rgb(255 255 255 / 0.58);
+    text-shadow: 0 px-to-rem(1px) 0 rgb(255 255 255 / 0.58);
     letter-spacing: 0;
   }
 
   .mat-mdc-form-field-subscript-wrapper {
-    margin-top: 6px;
+    margin-top: px-to-rem(6px);
   }
 
   .mat-mdc-form-field-error {
@@ -120,22 +122,22 @@ mat-bottom-sheet-container.mat-bottom-sheet-container,
   &:hover .mat-mdc-text-field-wrapper {
     border-bottom-color: rgb(122 67 29 / 0.78);
     filter: saturate(1.05);
-    box-shadow: 0 2px 0 rgb(77 39 19 / 0.12);
+    box-shadow: 0 px-to-rem(2px) 0 rgb(77 39 19 / 0.12);
   }
 
   &.mat-focused .mat-mdc-text-field-wrapper {
     border-bottom-color: var(--primary-colour);
     background: transparent;
     box-shadow:
-      0 2px 0 rgb(122 67 29 / 0.2),
-      0 8px 14px rgb(77 39 19 / 0.08);
+      0 px-to-rem(2px) 0 rgb(122 67 29 / 0.2),
+      0 px-to-rem(8px) px-to-rem(14px) rgb(77 39 19 / 0.08);
   }
 
   &.mat-form-field-invalid .mat-mdc-text-field-wrapper {
     border-bottom-color: var(--error-colour);
     box-shadow:
-      0 2px 0 rgb(184 55 74 / 0.16),
-      0 8px 14px rgb(184 55 74 / 0.08);
+      0 px-to-rem(2px) 0 rgb(184 55 74 / 0.16),
+      0 px-to-rem(8px) px-to-rem(14px) rgb(184 55 74 / 0.08);
   }
 }
 
@@ -154,7 +156,7 @@ mat-bottom-sheet-container.mat-bottom-sheet-container,
 
 .mat-mdc-button,
 .mat-mdc-raised-button {
-  border-radius: 15px !important;
+  border-radius: px-to-rem(15px) !important;
   letter-spacing: 0;
   transition:
     transform 160ms ease,
@@ -165,13 +167,13 @@ mat-bottom-sheet-container.mat-bottom-sheet-container,
 }
 
 .mat-mdc-raised-button:not(:disabled):hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 18px rgb(77 39 19 / 0.18);
+  transform: translateY(px-to-rem(-1px));
+  box-shadow: 0 px-to-rem(8px) px-to-rem(18px) rgb(77 39 19 / 0.18);
 }
 
 .button-content-with-icon {
   display: inline-flex;
-  gap: 8px;
+  gap: px-to-rem(8px);
   align-items: center;
   justify-content: center;
 
@@ -185,11 +187,11 @@ mat-bottom-sheet-container.mat-bottom-sheet-container,
   align-items: center;
   justify-content: center;
 
-  width: 18px;
-  height: 18px;
+  width: px-to-rem(18px);
+  height: px-to-rem(18px);
 
-  font-size: 18px;
-  line-height: 18px;
+  font-size: px-to-rem(18px);
+  line-height: px-to-rem(18px);
   vertical-align: middle;
 }
 
@@ -206,8 +208,8 @@ mat-bottom-sheet-container.mat-bottom-sheet-container,
 }
 
 .big-button {
-  width: min(100%, 172px);
-  min-height: 46px;
+  width: min(100%, px-to-rem(172px));
+  min-height: px-to-rem(46px);
   font-size: 1rem !important;
   font-weight: 700;
 }
@@ -241,13 +243,13 @@ input {
 
 .button-with-right-icon {
   display: inline-flex;
-  gap: 10px;
+  gap: px-to-rem(10px);
   align-items: center;
   justify-content: center;
 
   img {
-    width: 20px;
-    height: 20px;
+    width: px-to-rem(20px);
+    height: px-to-rem(20px);
     border-radius: 50%;
     object-fit: cover;
   }
@@ -255,7 +257,7 @@ input {
 
 .mat-mdc-snack-bar-container {
   --mdc-snackbar-supporting-text-color: #fff;
-  min-width: 270px !important;
+  min-width: px-to-rem(270px) !important;
 
   .mdc-snackbar__surface {
     border-radius: var(--border-radius) !important;

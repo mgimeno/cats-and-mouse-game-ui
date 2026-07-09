@@ -1,3 +1,5 @@
+@use 'functions' as *;
+
 :host {
   --loader-grey: #333;
   --loader-light-grey: #333;
@@ -20,14 +22,14 @@
   0%,
   10%,
   85% {
-    height: 50px;
+    height: px-to-rem(50px);
     margin-top: 0;
   }
 
   30%,
   65% {
-    height: 30px;
-    margin-top: 20px;
+    height: px-to-rem(30px);
+    margin-top: px-to-rem(20px);
   }
 }
 
@@ -40,7 +42,7 @@
 
   30%,
   65% {
-    bottom: 20px;
+    bottom: px-to-rem(20px);
   }
 
   100% {
@@ -53,7 +55,7 @@
 
   overflow: hidden;
 
-  height: 290px;
+  height: px-to-rem(290px);
   margin: 0;
 
   text-align: left;
@@ -63,18 +65,18 @@
     top: 50%;
     left: 50%;
 
-    width: 260px;
-    height: 260px;
-    margin-top: -130px;
-    margin-left: -130px;
+    width: px-to-rem(260px);
+    height: px-to-rem(260px);
+    margin-top: px-to-rem(-130px);
+    margin-left: px-to-rem(-130px);
 
     .track {
       width: 100%;
       height: 100%;
-      margin-top: -3px;
-      margin-left: -3px;
+      margin-top: px-to-rem(-3px);
+      margin-left: px-to-rem(-3px);
       border: solid var(--loader-white);
-      border-width: 5px 5px 3px 0;
+      border-width: px-to-rem(5px) px-to-rem(5px) px-to-rem(3px) 0;
       border-top-color: transparent;
       border-radius: 50%;
 
@@ -82,12 +84,12 @@
 
       .mouse {
         position: absolute;
-        top: 18px;
-        right: 31px;
+        top: px-to-rem(18px);
+        right: px-to-rem(31px);
         transform: rotate(-95deg);
 
-        width: 25px;
-        height: 25px;
+        width: px-to-rem(25px);
+        height: px-to-rem(25px);
         border-radius: 80% 0 55% 50% / 55% 0 80% 50%;
 
         background: var(--loader-white);
@@ -98,21 +100,21 @@
 
           position: absolute;
 
-          width: 9px;
-          height: 9px;
+          width: px-to-rem(9px);
+          height: px-to-rem(9px);
           border-radius: 50%;
 
           background: inherit;
         }
 
         &::before {
-          top: -4px;
-          left: 5px;
+          top: px-to-rem(-4px);
+          left: px-to-rem(5px);
         }
 
         &::after {
-          top: 11px;
-          left: 20px;
+          top: px-to-rem(11px);
+          left: px-to-rem(20px);
         }
       }
     }
@@ -122,10 +124,10 @@
       top: 50%;
       left: 50%;
 
-      width: 130px;
-      height: 130px;
-      margin-top: -65px;
-      margin-left: -65px;
+      width: px-to-rem(130px);
+      height: px-to-rem(130px);
+      margin-top: px-to-rem(-65px);
+      margin-left: px-to-rem(-65px);
 
       &::before,
       &::after {
@@ -136,23 +138,23 @@
       }
 
       &::before {
-        border-top-left-radius: 65px;
-        border-bottom-left-radius: 55px;
+        border-top-left-radius: px-to-rem(65px);
+        border-bottom-left-radius: px-to-rem(55px);
         background: var(--loader-grey);
       }
 
       &::after {
         left: 50%;
-        border-top-right-radius: 65px;
-        border-bottom-right-radius: 55px;
+        border-top-right-radius: px-to-rem(65px);
+        border-bottom-right-radius: px-to-rem(55px);
         background: var(--loader-light-grey);
       }
 
       .ears-container {
         position: absolute;
-        top: -8px;
-        width: 130px;
-        height: 50px;
+        top: px-to-rem(-8px);
+        width: px-to-rem(130px);
+        height: px-to-rem(50px);
 
         &::before,
         &::after {
@@ -162,31 +164,31 @@
 
           width: 0;
           height: 0;
-          border-top: 35px solid transparent;
-          border-bottom: 35px solid transparent;
+          border-top: px-to-rem(35px) solid transparent;
+          border-bottom: px-to-rem(35px) solid transparent;
         }
 
         &::before {
-          border-left: 35px solid var(--loader-grey);
+          border-left: px-to-rem(35px) solid var(--loader-grey);
         }
 
         &::after {
           right: 0;
-          border-right: 35px solid var(--loader-light-grey);
+          border-right: px-to-rem(35px) solid var(--loader-light-grey);
         }
       }
 
       .eyes-container {
         position: absolute;
         z-index: 1;
-        top: 30px;
+        top: px-to-rem(30px);
         left: 50%;
 
         overflow: hidden;
 
-        width: 106px;
-        height: 50px;
-        margin-left: -53px;
+        width: px-to-rem(106px);
+        height: px-to-rem(50px);
+        margin-left: px-to-rem(-53px);
 
         animation: hide-eye var(--loader-animation-duration) infinite linear;
 
@@ -196,8 +198,8 @@
 
           float: left;
 
-          width: 50px;
-          height: 50px;
+          width: px-to-rem(50px);
+          height: px-to-rem(50px);
           border-radius: 50%;
 
           color: var(--loader-grey);
@@ -210,11 +212,11 @@
             content: '';
 
             position: absolute;
-            top: 4px;
-            right: 14px;
+            top: px-to-rem(4px);
+            right: px-to-rem(14px);
 
-            width: 12px;
-            height: 12px;
+            width: px-to-rem(12px);
+            height: px-to-rem(12px);
             border-radius: inherit;
 
             background: var(--loader-dark);
@@ -230,17 +232,17 @@
       .phiz {
         position: absolute;
         z-index: 1;
-        top: 66px;
+        top: px-to-rem(66px);
         left: 50%;
 
-        width: 32px;
-        height: 48px;
-        margin-left: -16px;
+        width: px-to-rem(32px);
+        height: px-to-rem(48px);
+        margin-left: px-to-rem(-16px);
 
         .nose {
           width: 100%;
-          height: 15px;
-          border-radius: 5px 5px 25px 25px;
+          height: px-to-rem(15px);
+          border-radius: px-to-rem(5px) px-to-rem(5px) px-to-rem(25px) px-to-rem(25px);
           background: var(--loader-dark);
         }
 
@@ -248,9 +250,9 @@
           position: relative;
           left: 50%;
 
-          width: 4px;
-          height: 12px;
-          margin-left: -2px;
+          width: px-to-rem(4px);
+          height: px-to-rem(12px);
+          margin-left: px-to-rem(-2px);
 
           background: var(--loader-dark);
 
@@ -260,7 +262,7 @@
             position: absolute;
 
             width: 100%;
-            height: 5px;
+            height: px-to-rem(5px);
 
             background: #181818;
           }
@@ -270,12 +272,12 @@
           position: relative;
           left: 50%;
 
-          width: 20px;
-          height: 6px;
-          margin-left: -13px;
-          border: 3px solid var(--loader-dark);
-          border-bottom-right-radius: 12px;
-          border-bottom-left-radius: 12px;
+          width: px-to-rem(20px);
+          height: px-to-rem(6px);
+          margin-left: px-to-rem(-13px);
+          border: px-to-rem(3px) solid var(--loader-dark);
+          border-bottom-right-radius: px-to-rem(12px);
+          border-bottom-left-radius: px-to-rem(12px);
 
           background: var(--loader-white);
         }

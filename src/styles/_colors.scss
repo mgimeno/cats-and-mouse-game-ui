@@ -1,3 +1,5 @@
+@use 'functions' as *;
+
 :root {
   --primary-colour: #7a431d;
   --primary-colour-dark: #4d2713;
@@ -15,6 +17,6 @@
   --board-frame-highlight-colour: #8a552b;
   --board-light-square-colour: #f2d7a5;
   --board-dark-square-colour: #b8783f;
-  --border-radius: 18px;
-  --turn-info-height: 60px;
+  --border-radius: #{px-to-rem(18px)};
+  --turn-info-height: #{px-to-rem(60px)};
 }

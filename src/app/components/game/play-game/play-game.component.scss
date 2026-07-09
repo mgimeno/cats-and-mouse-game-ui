@@ -1,3 +1,5 @@
+@use 'functions' as *;
+
 .loading-state {
   display: grid;
   place-items: center;
@@ -5,12 +7,14 @@
 }
 
 .play-container {
-  --play-page-top-space: clamp(18px, 5vw, 42px);
-  --play-page-bottom-space: clamp(28px, 8vw, 64px);
-  --board-top-offset: calc(var(--turn-info-height) + 12px + clamp(18px, 4vw, 30px));
+  --play-page-top-space: clamp(#{px-to-rem(18px)}, 5vw, #{px-to-rem(42px)});
+  --play-page-bottom-space: clamp(#{px-to-rem(28px)}, 8vw, #{px-to-rem(64px)});
+  --board-top-offset: calc(
+    var(--turn-info-height) + #{px-to-rem(12px)} + clamp(#{px-to-rem(18px)}, 4vw, #{px-to-rem(30px)})
+  );
   --play-board-size: min(
     82vw,
-    520px,
+    #{px-to-rem(520px)},
     calc(100vh - var(--play-page-top-space) - var(--board-top-offset) - var(--play-page-bottom-space))
   );
 
@@ -22,24 +26,24 @@
   }
 
   .options-container {
-    width: min(100% - 28px, 540px);
-    margin: 18px auto 0;
+    width: min(100% - px-to-rem(28px), px-to-rem(540px));
+    margin: px-to-rem(18px) auto 0;
 
     .options-buttons {
       display: flex;
       flex-wrap: nowrap;
-      gap: 8px;
+      gap: px-to-rem(8px);
       justify-content: flex-end;
 
       button {
         flex: 0 1 auto;
         min-width: 0;
-        min-height: 42px;
-        padding: 0 10px;
+        min-height: px-to-rem(42px);
+        padding: 0 px-to-rem(10px);
       }
 
       .button-content-with-icon {
-        gap: 6px;
+        gap: px-to-rem(6px);
         white-space: nowrap;
       }
     }
@@ -47,30 +51,30 @@
 
   .turn-info {
     min-height: var(--turn-info-height);
-    margin: 12px 0 clamp(18px, 4vw, 30px);
+    margin: px-to-rem(12px) 0 clamp(px-to-rem(18px), 4vw, px-to-rem(30px));
     font-weight: 800;
 
     .green,
     .red {
-      text-shadow: 0 1px 0 rgb(255 247 231 / 0.8);
+      text-shadow: 0 px-to-rem(1px) 0 rgb(255 247 231 / 0.8);
     }
 
     .turn-info-header {
-      min-height: 39px;
-      font-size: 30px;
+      min-height: px-to-rem(39px);
+      font-size: px-to-rem(30px);
       transition: font-size 400ms ease;
 
       &.MyTurn {
-        font-size: 32px;
+        font-size: px-to-rem(32px);
       }
 
       &.TheirTurn {
-        font-size: 28px;
+        font-size: px-to-rem(28px);
       }
 
       &.IWon,
       &.ILost {
-        font-size: 40px;
+        font-size: px-to-rem(40px);
       }
 
       &.big-turn-info-header {
@@ -79,7 +83,7 @@
     }
 
     .turn-info-subheader {
-      margin-top: 8px;
+      margin-top: px-to-rem(8px);
       font-size: clamp(0.92rem, 2.8vw, 1rem);
       font-weight: 700;
       color: var(--secondary-colour);
@@ -91,33 +95,33 @@
   .play-container {
     --play-board-size: min(
       82vw,
-      520px,
+      #{px-to-rem(520px)},
       calc(100dvh - var(--play-page-top-space) - var(--board-top-offset) - var(--play-page-bottom-space))
     );
   }
 }
 
-@media only screen and (width <= 520px) {
+@media only screen and (width <= #{px-to-rem(520px)}) {
   .play-container .options-container .options-buttons {
-    gap: 6px;
+    gap: px-to-rem(6px);
     justify-content: center;
   }
 }
 
-@media only screen and (width >= 1024px) {
+@media only screen and (width >= #{px-to-rem(1024px)}) {
   .play-container {
-    --play-page-top-space: clamp(8px, 2vh, 18px);
-    --play-page-bottom-space: 16px;
+    --play-page-top-space: clamp(#{px-to-rem(8px)}, 2vh, #{px-to-rem(18px)});
+    --play-page-bottom-space: #{px-to-rem(16px)};
 
     display: grid;
-    grid-template-columns: minmax(0, 560px) minmax(320px, 380px);
-    gap: clamp(24px, 4vw, 56px);
+    grid-template-columns: minmax(0, px-to-rem(560px)) minmax(px-to-rem(320px), px-to-rem(380px));
+    gap: clamp(px-to-rem(24px), 4vw, px-to-rem(56px));
     align-items: start;
     justify-content: center;
 
-    width: min(1180px, 100%);
+    width: min(px-to-rem(1180px), 100%);
     margin: 0 auto;
-    padding: var(--play-page-top-space) clamp(18px, 3vw, 32px) var(--play-page-bottom-space);
+    padding: var(--play-page-top-space) clamp(px-to-rem(18px), 3vw, px-to-rem(32px)) var(--play-page-bottom-space);
 
     .game-container {
       min-width: 0;
@@ -135,7 +139,7 @@
         flex-wrap: nowrap;
         align-self: end;
         justify-content: flex-end;
-        padding-bottom: 10px;
+        padding-bottom: px-to-rem(10px);
 
         button {
           flex: 0 1 auto;
@@ -145,17 +149,17 @@
     }
 
     .turn-info {
-      margin-top: 12px;
+      margin-top: px-to-rem(12px);
     }
   }
 }
 
-@media only screen and (width >= 1024px) and (height <= 760px) {
+@media only screen and (width >= #{px-to-rem(1024px)}) and (height <= #{px-to-rem(760px)}) {
   .play-container {
-    --board-top-offset: calc(var(--turn-info-height) + 18px);
+    --board-top-offset: calc(var(--turn-info-height) + #{px-to-rem(18px)});
 
     .turn-info {
-      margin: 4px 0 14px;
+      margin: px-to-rem(4px) 0 px-to-rem(14px);
     }
   }
 }

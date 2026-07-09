@@ -1,18 +1,20 @@
+@use 'functions' as *;
+
 .chat {
   display: flex;
   flex-direction: column;
 
-  min-height: 300px;
-  max-height: 300px;
-  margin-top: 24px;
-  padding: 18px;
-  border: 1px solid rgb(77 39 19 / 0.22);
+  min-height: px-to-rem(300px);
+  max-height: px-to-rem(300px);
+  margin-top: px-to-rem(24px);
+  padding: px-to-rem(18px);
+  border: px-to-rem(1px) solid rgb(77 39 19 / 0.22);
   border-radius: var(--border-radius);
 
   background: linear-gradient(180deg, rgb(255 247 231 / 0.92), rgb(236 207 160 / 0.84)), var(--surface-colour);
   box-shadow:
-    0 14px 28px rgb(77 39 19 / 0.16),
-    0 1px 0 rgb(255 255 255 / 0.65) inset;
+    0 px-to-rem(14px) px-to-rem(28px) rgb(77 39 19 / 0.16),
+    0 px-to-rem(1px) 0 rgb(255 255 255 / 0.65) inset;
 
   transition:
     border-color 180ms ease,
@@ -22,8 +24,8 @@
   &:focus-within {
     border-color: rgb(122 67 29 / 0.42);
     box-shadow:
-      0 16px 32px rgb(77 39 19 / 0.2),
-      0 0 0 3px rgb(122 67 29 / 0.12);
+      0 px-to-rem(16px) px-to-rem(32px) rgb(77 39 19 / 0.2),
+      0 0 0 px-to-rem(3px) rgb(122 67 29 / 0.12);
   }
 
   .chat-box-title {
@@ -40,12 +42,12 @@
     display: flex;
     flex: 1 1 auto;
     flex-direction: column;
-    gap: 8px;
+    gap: px-to-rem(8px);
 
     min-height: 0;
-    margin-top: 14px;
-    padding: 12px;
-    border: 1px solid rgb(77 39 19 / 0.12);
+    margin-top: px-to-rem(14px);
+    padding: px-to-rem(12px);
+    border: px-to-rem(1px) solid rgb(77 39 19 / 0.12);
     border-radius: var(--border-radius);
 
     background: rgb(255 250 239 / 0.58);
@@ -58,13 +60,13 @@
         display: inline-block;
 
         max-width: min(100%, 86%);
-        padding: 8px 10px;
+        padding: px-to-rem(8px) px-to-rem(10px);
         border-radius: var(--border-radius);
 
         line-height: 1.35;
 
         background: rgb(255 247 231 / 0.88);
-        box-shadow: 0 4px 10px rgb(77 39 19 / 0.1);
+        box-shadow: 0 px-to-rem(4px) px-to-rem(10px) rgb(77 39 19 / 0.1);
 
         transition:
           background-color 160ms ease,
@@ -99,7 +101,7 @@
   .chat-form {
     flex: 0 0 auto;
     margin-top: auto;
-    padding-top: 14px;
+    padding-top: px-to-rem(14px);
 
     .send-message-button {
       color: var(--primary-colour);
@@ -109,16 +111,16 @@
       }
 
       .button-icon {
-        width: 20px;
-        height: 20px;
-        font-size: 20px;
-        line-height: 20px;
+        width: px-to-rem(20px);
+        height: px-to-rem(20px);
+        font-size: px-to-rem(20px);
+        line-height: px-to-rem(20px);
       }
     }
   }
 }
 
-@media only screen and (width >= 1024px) {
+@media only screen and (width >= #{px-to-rem(1024px)}) {
   :host-context(.play-container) .chat {
     height: var(--play-board-size);
     min-height: var(--play-board-size);
