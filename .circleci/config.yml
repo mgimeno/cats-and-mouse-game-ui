@@ -18,6 +18,7 @@ jobs:
     working_directory: ~/<< pipeline.parameters.project-folder >>
     docker:
       - image: cimg/node:24.15.0
+    resource_class: arm.medium
     steps:
       - checkout
       - run:
@@ -42,6 +43,7 @@ jobs:
     working_directory: ~/<< pipeline.parameters.project-folder >>
     docker:
       - image: cimg/base:stable
+    resource_class: arm.medium
     steps:
       - attach_workspace:
           at: ~/<< pipeline.parameters.project-folder >>
