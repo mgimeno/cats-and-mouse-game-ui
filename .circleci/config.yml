@@ -43,7 +43,7 @@ jobs:
     working_directory: ~/<< pipeline.parameters.project-folder >>
     docker:
       - image: cimg/base:current
-    resource_class: arm-medium
+    resource_class: arm.medium
     steps:
       - attach_workspace:
           at: ~/<< pipeline.parameters.project-folder >>
