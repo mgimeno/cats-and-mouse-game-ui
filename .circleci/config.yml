@@ -42,7 +42,7 @@ jobs:
   deploy:
     working_directory: ~/<< pipeline.parameters.project-folder >>
     docker:
-      - image: cimg/node:24.15.0
+      - image: cimg/base:current
     resource_class: arm-medium
     steps:
       - attach_workspace:
