@@ -45,6 +45,7 @@ export const appConfig: ApplicationConfig = {
     {
       provide: MAT_DIALOG_DEFAULT_OPTIONS,
       useValue: {
+        autoFocus: false,
         hasBackdrop: true,
         disableClose: true,
         height: '100vh',

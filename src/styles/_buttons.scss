@@ -1,0 +1,34 @@
+@use 'functions' as *;
+
+button {
+  img {
+    width: px-to-rem(20px);
+    height: px-to-rem(20px);
+    border-radius: 50%;
+    object-fit: cover;
+  }
+}
+
+.buttons-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  row-gap: px-to-rem(14px);
+}
+
+.big-button {
+  width: min(100%, px-to-rem(172px));
+  min-height: px-to-rem(46px) !important;
+  font-size: 1rem !important;
+}
+
+.success-button {
+  --mat-protected-button-disabled-label-text-color: rgb(255 255 255 / 0.72) !important;
+  color: #fff !important;
+  background-color: var(--success-colour) !important;
+
+  .mat-icon {
+    color: #fff !important;
+  }
+}

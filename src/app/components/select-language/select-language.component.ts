@@ -12,7 +12,6 @@ export interface SelectLanguageData {
 @Component({
   imports: [MatButtonModule],
   templateUrl: './select-language.component.html',
-  styleUrls: ['./select-language.component.scss'],
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush
 })

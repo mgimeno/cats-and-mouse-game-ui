@@ -21,7 +21,7 @@
 }
 
 .text-right {
-  text-align: right;
+  text-align: right !important;
 }
 
 .text-justify {
@@ -58,14 +58,6 @@
   padding: 0 px-to-rem(15px);
 }
 
-.buttons-container {
-  display: flex;
-  flex-direction: column;
-  gap: px-to-rem(14px);
-  align-items: center;
-  justify-content: center;
-}
-
 .max-container-width {
   width: min(100%, px-to-rem(420px));
   margin: 0 auto;
@@ -77,4 +69,33 @@
 
 .mt-30 {
   margin-top: px-to-rem(30px);
+}
+
+.f-c {
+  display: flex;
+  align-items: center;
+}
+
+.f-c-c {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.f-c-sb {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.col-gap-10 {
+  column-gap: px-to-rem(10px);
+}
+
+.col-gap-6 {
+  column-gap: px-to-rem(6px);
+}
+
+.fit-content {
+  width: fit-content !important;
 }

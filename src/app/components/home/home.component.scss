@@ -51,25 +51,10 @@ table {
   width: 100% !important;
   min-width: 0 !important;
 
-  .player-cell {
-    display: flex;
-    gap: px-to-rem(14px);
-    align-items: center;
-
-    .cat-figure,
-    .mouse-figure {
-      width: px-to-rem(28px);
-      height: px-to-rem(28px);
-      background-size: contain;
-    }
-
-    .player-name {
-      min-width: 0;
-      overflow-wrap: anywhere;
-    }
-  }
-
-  .mat-column-gameId {
-    width: px-to-rem(104px);
+  .cat-figure,
+  .mouse-figure {
+    width: px-to-rem(28px);
+    height: px-to-rem(28px);
+    background-size: contain;
   }
 }

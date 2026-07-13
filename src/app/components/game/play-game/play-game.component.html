@@ -42,11 +42,11 @@
 
     <div class="options-container">
       <div class="options-buttons">
-        <button type="button" mat-button (click)="openHowToPlayDialog()">
-          <span class="button-content-with-icon">
-            <mat-icon class="button-icon" aria-hidden="true">help</mat-icon>
+        <button type="button" class="how-to-play-btn" mat-button (click)="openHowToPlayDialog()">
+          <div class="f-c-c col-gap-6">
+            <mat-icon aria-hidden="true">help</mat-icon>
             <span i18n="@@play.how_to_play">how to play</span>
-          </span>
+          </div>
         </button>
 
         @if (isRematchButtonVisible()) {
@@ -57,30 +57,30 @@
             [disabled]="!isRematchButtonEnabled()"
             (click)="sendRematchRequest()"
           >
-            <span class="button-content-with-icon">
-              <mat-icon class="button-icon" aria-hidden="true">refresh</mat-icon>
+            <div class="f-c-c col-gap-6">
+              <mat-icon aria-hidden="true">refresh</mat-icon>
               @if (isRematchButtonEnabled()) {
                 <span i18n="@@play.rematch">rematch</span>
               } @else {
                 <span i18n="@@play.rematch_awaiting">awaiting</span>
               }
-            </span>
+            </div>
           </button>
         }
 
         @if (!isGameOver()) {
           <button type="button" mat-button color="warn" (click)="surrender()">
-            <span class="button-content-with-icon">
-              <mat-icon class="button-icon" aria-hidden="true">flag</mat-icon>
+            <div class="f-c-c col-gap-6">
+              <mat-icon aria-hidden="true">flag</mat-icon>
               <span i18n="@@play.surrender">surrender</span>
-            </span>
+            </div>
           </button>
         } @else {
           <button type="button" mat-raised-button color="warn" (click)="exitGame()">
-            <span class="button-content-with-icon">
-              <mat-icon class="button-icon" aria-hidden="true">logout</mat-icon>
+            <div class="f-c-c col-gap-6">
+              <mat-icon aria-hidden="true">logout</mat-icon>
               <span i18n="@@play.exit">exit</span>
-            </span>
+            </div>
           </button>
         }
       </div>

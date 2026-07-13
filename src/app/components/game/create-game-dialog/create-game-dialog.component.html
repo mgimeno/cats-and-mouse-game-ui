@@ -10,15 +10,17 @@
 
       <button
         type="submit"
-        class="big-button"
+        class="big-button fit-content"
         mat-raised-button
         color="primary"
         cdkFocusInitial
         [attr.aria-label]="shareLinkText"
         (click)="onShareLinkClick()"
       >
-        <mat-icon class="button-icon">share</mat-icon>
-        {{ shareLinkText }}
+        <div class="f-c-c col-gap-10">
+          <mat-icon>share</mat-icon>
+          {{ shareLinkText }}
+        </div>
       </button>
 
       <button class="big-button" type="button" mat-button i18n="@@button.cancel" (click)="onCancelGame()">

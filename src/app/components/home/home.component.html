@@ -33,7 +33,7 @@
       </button>
 
       <button class="big-button" type="button" mat-raised-button (click)="openSelectLanguage()">
-        <div class="button-with-right-icon">
+        <div class="f-c-c col-gap-10">
           <div i18n="@@home.language">Language</div>
           <img alt="" width="20" height="20" [src]="'assets/images/flags/' + currentLanguageCode() + '.svg'" />
         </div>
@@ -50,15 +50,12 @@
           <ng-container matColumnDef="userName">
             <th *matHeaderCellDef mat-header-cell i18n="@@home.table.player">Player</th>
             <td *matCellDef="let element" mat-cell>
-              <div class="player-cell">
-                @if (element.teamId === teamEnum.Cats) {
-                  <div class="cat-figure"></div>
-                }
-                @if (element.teamId === teamEnum.Mouse) {
-                  <div class="mouse-figure"></div>
-                }
-                <div class="player-name secondary">
-                  <b>{{ element.userName }}</b>
+              <div class="f-c-sb">
+                <div class="f-c col-gap-10">
+                  <div [class]="element.teamId === teamEnum.Cats ? 'cat-figure' : 'mouse-figure'"></div>
+                  <div class="secondary">
+                    <b>{{ element.userName }}</b>
+                  </div>
                 </div>
               </div>
             </td>
