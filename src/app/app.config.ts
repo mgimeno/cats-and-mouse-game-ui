@@ -48,10 +48,10 @@ export const appConfig: ApplicationConfig = {
         autoFocus: false,
         hasBackdrop: true,
         disableClose: true,
-        height: '100vh',
-        width: '100vw',
-        maxHeight: '100vh',
-        maxWidth: '100vw',
+        height: '100dvh',
+        width: '100dvw',
+        maxHeight: '100dvh',
+        maxWidth: '100dvw',
         panelClass: 'fullscreen-dialog'
       }
     }
