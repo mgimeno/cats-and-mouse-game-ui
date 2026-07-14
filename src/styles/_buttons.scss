@@ -18,7 +18,8 @@ button {
 }
 
 .big-button {
-  width: min(100%, px-to-rem(172px));
+  width: fit-content !important;
+  min-width: px-to-rem(172px) !important;
   min-height: px-to-rem(46px) !important;
   font-size: 1rem !important;
 }
