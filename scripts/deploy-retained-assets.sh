@@ -55,18 +55,23 @@ validate_file_name "zip filename" "$ZIP_FILENAME"
 
 BASE_DIR="${SERVER_BASE_FOLDER%/}"
 LIVE_DIR="$BASE_DIR/$PROJECT_FOLDER"
-TEMP_DIR="$BASE_DIR/$TEMP_UPLOAD_FOLDER"
-ZIP_PATH="$TEMP_DIR/$ZIP_FILENAME"
-RELEASE_DIR="$TEMP_DIR/release"
+UPLOAD_DIR="$BASE_DIR/$TEMP_UPLOAD_FOLDER"
+ZIP_PATH="$UPLOAD_DIR/$ZIP_FILENAME"
 META_DIR="$BASE_DIR/.$PROJECT_FOLDER-deploy-meta"
 MANIFEST_DIR="$META_DIR/manifests"
 LOCK_DIR="$META_DIR/deploy.lock"
-RELEASE_MANIFEST="$TEMP_DIR/release-files.txt"
-KEEP_MANIFEST="$TEMP_DIR/keep-files.txt"
-DELETE_CANDIDATES="$TEMP_DIR/delete-candidates.txt"
-DELETE_MANIFEST="$TEMP_DIR/delete-files.txt"
 LOCK_WAIT_SECONDS=300
 LOCK_HELD=0
+
+# Per-run working state. Created under the exclusive lock via mktemp so
+# concurrent invocations never share (and clobber) each other's extraction
+# dir or manifests. Empty until acquire_lock succeeds; cleanup guards on that.
+WORK_DIR=""
+RELEASE_DIR=""
+RELEASE_MANIFEST=""
+KEEP_MANIFEST=""
+DELETE_CANDIDATES=""
+DELETE_MANIFEST=""
 
 log() {
   printf '%s\n' "$*"
@@ -82,7 +87,12 @@ cleanup() {
     rm -rf "$LOCK_DIR"
   fi
 
-  rm -rf "$TEMP_DIR"
+  # Only remove this run's own working dir. Never touch the shared upload
+  # dir here: a waiter that timed out (or any early exit) must not delete
+  # the lock holder's in-flight release/manifests.
+  if [[ -n "$WORK_DIR" ]]; then
+    rm -rf "$WORK_DIR"
+  fi
 }
 
 is_index_file() {
@@ -130,7 +140,7 @@ bootstrap_existing_assets_manifest() {
   : >"$bootstrap_manifest"
 
   while IFS= read -r -d '' file_path; do
-    relative_path="${file_path#$LIVE_DIR/}"
+    relative_path="${file_path#"$LIVE_DIR"/}"
     is_immutable_asset "$relative_path" || continue
     printf '%s\n' "$relative_path" >>"$bootstrap_manifest"
   done < <(find "$LIVE_DIR" -type f -print0)
@@ -248,7 +258,7 @@ cleanup_retained_assets() {
   : >"$DELETE_CANDIDATES"
 
   while IFS= read -r -d '' file_path; do
-    relative_path="${file_path#$LIVE_DIR/}"
+    relative_path="${file_path#"$LIVE_DIR"/}"
     is_immutable_asset "$relative_path" || continue
     printf '%s\n' "$relative_path" >>"$DELETE_CANDIDATES"
   done < <(find "$LIVE_DIR" -type f -mtime "+$RETENTION_DAYS" -print0)
@@ -285,16 +295,26 @@ acquire_lock() {
   done
 
   LOCK_HELD=1
+
+  # Exclusive from here on. Allocate an isolated working dir so extraction
+  # and manifest scratch files can never collide with another invocation.
+  WORK_DIR="$(mktemp -d "$META_DIR/work.XXXXXXXX")"
+  RELEASE_DIR="$WORK_DIR/release"
+  RELEASE_MANIFEST="$WORK_DIR/release-files.txt"
+  KEEP_MANIFEST="$WORK_DIR/keep-files.txt"
+  DELETE_CANDIDATES="$WORK_DIR/delete-candidates.txt"
+  DELETE_MANIFEST="$WORK_DIR/delete-files.txt"
 }
 
 main() {
-  [[ -f "$ZIP_PATH" ]] || fail "upload zip not found: $ZIP_PATH"
-
+  # Acquire the lock first, then re-check the zip under it. The upload dir is
+  # shared, so its state is only trustworthy while we hold the lock.
   acquire_lock
+
+  [[ -f "$ZIP_PATH" ]] || fail "upload zip not found: $ZIP_PATH"
 
   mkdir -p "$LIVE_DIR" "$MANIFEST_DIR"
   bootstrap_existing_assets_manifest
-  rm -rf "$RELEASE_DIR"
   mkdir -p "$RELEASE_DIR"
 
   validate_zip_entries
@@ -307,6 +327,10 @@ main() {
   copy_release_assets
   save_manifest
   cleanup_retained_assets
+
+  # Consumed successfully while holding the lock: drop the zip so a retry
+  # can't redeploy a stale artifact.
+  rm -f "$ZIP_PATH"
 
   log "Deploy done. live_dir=$LIVE_DIR release_id=$RELEASE_ID"
 }

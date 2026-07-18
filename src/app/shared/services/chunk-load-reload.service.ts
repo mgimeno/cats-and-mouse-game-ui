@@ -47,23 +47,35 @@ export class ChunkLoadReloadService {
     }
 
     this.isReloadScheduled = true;
+    this.markReloadAttempt();
     console.error(`Stale chunk detected. Reloading: ${reloadUrl}`, error);
     window.location.assign(reloadUrl);
   }
 
   private canAttemptReload(): boolean {
     try {
-      const now = Date.now();
       const lastAttemptAt = Number(sessionStorage.getItem(SessionStorageKeyEnum.CHUNK_LOAD_RELOAD_ATTEMPT_AT) ?? 0);
 
-      if (Number.isFinite(lastAttemptAt) && now - lastAttemptAt < this.reloadAttemptWindowMs) {
-        return false;
+      if (!Number.isFinite(lastAttemptAt)) {
+        return true;
       }
 
-      sessionStorage.setItem(SessionStorageKeyEnum.CHUNK_LOAD_RELOAD_ATTEMPT_AT, now.toString());
-      return true;
+      const elapsedMs = Date.now() - lastAttemptAt;
+
+      // elapsedMs < 0 means the stored timestamp is in the future (clock skew /
+      // tampering): treat as stale and allow the reload instead of blocking it.
+      return elapsedMs < 0 || elapsedMs >= this.reloadAttemptWindowMs;
     } catch {
       return true;
+    }
+  }
+
+  private markReloadAttempt(): void {
+    try {
+      sessionStorage.setItem(SessionStorageKeyEnum.CHUNK_LOAD_RELOAD_ATTEMPT_AT, Date.now().toString());
+    } catch {
+      // sessionStorage unavailable (private mode / quota): the reload still
+      // proceeds, we just lose loop protection for this attempt.
     }
   }
 
