@@ -1,6 +1,5 @@
 import { inject, Injectable } from '@angular/core';
 import { MatIconRegistry } from '@angular/material/icon';
-import { appLoadStyles } from '../utils/load-to-dom.load-styles.util';
 
 @Injectable({
   providedIn: 'root'
@@ -9,21 +8,9 @@ export class IconService {
   private readonly matIconRegistry = inject(MatIconRegistry);
 
   registerIcons(): void {
-    this.registerMaterialIcons();
+    // The "Material Symbols Outlined" font is self-hosted: the @font-face ships in the bundled
+    // stylesheet (src/styles/_material-symbols.scss) and the woff2 is preloaded from index.html,
+    // both generated from MATERIAL_SYMBOLS_ICON_NAMES via `npm run generate:material-symbols-font`.
     this.matIconRegistry.setDefaultFontSetClass('material-symbols-outlined');
   }
-
-  private registerMaterialIcons = (): void => {
-    const url = 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@300&display=swap&icon_names=';
-
-    // Check icon is not already part of the array, otherwise no icons will load.
-    // No need to add icons sorted alphabetically -> we actively sort them.
-    const icons = ['flag', 'help', 'logout', 'refresh', 'send', 'share'];
-
-    const style = {
-      href: `${url}${icons.sort().join(',')}`
-    };
-
-    appLoadStyles([style]);
-  };
 }

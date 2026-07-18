@@ -1,0 +1,11 @@
+/* Editor/type-check config for the build & data scripts (run via tsx, never bundled by Angular). */
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "composite": false,
+    "noEmit": true,
+    "types": ["node"],
+    "resolveJsonModule": true
+  },
+  "include": ["**/*.ts"]
+}
