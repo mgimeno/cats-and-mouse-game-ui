@@ -41,10 +41,12 @@ const USER_AGENT =
 const ROOT_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const WOFF2_OUTPUT_DIR = join(ROOT_DIR, 'src/assets/icons');
 const SCSS_PARTIAL_FILE = join(ROOT_DIR, 'src/styles/_material-symbols.scss');
-// baseHref-prefixed path as served + preloaded from index.html and referenced from the @font-face
-// (absolute -> left external by esbuild, so it resolves at runtime; the /cats-and-mouse/ prefix
-// matches the production baseHref).
-const WOFF2_PUBLIC_PATH = '/cats-and-mouse/assets/icons/material-symbols-outlined.woff2';
+// Path as preloaded from index.html and referenced from the @font-face. Deliberately RELATIVE
+// (no leading slash, no baseHref prefix) so it resolves under any baseHref: in index.html against
+// <base href>, in the @font-face against the bundled stylesheet's own URL (both sit at the app
+// root). `externalDependencies: ["assets/icons/*"]` in angular.json stops esbuild from resolving
+// and rehashing it into media/, which would break the static preload <link> below.
+const WOFF2_PUBLIC_PATH = 'assets/icons/material-symbols-outlined.woff2';
 // index.html files whose woff2 preload cache-busting query gets stamped in sync with the font.
 const INDEX_FILES = [join(ROOT_DIR, 'src/index.html')];
 

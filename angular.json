@@ -45,7 +45,8 @@
             "stylePreprocessorOptions": {
               "includePaths": ["src/styles"]
             },
-            "browser": "src/main.ts"
+            "browser": "src/main.ts",
+            "externalDependencies": ["assets/icons/*"]
           },
           "configurations": {
             "production": {
@@ -79,8 +80,7 @@
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true,
-              "namedChunks": true,
-              "baseHref": "/cats-and-mouse/"
+              "namedChunks": true
             }
           },
           "defaultConfiguration": "production"
