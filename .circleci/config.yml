@@ -57,7 +57,8 @@ jobs:
             BUILD_DIST_FOLDER="<< pipeline.parameters.build-dist-folder >>"
             PROJECT_FOLDER="<< pipeline.parameters.project-folder >>"
             SERVER_BASE_FOLDER="<< pipeline.parameters.server-base-folder >>"
-            TEMP_UPLOAD_FOLDER="${PROJECT_FOLDER}<< pipeline.parameters.temp-upload-folder-slug >>-${CIRCLE_WORKFLOW_ID:-manual}"
+            TEMP_UPLOAD_PREFIX="${PROJECT_FOLDER}<< pipeline.parameters.temp-upload-folder-slug >>-"
+            TEMP_UPLOAD_FOLDER="${TEMP_UPLOAD_PREFIX}${CIRCLE_WORKFLOW_ID:-manual}"
             REMOTE_TEMP_DIR="${SERVER_BASE_FOLDER%/}/${TEMP_UPLOAD_FOLDER}"
             DEPLOY_ZIP="${PROJECT_FOLDER}-${CIRCLE_SHA1:-manual}.zip"
             RELEASE_ID="${CIRCLE_SHA1:-manual}"
@@ -76,7 +77,7 @@ jobs:
 
             # Merge release into live folder. Old immutable chunks are retained and cleaned after retention.
             ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" \
-              "bash -s -- '$SERVER_BASE_FOLDER' '<< pipeline.parameters.project-folder >>' '$TEMP_UPLOAD_FOLDER' '$DEPLOY_ZIP' '$RETENTION_DAYS' '$RELEASE_ID'" \
+              "bash -s -- '$SERVER_BASE_FOLDER' '<< pipeline.parameters.project-folder >>' '$TEMP_UPLOAD_FOLDER' '$DEPLOY_ZIP' '$RETENTION_DAYS' '$RELEASE_ID' '$TEMP_UPLOAD_PREFIX'" \
               < scripts/deploy-retained-assets.sh
 
 workflows:

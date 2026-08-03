@@ -9,6 +9,7 @@ TEMP_UPLOAD_FOLDER="${3:?temp upload folder is required}"
 ZIP_FILENAME="${4:?zip filename is required}"
 RETENTION_DAYS="${5:-60}"
 RELEASE_ID="${6:-manual}"
+TEMP_UPLOAD_PREFIX="${7:?temp upload prefix is required}"
 
 if [[ "$SERVER_BASE_FOLDER" != /* ]]; then
   echo "ERROR: server base folder must be absolute: $SERVER_BASE_FOLDER" >&2
@@ -51,7 +52,16 @@ validate_file_name() {
 
 validate_folder_name "project folder" "$PROJECT_FOLDER"
 validate_folder_name "temp upload folder" "$TEMP_UPLOAD_FOLDER"
+validate_folder_name "temp upload prefix" "$TEMP_UPLOAD_PREFIX"
 validate_file_name "zip filename" "$ZIP_FILENAME"
+
+case "$TEMP_UPLOAD_FOLDER" in
+  "$TEMP_UPLOAD_PREFIX"*) ;;
+  *)
+    echo "ERROR: temp upload folder does not start with the temp upload prefix: $TEMP_UPLOAD_FOLDER" >&2
+    exit 1
+    ;;
+esac
 
 BASE_DIR="${SERVER_BASE_FOLDER%/}"
 LIVE_DIR="$BASE_DIR/$PROJECT_FOLDER"
@@ -62,6 +72,11 @@ MANIFEST_DIR="$META_DIR/manifests"
 LOCK_DIR="$META_DIR/deploy.lock"
 LOCK_WAIT_SECONDS=300
 LOCK_HELD=0
+# An upload dir is transport-only: the zip is extracted into this run's work
+# dir, so once the release is merged nothing under it is needed. Orphans left
+# by aborted runs are swept after a day — long enough that a deploy queued on
+# the lock (its dir already created by the uploader) is never touched.
+STALE_UPLOAD_DAYS=1
 
 # Per-run working state. Created under the exclusive lock via mktemp so
 # concurrent invocations never share (and clobber) each other's extraction
@@ -279,6 +294,21 @@ cleanup_retained_assets() {
   log "Cleanup done. deleted_immutable_assets=$deleted_count retention_days=$RETENTION_DAYS"
 }
 
+cleanup_upload_dirs() {
+  local stale_count=0
+  local stale_dir
+
+  rm -rf "$UPLOAD_DIR"
+
+  while IFS= read -r -d '' stale_dir; do
+    [[ "$stale_dir" != "$UPLOAD_DIR" && "$stale_dir" != "$LIVE_DIR" && "$stale_dir" != "$META_DIR" ]] || continue
+    rm -rf "$stale_dir"
+    stale_count=$((stale_count + 1))
+  done < <(find "$BASE_DIR" -mindepth 1 -maxdepth 1 -type d -name "$TEMP_UPLOAD_PREFIX*" -mtime "+$STALE_UPLOAD_DAYS" -print0)
+
+  log "Upload dirs cleaned. stale_upload_dirs=$stale_count stale_upload_days=$STALE_UPLOAD_DAYS"
+}
+
 acquire_lock() {
   local waited=0
 
@@ -328,9 +358,10 @@ main() {
   save_manifest
   cleanup_retained_assets
 
-  # Consumed successfully while holding the lock: drop the zip so a retry
-  # can't redeploy a stale artifact.
-  rm -f "$ZIP_PATH"
+  # Consumed successfully while holding the lock: drop this run's upload dir
+  # (zip included, so a retry can't redeploy a stale artifact) and sweep the
+  # orphans aborted runs left behind.
+  cleanup_upload_dirs
 
   log "Deploy done. live_dir=$LIVE_DIR release_id=$RELEASE_ID"
 }
