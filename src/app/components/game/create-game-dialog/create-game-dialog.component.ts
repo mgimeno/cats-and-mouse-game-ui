@@ -31,7 +31,6 @@ import { environment } from 'src/environments/environment';
     TeamSelectComponent
   ],
   templateUrl: './create-game-dialog.component.html',
-  styleUrls: ['./create-game-dialog.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CreateGameDialogComponent {

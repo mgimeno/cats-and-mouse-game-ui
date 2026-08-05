@@ -20,8 +20,10 @@ describe('HomeComponent', () => {
   let signalrService: {
     sendMessage: ReturnType<typeof vi.fn>;
     subscribeToMethod: ReturnType<typeof vi.fn>;
+    onResync: ReturnType<typeof vi.fn>;
   };
   let subscriptions: Map<string, (message: unknown) => void>;
+  let resync: () => void;
   let dialog: { open: ReturnType<typeof vi.fn> };
   let router: { navigate: ReturnType<typeof vi.fn> };
   let notificationService: { showCommonError: ReturnType<typeof vi.fn>; showError: ReturnType<typeof vi.fn> };
@@ -36,6 +38,10 @@ describe('HomeComponent', () => {
       sendMessage: vi.fn().mockResolvedValue(undefined),
       subscribeToMethod: vi.fn((methodName: string, callback: (message: unknown) => void) => {
         subscriptions.set(methodName, callback);
+        return vi.fn();
+      }),
+      onResync: vi.fn((callback: () => void) => {
+        resync = callback;
         return vi.fn();
       })
     };
@@ -130,6 +136,16 @@ describe('HomeComponent', () => {
 
     expect(dialog.open).not.toHaveBeenCalled();
     expect(notificationService.showError).toHaveBeenCalledWith('Game does not exist');
+  });
+
+  it('refetches lobby state on resync', () => {
+    component.ngOnInit();
+    signalrService.sendMessage.mockClear();
+
+    resync();
+
+    expect(signalrService.sendMessage).toHaveBeenCalledWith('SendWhetherHasInProgressGameToCaller');
+    expect(signalrService.sendMessage).toHaveBeenCalledWith('SendGamesAwaitingForSecondPlayerToCallerAsync');
   });
 
   it('closes open dialogs and routes to play when the game starts', () => {

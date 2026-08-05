@@ -28,6 +28,8 @@ import { LoaderComponent } from 'src/app/shared/components/loader/loader.compone
 import { NotificationService } from 'src/app/shared/services/notification.service';
 import { SignalrService } from '../../../shared/services/signalr-service';
 import { TeamEnum } from 'src/app/shared/enums/team.enum';
+import { TurnAlertService } from 'src/app/shared/services/turn-alert.service';
+import { WakeLockService } from 'src/app/shared/services/wake-lock.service';
 
 interface GameInfo {
   header: string;
@@ -55,8 +57,9 @@ export class PlayGameComponent implements OnInit, OnDestroy {
   private readonly notificationService = inject(NotificationService);
   private readonly dialog = inject(MatDialog);
   private readonly bottomSheet = inject(MatBottomSheet);
+  private readonly turnAlertService = inject(TurnAlertService);
+  private readonly wakeLockService = inject(WakeLockService);
   private readonly unsubscribeCallbacks: (() => void)[] = [];
-  private readonly beepAudio = new Audio(COMMON_CONSTANTS.BEEP_AUDIO_DATA);
 
   readonly boardIndexes = [0, 1, 2, 3, 4, 5, 6, 7];
   readonly turnInfoState = signal(TurnInfoStateEnum.Initial);
@@ -77,14 +80,16 @@ export class PlayGameComponent implements OnInit, OnDestroy {
         this.alertUserIfItsTheirTurnOrGameOver();
         this.resetSentRematchRequestIfNeeded();
         this.updateTurnInfoState();
+        this.updateWakeLock();
+      }),
+      // The board renders whatever the last push said, so a transport that died while
+      // the page was backgrounded leaves it confidently wrong. Refetch instead.
+      this.signalrService.onResync(() => {
+        this.requestInProgressGame();
       })
     );
 
-    this.signalrService.sendMessage('SendInProgressGameStatusToCaller').catch(reason => {
-      console.error(reason);
-      this.notificationService.showError($localize`:@@home.game_does_not_exist:Game does not exist`);
-      void this.router.navigate(['/']);
-    });
+    this.requestInProgressGame();
   }
 
   onChessBoxClicked(rowIndex: number, columnIndex: number): void {
@@ -201,6 +206,16 @@ export class PlayGameComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.unsubscribeCallbacks.forEach(unsubscribe => unsubscribe());
+    this.turnAlertService.clear();
+    this.wakeLockService.setEnabled(false);
+  }
+
+  private requestInProgressGame(): void {
+    this.signalrService.sendMessage('SendInProgressGameStatusToCaller').catch(reason => {
+      console.error(reason);
+      this.notificationService.showError($localize`:@@home.game_does_not_exist:Game does not exist`);
+      void this.router.navigate(['/']);
+    });
   }
 
   private buildGameInfo(): GameInfo {
@@ -254,9 +269,19 @@ export class PlayGameComponent implements OnInit, OnDestroy {
   }
 
   private alertUserIfItsTheirTurnOrGameOver(): void {
-    if (this.isMyTurn() || this.isGameOver()) {
-      void this.beepAudio.play().catch((): void => undefined);
+    if (!this.isMyTurn() && !this.isGameOver()) {
+      this.turnAlertService.clear();
+      return;
     }
+
+    // The header already says exactly what happened ("Your turn!", "You win!"), in the
+    // player's language, so it doubles as the tab title while they are away.
+    this.turnAlertService.alert(this.gameInfo().header);
+  }
+
+  private updateWakeLock(): void {
+    // Only worth holding the screen open while there is a live opponent to wait for.
+    this.wakeLockService.setEnabled(!this.isGameOver() && !this.hasAnyPlayerLeft());
   }
 
   private resetSentRematchRequestIfNeeded(): void {

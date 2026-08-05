@@ -9,6 +9,7 @@ import { environment } from 'src/environments/environment';
 import { getSupportedLanguage, localeByLanguage, supportedLanguages } from 'src/translations';
 import { LoadingDialogComponent } from './components/loading-dialog/loading-dialog.component';
 import { type IPlayerHasInProgressGameMessage } from './shared/interfaces/player-has-in-progress-game-message';
+import { PageVisibilityService } from './shared/services/page-visibility.service';
 import { SignalrService } from './shared/services/signalr-service';
 import { ChunkLoadReloadService } from './shared/services/chunk-load-reload.service';
 import { CommonHelper } from './shared/utils/common-util';
@@ -27,6 +28,7 @@ export class AppComponent {
   private readonly title = inject(Title);
   private readonly destroyRef = inject(DestroyRef);
   private readonly chunkLoadReloadService = inject(ChunkLoadReloadService);
+  private readonly pageVisibilityService = inject(PageVisibilityService);
 
   private reconnectingDialogRef: MatDialogRef<LoadingDialogComponent> | null = null;
 
@@ -109,7 +111,12 @@ export class AppComponent {
 
   private watchConnectionStatus(): void {
     effect(() => {
-      if (this.signalrService.connected()) {
+      // A player who is not looking gains nothing from this dialog, and one opened in
+      // the background would still be sitting there on their return even though the
+      // connection has since recovered. Reconnection itself continues either way.
+      const isReconnectionVisibleToPlayer = this.pageVisibilityService.visible() && !this.signalrService.connected();
+
+      if (!isReconnectionVisibleToPlayer) {
         this.reconnectingDialogRef?.close();
         this.reconnectingDialogRef = null;
         return;

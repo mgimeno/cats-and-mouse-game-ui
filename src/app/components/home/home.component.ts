@@ -71,18 +71,15 @@ export class HomeComponent implements OnInit, OnDestroy {
       }),
       this.signalrService.subscribeToMethod<IGameStatusMessage>('GameStatus', () => {
         this.goToPlay();
+      }),
+      // The open-games list and any in-progress game both move on without us while the
+      // page is backgrounded, so refetch rather than trusting the last push.
+      this.signalrService.onResync(() => {
+        this.requestHomeState();
       })
     );
 
-    this.signalrService.sendMessage('SendWhetherHasInProgressGameToCaller').catch(reason => {
-      console.error(reason);
-      this.notificationService.showCommonError();
-    });
-
-    this.signalrService.sendMessage('SendGamesAwaitingForSecondPlayerToCallerAsync').catch(reason => {
-      console.error(reason);
-      this.notificationService.showCommonError();
-    });
+    this.requestHomeState();
   }
 
   openSelectLanguage(): void {
@@ -145,6 +142,18 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.unsubscribeCallbacks.forEach(unsubscribe => unsubscribe());
+  }
+
+  private requestHomeState(): void {
+    this.signalrService.sendMessage('SendWhetherHasInProgressGameToCaller').catch(reason => {
+      console.error(reason);
+      this.notificationService.showCommonError();
+    });
+
+    this.signalrService.sendMessage('SendGamesAwaitingForSecondPlayerToCallerAsync').catch(reason => {
+      console.error(reason);
+      this.notificationService.showCommonError();
+    });
   }
 
   private goToPlay(): void {

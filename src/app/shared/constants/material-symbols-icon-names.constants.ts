@@ -11,11 +11,4 @@
  *
  * No need to keep this sorted -> the generator sorts + de-dupes before subsetting.
  */
-export const MATERIAL_SYMBOLS_ICON_NAMES: readonly string[] = [
-  'flag',
-  'help',
-  'logout',
-  'refresh',
-  'send',
-  'share'
-];
+export const MATERIAL_SYMBOLS_ICON_NAMES: readonly string[] = ['flag', 'help', 'logout', 'refresh', 'send', 'share'];

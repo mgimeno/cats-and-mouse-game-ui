@@ -12,6 +12,8 @@ import { type IGameStatus } from 'src/app/shared/interfaces/game-status.interfac
 import { type IGameStatusMessage } from 'src/app/shared/interfaces/game-status-message.interface';
 import { NotificationService } from 'src/app/shared/services/notification.service';
 import { SignalrService } from 'src/app/shared/services/signalr-service';
+import { TurnAlertService } from 'src/app/shared/services/turn-alert.service';
+import { WakeLockService } from 'src/app/shared/services/wake-lock.service';
 import { PlayGameComponent } from './play-game.component';
 
 describe('PlayGameComponent', () => {
@@ -20,26 +22,28 @@ describe('PlayGameComponent', () => {
   let signalrService: {
     sendMessage: ReturnType<typeof vi.fn>;
     subscribeToMethod: ReturnType<typeof vi.fn>;
+    onResync: ReturnType<typeof vi.fn>;
   };
   let subscriptions: Map<string, (message: unknown) => void>;
-  let audioPlay: ReturnType<typeof vi.fn>;
+  let resync: () => void;
+  let turnAlertService: { alert: ReturnType<typeof vi.fn>; clear: ReturnType<typeof vi.fn> };
+  let wakeLockService: { setEnabled: ReturnType<typeof vi.fn> };
   let router: { navigate: ReturnType<typeof vi.fn> };
   let notificationService: { showCommonError: ReturnType<typeof vi.fn>; showError: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
     subscriptions = new Map();
-    audioPlay = vi.fn().mockResolvedValue(undefined);
-    vi.stubGlobal(
-      'Audio',
-      class {
-        play = audioPlay;
-      }
-    );
+    turnAlertService = { alert: vi.fn(), clear: vi.fn() };
+    wakeLockService = { setEnabled: vi.fn() };
 
     signalrService = {
       sendMessage: vi.fn().mockResolvedValue(undefined),
       subscribeToMethod: vi.fn((methodName: string, callback: (message: unknown) => void) => {
         subscriptions.set(methodName, callback);
+        return vi.fn();
+      }),
+      onResync: vi.fn((callback: () => void) => {
+        resync = callback;
         return vi.fn();
       })
     };
@@ -53,6 +57,8 @@ describe('PlayGameComponent', () => {
         { provide: SignalrService, useValue: signalrService },
         { provide: Router, useValue: router },
         { provide: NotificationService, useValue: notificationService },
+        { provide: TurnAlertService, useValue: turnAlertService },
+        { provide: WakeLockService, useValue: wakeLockService },
         { provide: MatDialog, useValue: { open: vi.fn() } },
         { provide: MatBottomSheet, useValue: { open: vi.fn(() => ({ afterDismissed: () => of(false) })) } }
       ]
@@ -67,7 +73,6 @@ describe('PlayGameComponent', () => {
   });
 
   afterEach(() => {
-    vi.unstubAllGlobals();
     TestBed.resetTestingModule();
   });
 
@@ -88,7 +93,56 @@ describe('PlayGameComponent', () => {
     expect(component.chessBoard()[2][1].isFigureSelected).toBe(true);
     expect(component.chessBoard()[3][0].canBeNewPositionForSelectedFigure).toBe(true);
     expect(component.chessBoard()[3][2].canBeNewPositionForSelectedFigure).toBe(true);
-    expect(audioPlay).toHaveBeenCalledOnce();
+    expect(turnAlertService.alert).toHaveBeenCalledWith('Your turn!');
+    expect(wakeLockService.setEnabled).toHaveBeenLastCalledWith(true);
+  });
+
+  it('clears the turn alert while waiting on the opponent', () => {
+    component.ngOnInit();
+
+    emitGameStatus({
+      ...gameStatusWithOneMovableCat(),
+      players: [
+        { ...gameStatusWithOneMovableCat().players[0], isTheirTurn: false },
+        { ...gameStatusWithOneMovableCat().players[1], isTheirTurn: true }
+      ]
+    });
+
+    expect(turnAlertService.clear).toHaveBeenCalled();
+    expect(turnAlertService.alert).not.toHaveBeenCalled();
+  });
+
+  it('alerts with the result and stops holding the screen awake once the game is over', () => {
+    component.ngOnInit();
+
+    emitGameStatus({
+      ...gameStatusWithOneMovableCat(),
+      players: [
+        { ...gameStatusWithOneMovableCat().players[0], isWinner: true, isTheirTurn: false },
+        { ...gameStatusWithOneMovableCat().players[1], isTheirTurn: false }
+      ]
+    });
+
+    expect(turnAlertService.alert).toHaveBeenCalledWith('You win!');
+    expect(wakeLockService.setEnabled).toHaveBeenLastCalledWith(false);
+  });
+
+  it('refetches the game on resync, because a dead transport leaves the board stale', () => {
+    component.ngOnInit();
+    signalrService.sendMessage.mockClear();
+
+    resync();
+
+    expect(signalrService.sendMessage).toHaveBeenCalledWith('SendInProgressGameStatusToCaller');
+  });
+
+  it('drops the turn alert and the wake lock when leaving the game', () => {
+    component.ngOnInit();
+
+    component.ngOnDestroy();
+
+    expect(turnAlertService.clear).toHaveBeenCalled();
+    expect(wakeLockService.setEnabled).toHaveBeenLastCalledWith(false);
   });
 
   it('subscribes to game status before requesting the current game', () => {

@@ -53,8 +53,7 @@ const INDEX_FILES = [join(ROOT_DIR, 'src/index.html')];
 // The subset URL has no ".woff2" extension (it's `url(...) format('woff2')`), so match on the format hint.
 const WOFF2_URL_REGEX = /url\((https:\/\/[^)]+)\)\s*format\(["']woff2["']\)/g;
 
-const shortHash = (content: Buffer | string): string =>
-  createHash('sha256').update(content).digest('hex').slice(0, 8);
+const shortHash = (content: Buffer | string): string => createHash('sha256').update(content).digest('hex').slice(0, 8);
 
 /** Rewrites the `?v=` cache-busting query on the woff2 preload <link> in every index file. */
 const stampWoff2PreloadVersion = (woff2Version: string): void => {
