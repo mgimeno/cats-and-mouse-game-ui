@@ -89,10 +89,12 @@ describe('SignalrService', () => {
     localStorage.clear();
   });
 
-  it('asks the hub for stateful reconnect so brief drops do not lose pushes', async () => {
+  it('does not opt into stateful reconnect, whose failed resume bypasses automatic reconnect', async () => {
     await connect();
 
-    expect(withStatefulReconnect).toHaveBeenCalled();
+    // A failed in-place resume calls _stopConnection instead of handing over to
+    // withAutomaticReconnect, so a drop a proxy will not carry becomes a dead socket.
+    expect(withStatefulReconnect).not.toHaveBeenCalled();
   });
 
   it('does not ask subscribers to resync on the first connection', async () => {
@@ -110,6 +112,32 @@ describe('SignalrService', () => {
     expect(onResync).toHaveBeenCalledOnce();
   });
 
+  it('resets the game feed before re-registering, since the hub replays it from the start', async () => {
+    const onGameFeedReset = vi.fn<() => void>();
+    const service = await connect();
+    service.onGameFeedReset(onGameFeedReset);
+    hub.invoke.mockClear();
+
+    reconnectedHandlers.forEach(handler => handler());
+    await settle();
+
+    // The replayed pushes arrive ahead of the invocation's own completion, so a reset
+    // that ran afterwards would wipe the very conversation it was meant to rebuild.
+    expect(onGameFeedReset).toHaveBeenCalledOnce();
+    expect(onGameFeedReset.mock.invocationCallOrder[0]).toBeLessThan(hub.invoke.mock.invocationCallOrder[0]);
+  });
+
+  it('does not reset the game feed on the first connection', async () => {
+    const onGameFeedReset = vi.fn<() => void>();
+    const created = TestBed.inject(SignalrService);
+    created.onGameFeedReset(onGameFeedReset);
+
+    created.startConnection();
+    await settle();
+
+    expect(onGameFeedReset).not.toHaveBeenCalled();
+  });
+
   it('registers the user before asking subscribers to resync, so the hub knows who is asking', async () => {
     await connect();
     hub.invoke.mockClear();
@@ -119,6 +147,19 @@ describe('SignalrService', () => {
 
     expect(hub.invoke).toHaveBeenCalledWith('RegisterConnection', 'user-1');
     expect(hub.invoke.mock.invocationCallOrder[0]).toBeLessThan(onResync.mock.invocationCallOrder[0]);
+  });
+
+  it('does not ask subscribers to resync when registration failed', async () => {
+    await connect();
+    // Without the connection-to-user mapping every refetch throws, and play-game reads
+    // that as a missing game and routes the player out of a game that is still alive.
+    hub.invoke.mockRejectedValue(new Error('Connection is not registered'));
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    reconnectedHandlers.forEach(handler => handler());
+    await settle();
+
+    expect(onResync).not.toHaveBeenCalled();
   });
 
   it('ignores a momentary tab switch', async () => {

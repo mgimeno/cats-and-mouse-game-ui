@@ -12,6 +12,7 @@ import { type IForegroundContext, PageVisibilityService } from './page-visibilit
 type HubCallback<T> = (message: T) => void;
 type GameFeedCallback = (event: GameFeedEvent) => boolean;
 type ResyncCallback = () => void;
+type GameFeedResetCallback = () => void;
 
 const GAME_FEED_BUFFER_SIZE = 100;
 const GAME_FEED_GAME_BUFFER_LIMIT = 20;
@@ -49,6 +50,7 @@ export class SignalrService {
   private readonly connectionStateSignal = signal(signalR.HubConnectionState.Disconnected);
   private readonly gameFeedCallbacks = new Set<GameFeedCallback>();
   private readonly resyncCallbacks = new Set<ResyncCallback>();
+  private readonly gameFeedResetCallbacks = new Set<GameFeedResetCallback>();
   private readonly pendingGameFeedEvents = new Map<string, GameFeedEvent[]>();
   private readonly pendingRetryWakeUps = new Set<() => void>();
 
@@ -69,6 +71,7 @@ export class SignalrService {
       unsubscribeFromForeground();
       this.resyncCallbacks.clear();
       this.gameFeedCallbacks.clear();
+      this.gameFeedResetCallbacks.clear();
     });
   }
 
@@ -113,6 +116,17 @@ export class SignalrService {
     return () => this.resyncCallbacks.delete(callback);
   }
 
+  /**
+   * Runs just before the hub replays the game feed from the beginning, which it does on
+   * every reconnection. Subscribers accumulate feed events into a list, so they have to
+   * drop what they are holding or the replay renders every line a second time.
+   */
+  onGameFeedReset(callback: GameFeedResetCallback): () => void {
+    this.gameFeedResetCallbacks.add(callback);
+
+    return () => this.gameFeedResetCallbacks.delete(callback);
+  }
+
   async sendMessage<TResponse = unknown, TParameters = unknown>(
     method: string,
     parameters?: TParameters
@@ -136,10 +150,12 @@ export class SignalrService {
       .withUrl(environment.apiGameHubUrl)
       .configureLogging(environment.production ? signalR.LogLevel.Warning : signalR.LogLevel.Information)
       .withAutomaticReconnect(this.reconnectPolicy)
-      // Buffers and replays messages across brief drops so a backgrounded tab does not
-      // silently miss an opponent's move. Inert until the hub sets AllowStatefulReconnects:
-      // the client only enables the buffer when the negotiate response opts in.
-      .withStatefulReconnect()
+      // Deliberately no withStatefulReconnect(). It resumes a dropped socket in place and
+      // replays buffered messages, but a failed resume calls _stopConnection directly and
+      // never hands over to withAutomaticReconnect, so any environment that will not carry
+      // the resumed connection id (a proxy in front of the hub, for one) turns a recoverable
+      // drop into a dead connection. onResync already refetches authoritative state after
+      // every reconnect, which is the correctness guarantee the replay was standing in for.
       .build();
 
     this.registerGameFeedHandlers();
@@ -220,11 +236,19 @@ export class SignalrService {
     const isReconnection = this.hasConnectedBefore;
     this.hasConnectedBefore = true;
 
-    await this.registerConnectionSafely();
-
-    // Anything the hub pushed while the transport was down is gone unless the server
-    // also enables stateful reconnect, so subscribers have to refetch their state.
+    // Must happen before registering: the hub answers that call by replaying the whole
+    // feed, and those pushes arrive ahead of the invocation's own completion.
     if (isReconnection) {
+      this.notifyGameFeedReset();
+    }
+
+    const isRegistered = await this.registerConnectionSafely();
+
+    // Anything the hub pushed while the transport was down is gone, so subscribers have
+    // to refetch. Only once registered, though: without the connection-to-user mapping
+    // every refetch throws, and play-game reads a failed fetch as a missing game and
+    // sends the player home -- out of a game that is still perfectly alive.
+    if (isReconnection && isRegistered) {
       this.notifyResyncCallbacks();
     }
   }
@@ -317,18 +341,21 @@ export class SignalrService {
     await this.start();
   }
 
-  private async registerConnectionSafely(): Promise<void> {
+  /** Returns whether the hub now maps this connection to the browser's user id. */
+  private async registerConnectionSafely(): Promise<boolean> {
     const userId = localStorage.getItem(`${environment.localStoragePrefix}user-id`);
     if (!userId || !this.isConnected) {
-      return;
+      return false;
     }
 
     try {
       await this.ensureConnection().invoke('RegisterConnection', userId);
+      return true;
     } catch (error) {
       // The transport is up and only the user-id association failed, so log it rather
-      // than tearing down a working connection.
+      // than tearing down a working connection. The next reconnect retries it.
       console.error('SignalR connection registration failed', error);
+      return false;
     }
   }
 
@@ -394,6 +421,20 @@ export class SignalrService {
       console.error('SignalR game feed handler failed', error);
       return false;
     }
+  }
+
+  private notifyGameFeedReset(): void {
+    // The replay repopulates this too, so anything held for a screen that has not
+    // subscribed yet would otherwise be duplicated as well.
+    this.pendingGameFeedEvents.clear();
+
+    this.gameFeedResetCallbacks.forEach(callback => {
+      try {
+        callback();
+      } catch (error) {
+        console.error('SignalR game feed reset handler failed', error);
+      }
+    });
   }
 
   private notifyResyncCallbacks(): void {

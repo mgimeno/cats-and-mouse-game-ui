@@ -54,6 +54,11 @@ export class ChatComponent implements OnInit, OnDestroy {
 
         this.addGameFeedEvent(event);
         return true;
+      }),
+      // Reconnecting makes the hub replay the whole conversation, so start from empty
+      // and let that replay rebuild it rather than appending a second copy.
+      this.signalrService.onGameFeedReset(() => {
+        this.chatLines.set([]);
       })
     );
   }

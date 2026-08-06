@@ -12,9 +12,11 @@ describe('ChatComponent', () => {
   let signalrService: {
     sendMessage: ReturnType<typeof vi.fn>;
     subscribeToGameFeed: ReturnType<typeof vi.fn>;
+    onGameFeedReset: ReturnType<typeof vi.fn>;
   };
   let notificationService: { showCommonError: ReturnType<typeof vi.fn> };
   let subscriptions: Map<string, (event: GameFeedEvent) => void>;
+  let resetGameFeed: () => void;
 
   beforeEach(async () => {
     subscriptions = new Map();
@@ -22,6 +24,10 @@ describe('ChatComponent', () => {
       sendMessage: vi.fn().mockResolvedValue(undefined),
       subscribeToGameFeed: vi.fn((callback: (event: GameFeedEvent) => boolean) => {
         subscriptions.set('game-feed', callback);
+        return vi.fn();
+      }),
+      onGameFeedReset: vi.fn((callback: () => void) => {
+        resetGameFeed = callback;
         return vi.fn();
       })
     };
@@ -90,6 +96,25 @@ describe('ChatComponent', () => {
     expect(component.chatLines()).toHaveLength(100);
     expect(component.chatLines()[0].userName).toBe('user-5');
     expect(component.chatLines()[99].userName).toBe('user-104');
+  });
+
+  it('drops the conversation on a feed reset so the replay does not double it', () => {
+    emit('ChatMessage', {
+      gameId: 'game-1',
+      chatLine: { userName: 'Marta', teamId: TeamEnum.Cats, message: 'hello' }
+    });
+
+    // Reconnecting makes the hub replay the whole conversation from the start.
+    resetGameFeed();
+
+    expect(component.chatLines()).toEqual([]);
+
+    emit('ChatMessage', {
+      gameId: 'game-1',
+      chatLine: { userName: 'Marta', teamId: TeamEnum.Cats, message: 'hello' }
+    });
+
+    expect(component.chatLines()).toHaveLength(1);
   });
 
   it('trims outgoing messages, sends them, and clears the input', async () => {
