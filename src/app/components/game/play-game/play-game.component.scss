@@ -99,10 +99,10 @@
 @media only screen and (width <= #{px-to-rem(520px)}) {
   .play-container .options-container .options-buttons {
     justify-content: center;
+  }
 
-    .how-to-play-btn {
-      display: none;
-    }
+  .game-over .how-to-play-btn {
+    display: none;
   }
 }
 

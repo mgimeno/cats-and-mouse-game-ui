@@ -3,7 +3,7 @@
     <app-loader />
   </div>
 } @else {
-  <div class="play-container">
+  <div class="play-container" [class.game-over]="isGameOver()">
     <div class="game-container">
       <div class="wrapper">
         <div class="text-center turn-info">
