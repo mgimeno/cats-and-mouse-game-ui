@@ -24,6 +24,6 @@ Available in English, Spanish, French, Portuguese, German & Italian.
 
 ## Development
 
-Built with Angular 21 & SignalR. Responsive design for mobile/tablet/desktop.
+Built with Angular 22 & SignalR. Responsive design for mobile/tablet/desktop.
 
 API built using .NET 10.0 and SignalR.
