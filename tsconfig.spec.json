@@ -4,7 +4,15 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./out-tsc/spec",
+    /* `vitest/globals` mirrors the `globals: true` default of `@angular/build:unit-test`. */
+    /* No "node": this project compiles application source too, and Node's
+       `setTimeout` overload would change its return type from `number` to
+       `Timeout`, breaking code that stores browser timer handles. */
     "types": ["vitest/globals", "@angular/localize"]
   },
-  "include": ["src/**/*.spec.ts", "src/**/*.d.ts", "src/polyfills.ts"]
+  /* Specs import application source directly, and the root config is `composite`,
+     so every file reachable from a spec has to be listed here — otherwise `tsc -b`
+     reports TS6307 for each one. Mirroring the app include also keeps this project
+     identical to what the test builder compiles. */
+  "include": ["src/**/*.ts", "src/**/*.d.ts"]
 }

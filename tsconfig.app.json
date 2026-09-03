@@ -9,6 +9,10 @@
     "noUnusedParameters": true
   },
   "files": ["src/main.ts", "src/polyfills.ts"],
-  "include": ["src/**/*.d.ts"],
-  "exclude": ["src/**/*.spec.ts", "src/test.ts"]
+  /* The root config is `composite`, so every file reachable from an entry point has
+     to be listed here — a bare `files` list leaves `tsc -b` reporting TS6307 for each
+     transitively imported module. The Angular builder discovers them on its own,
+     which is why `ng build` never surfaced this. */
+  "include": ["src/**/*.ts", "src/**/*.d.ts"],
+  "exclude": ["src/**/*.spec.ts"]
 }

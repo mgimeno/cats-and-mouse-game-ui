@@ -17,6 +17,8 @@ tsconfig.tsbuildinfo
 
 # Test output
 coverage/
+# Vitest 5 writes attachments, blob reports and HTML/JSON output here.
+.vitest/
 
 # Logs
 *.log
