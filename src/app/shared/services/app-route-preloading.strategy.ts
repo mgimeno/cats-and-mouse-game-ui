@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { type PreloadingStrategy, type Route } from '@angular/router';
+import { DestroyRef, inject, Injectable, Injector } from '@angular/core';
+import { type PreloadingStrategy, type Route, RouterPreloader } from '@angular/router';
 import { catchError, EMPTY, Observable, type Subscriber, type Subscription } from 'rxjs';
 
 interface AppRoutePreloadData {
@@ -22,10 +22,30 @@ interface AppRoutePreloadTask {
   providedIn: 'root'
 })
 export class AppRoutePreloadingStrategy implements PreloadingStrategy {
+  private readonly injector = inject(Injector);
   private readonly queue: AppRoutePreloadTask[] = [];
   private activeTask?: AppRoutePreloadTask;
   private drainScheduled = false;
   private nextOrder = 0;
+
+  constructor() {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    // Preloading skips every route while offline (see `canPreloadForNetwork`), and the router only
+    // preloads again after its next navigation: coming back online is the moment to catch up.
+    // Resolved lazily - `RouterPreloader` itself depends on this strategy.
+    const preloadOnReconnect = (): void => {
+      this.injector
+        .get(RouterPreloader)
+        .preload()
+        .subscribe({ error: (): void => undefined });
+    };
+
+    window.addEventListener('online', preloadOnReconnect);
+    inject(DestroyRef).onDestroy(() => window.removeEventListener('online', preloadOnReconnect));
+  }
 
   preload(route: Route, load: () => Observable<unknown>): Observable<unknown> {
     const data = route.data as AppRoutePreloadData | undefined;
@@ -59,6 +79,12 @@ export class AppRoutePreloadingStrategy implements PreloadingStrategy {
   private canPreloadForNetwork(): boolean {
     if (typeof navigator === 'undefined') {
       return true;
+    }
+
+    // Never offline: a browser caches a failed dynamic import for the life of the document, so a
+    // preload attempted without a connection would break the very route it was warming.
+    if (!navigator.onLine) {
+      return false;
     }
 
     const connection = (

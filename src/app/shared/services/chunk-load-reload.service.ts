@@ -1,6 +1,15 @@
 import { Injectable } from '@angular/core';
 import { SessionStorageKeyEnum } from '../enums/session-storage-key.enum';
 
+/**
+ * Recovers from a lazily loaded chunk that failed to load - by reloading, the only thing that works:
+ * a browser caches a failed dynamic `import()` for the life of the document, and Angular marks a
+ * `@defer` block whose dependencies failed as failed for good.
+ *
+ * What this service really owns is when to reload. Never without a network to reload from: that
+ * swaps a working app, and the page the user was on, for the browser's offline page - so it waits
+ * until the app's own server answers. And never in a loop (see `reloadAttemptWindowMs`).
+ */
 @Injectable({
   providedIn: 'root'
 })
@@ -10,10 +19,18 @@ export class ChunkLoadReloadService {
     /ChunkLoadError/i,
     /Failed to fetch dynamically imported module/i,
     /error loading dynamically imported module/i,
-    /Importing a module script failed/i
+    /Importing a module script failed/i,
+    // A `@defer` block whose dependencies failed to load: production builds keep only the code.
+    /NG0750/
   ];
 
-  private readonly reloadAttemptWindowMs = 10_000;
+  /**
+   * A chunk that is really gone - a tab outliving a deploy that removed it - fails again right after
+   * the reload. Reloading at most once per window ends that at a console error, not in a loop.
+   */
+  private readonly reloadAttemptWindowMs = 60_000;
+  private readonly originProbeTimeoutMs = 8_000;
+  private readonly originProbeRetryDelayMs = 5_000;
   private isReloadScheduled = false;
 
   isChunkLoadError(error: unknown): boolean {
@@ -47,9 +64,42 @@ export class ChunkLoadReloadService {
     }
 
     this.isReloadScheduled = true;
-    this.markReloadAttempt();
-    console.error(`Stale chunk detected. Reloading: ${reloadUrl}`, error);
-    window.location.assign(reloadUrl);
+    console.error(`Stale chunk detected. Reloading once the app server answers: ${reloadUrl}`, error);
+
+    void this.waitForReachableOrigin().then(() => {
+      this.markReloadAttempt();
+      window.location.assign(reloadUrl);
+    });
+  }
+
+  private async waitForReachableOrigin(): Promise<void> {
+    for (;;) {
+      if (!navigator.onLine) {
+        await new Promise<void>(resolve => window.addEventListener('online', () => resolve(), { once: true }));
+      }
+
+      if (await this.isOriginReachable()) {
+        return;
+      }
+
+      await new Promise<void>(resolve => window.setTimeout(resolve, this.originProbeRetryDelayMs));
+    }
+  }
+
+  /** Probes the app's own base URL, so a deployment under a sub-path probes itself, not the host. */
+  private async isOriginReachable(): Promise<boolean> {
+    try {
+      const response = await fetch(document.baseURI, {
+        method: 'HEAD',
+        cache: 'no-store',
+        credentials: 'omit',
+        signal: AbortSignal.timeout(this.originProbeTimeoutMs)
+      });
+
+      return response.ok;
+    } catch {
+      return false;
+    }
   }
 
   private canAttemptReload(): boolean {
