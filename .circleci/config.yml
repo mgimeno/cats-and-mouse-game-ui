@@ -17,7 +17,7 @@ jobs:
   build:
     working_directory: ~/<< pipeline.parameters.project-folder >>
     docker:
-      - image: cimg/node:24.15.0
+      - image: cimg/node:24.22.1
     resource_class: arm.medium
     steps:
       - checkout
