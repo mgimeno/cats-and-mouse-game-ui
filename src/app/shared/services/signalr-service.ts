@@ -57,10 +57,16 @@ export class SignalrService {
   private hubConnection: signalR.HubConnection | null = null;
   private startPromise: Promise<void> | null = null;
   private recoveryPromise: Promise<void> | null = null;
-  private hasConnectedBefore = false;
+  private readonly hasConnectedBeforeSignal = signal(false);
 
   readonly connectionState = this.connectionStateSignal.asReadonly();
   readonly connected = computed(() => this.connectionState() === signalR.HubConnectionState.Connected);
+
+  /**
+   * Whether this page has ever completed a connection. Distinguishes the very first
+   * connect, which the player expects to take a moment, from losing one they had.
+   */
+  readonly hasConnectedBefore = this.hasConnectedBeforeSignal.asReadonly();
 
   constructor() {
     const unsubscribeFromForeground = this.pageVisibilityService.onForeground(context => {
@@ -233,8 +239,8 @@ export class SignalrService {
   private async onConnectionEstablished(): Promise<void> {
     this.connectionStateSignal.set(signalR.HubConnectionState.Connected);
 
-    const isReconnection = this.hasConnectedBefore;
-    this.hasConnectedBefore = true;
+    const isReconnection = this.hasConnectedBeforeSignal();
+    this.hasConnectedBeforeSignal.set(true);
 
     // Must happen before registering: the hub answers that call by replaying the whole
     // feed, and those pushes arrive ahead of the invocation's own completion.
