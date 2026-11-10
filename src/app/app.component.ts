@@ -1,11 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  effect,
-  type EffectCleanupRegisterFn,
-  inject
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatDialog, type MatDialogRef } from '@angular/material/dialog';
 import { Meta, Title } from '@angular/platform-browser';
@@ -20,17 +13,6 @@ import { PageVisibilityService } from './shared/services/page-visibility.service
 import { SignalrService } from './shared/services/signalr-service';
 import { ChunkLoadReloadService } from './shared/services/chunk-load-reload.service';
 import { CommonHelper } from './shared/utils/common-util';
-
-// A first connection usually completes well within this, and a dialog that flashes up
-// and vanishes again reads as a glitch. Nothing is lost by waiting: hub calls made in
-// the meantime queue until the connection is up.
-const FIRST_CONNECTION_DIALOG_DELAY_MS = 500;
-
-// Once shown, the first-connection dialog stays at least this long, so a connection
-// that lands just after the delay expires does not make it blink in and straight back
-// out. A reconnection dialog has no minimum: it is blocking a game in progress, so the
-// board is handed back the moment the connection is.
-const FIRST_CONNECTION_DIALOG_MIN_VISIBLE_MS = 400;
 
 @Component({
   selector: 'app-root',
@@ -48,8 +30,7 @@ export class AppComponent {
   private readonly chunkLoadReloadService = inject(ChunkLoadReloadService);
   private readonly pageVisibilityService = inject(PageVisibilityService);
 
-  private connectionDialogRef: MatDialogRef<LoadingDialogComponent> | null = null;
-  private connectionDialogMinVisibleUntil = 0;
+  private reconnectingDialogRef: MatDialogRef<LoadingDialogComponent> | null = null;
 
   constructor() {
     this.watchConnectionStatus();
@@ -72,7 +53,7 @@ export class AppComponent {
 
     this.destroyRef.onDestroy(() => {
       unsubscribe();
-      this.closeConnectionDialog();
+      this.reconnectingDialogRef?.close();
     });
 
     this.router.events
@@ -129,76 +110,23 @@ export class AppComponent {
   }
 
   private watchConnectionStatus(): void {
-    effect(onCleanup => {
+    effect(() => {
       // A player who is not looking gains nothing from this dialog, and one opened in
       // the background would still be sitting there on their return even though the
       // connection has since recovered. Reconnection itself continues either way.
-      if (!this.pageVisibilityService.visible()) {
-        this.closeConnectionDialog();
+      const isReconnectionVisibleToPlayer = this.pageVisibilityService.visible() && !this.signalrService.connected();
+
+      if (!isReconnectionVisibleToPlayer) {
+        this.reconnectingDialogRef?.close();
+        this.reconnectingDialogRef = null;
         return;
       }
 
-      if (this.signalrService.connected()) {
-        this.scheduleAfter(
-          this.getConnectionDialogRemainingMinVisibleMs(),
-          () => this.closeConnectionDialog(),
-          onCleanup
-        );
-        return;
-      }
-
-      if (this.connectionDialogRef) {
-        return;
-      }
-
-      // Only the first connection gets a grace period. Losing a connection the player
-      // already had blocks the board at once, before they try a move that cannot land.
-      const isFirstConnection = !this.signalrService.hasConnectedBefore();
-      this.scheduleAfter(
-        isFirstConnection ? FIRST_CONNECTION_DIALOG_DELAY_MS : 0,
-        () => this.openConnectionDialog(isFirstConnection ? FIRST_CONNECTION_DIALOG_MIN_VISIBLE_MS : 0),
-        onCleanup
-      );
+      this.reconnectingDialogRef ??= this.dialog.open(LoadingDialogComponent, {
+        data: { dialogTitle: $localize`:@@loading_dialog.connecting:Connecting to server` },
+        height: '100%',
+        width: '100%'
+      });
     });
-  }
-
-  /**
-   * Runs `action` now, or after `delayMs` unless the effect re-runs first. Any change
-   * to the connection or visibility re-runs the effect, which cancels a pending action
-   * that no longer fits the new state.
-   */
-  private scheduleAfter(delayMs: number, action: () => void, onCleanup: EffectCleanupRegisterFn): void {
-    if (delayMs <= 0) {
-      action();
-      return;
-    }
-
-    const timeoutId = setTimeout(action, delayMs);
-    onCleanup(() => clearTimeout(timeoutId));
-  }
-
-  private getConnectionDialogRemainingMinVisibleMs(): number {
-    if (!this.connectionDialogRef) {
-      return 0;
-    }
-
-    return this.connectionDialogMinVisibleUntil - performance.now();
-  }
-
-  private openConnectionDialog(minVisibleMs: number): void {
-    this.connectionDialogMinVisibleUntil = performance.now() + minVisibleMs;
-    this.connectionDialogRef = this.dialog.open(LoadingDialogComponent, {
-      data: { dialogTitle: $localize`:@@loading_dialog.connecting:Connecting to server` },
-      // Only the connection coming back may dismiss it. Escape or a backdrop click
-      // would leave the player on a board whose moves cannot reach the server.
-      disableClose: true,
-      height: '100%',
-      width: '100%'
-    });
-  }
-
-  private closeConnectionDialog(): void {
-    this.connectionDialogRef?.close();
-    this.connectionDialogRef = null;
   }
 }
