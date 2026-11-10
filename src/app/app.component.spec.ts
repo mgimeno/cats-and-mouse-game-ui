@@ -18,6 +18,7 @@ describe('AppComponent', () => {
     connected: ReturnType<typeof signal<boolean>>;
     subscribeToMethod: ReturnType<typeof vi.fn>;
   };
+  let dialog: { open: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
     localStorage.clear();
@@ -34,6 +35,7 @@ describe('AppComponent', () => {
         return vi.fn();
       })
     };
+    dialog = { open: vi.fn(() => ({ close: vi.fn() })) };
 
     await TestBed.configureTestingModule({
       imports: [AppComponent],
@@ -41,7 +43,7 @@ describe('AppComponent', () => {
         provideZonelessChangeDetection(),
         { provide: SignalrService, useValue: signalrService },
         { provide: Router, useValue: router },
-        { provide: MatDialog, useValue: { open: vi.fn(() => ({ close: vi.fn() })) } },
+        { provide: MatDialog, useValue: dialog },
         {
           provide: Meta,
           useValue: {
@@ -101,6 +103,13 @@ describe('AppComponent', () => {
     createComponent();
 
     expect(signalrService.subscribeToMethod).toHaveBeenCalledWith('HasInProgressGame', expect.any(Function));
+  });
+
+  it('opens a connection dialog the player cannot dismiss when not connected', () => {
+    signalrService.connected.set(false);
+    createComponent();
+
+    expect(dialog.open).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ disableClose: true }));
   });
 
   function createComponent(): void {

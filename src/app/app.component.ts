@@ -124,6 +124,9 @@ export class AppComponent {
 
       this.reconnectingDialogRef ??= this.dialog.open(LoadingDialogComponent, {
         data: { dialogTitle: $localize`:@@loading_dialog.connecting:Connecting to server` },
+        // Only the connection coming back may dismiss it. Escape or a backdrop click
+        // would leave the player on a board whose moves cannot reach the server.
+        disableClose: true,
         height: '100%',
         width: '100%'
       });
