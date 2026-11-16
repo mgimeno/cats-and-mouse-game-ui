@@ -13,23 +13,76 @@ parameters:
     type: string
     default: 'dist'
 
+commands:
+  install-dependencies:
+    description: >
+      Installs from the lockfile with a warm npm download cache.
+      Caching `~/.npm` rather than `node_modules` is deliberate: it is
+      content-addressed, so a partial or outdated restore can never produce a
+      broken dependency tree — `npm ci` still resolves everything from the
+      lockfile, it just skips the network.
+    steps:
+      - restore_cache:
+          keys:
+            - npm-v1-{{ arch }}-{{ checksum "package-lock.json" }}
+            # Falls back to any previous cache for this architecture. Most
+            # tarballs are unchanged between lockfile bumps, so a stale restore
+            # still avoids the bulk of the downloads.
+            - npm-v1-{{ arch }}-
+      # `--no-audit` skips the advisory request every install makes on its own: `unit-test` runs
+      # the audit that gates the release, once.
+      - run:
+          name: Install dependencies
+          command: npm ci --no-audit --no-fund
+      - save_cache:
+          key: npm-v1-{{ arch }}-{{ checksum "package-lock.json" }}
+          paths:
+            - ~/.npm
+
 jobs:
+  unit-test:
+    working_directory: ~/<< pipeline.parameters.project-folder >>
+    docker:
+      - image: cimg/node:26.13.0
+    # Gen2 Arm: newer CPUs for less than half the credits of the Gen1 class. Every job in this
+    # file runs on Gen2; the Gen1 fallback is the same name without `.gen2`.
+    resource_class: arm.medium.gen2
+    # A saved cache is billed for its whole retention period, and every lockfile bump saves a new
+    # one. A week keeps the latest one warm between bumps for half the storage of the default
+    # 15 days, and storage beyond the Free plan's 2 GB is paid in credits.
+    retention:
+      caches: 7d
+    steps:
+      - checkout
+      - install-dependencies
+      # Fails the release on a high or critical advisory in a dependency that ships to users.
+      # Dev tooling is left out: it never reaches a browser, and its advisories are mostly ReDoS in
+      # linters. For an advisory with no fixed release yet, pin a safe version through `overrides`.
+      # Here rather than in the build job, so it adds no time: this job runs alongside the build
+      # and `deploy` already waits on it.
+      - run:
+          name: Audit production dependencies
+          command: npm audit --omit=dev --audit-level=high
+      - run:
+          name: Test
+          command: npm test
+
   build:
     working_directory: ~/<< pipeline.parameters.project-folder >>
     docker:
-      - image: cimg/node:24.22.1
-    resource_class: arm.medium
+      - image: cimg/node:26.13.0
+    # The build and the brotli pass use every core they get, and 4 Gen2 vCPUs still cost less
+    # than the 2 Gen1 ones this job ran on before.
+    resource_class: arm.large.gen2
+    # See `unit-test`.
+    retention:
+      caches: 7d
     steps:
       - checkout
       - run:
           name: Verify Node version
           command: node -p "process.platform + ' ' + process.arch + ' node ' + process.version"
-      - run:
-          name: Install dependencies
-          command: npm ci
-      - run:
-          name: Test
-          command: npm test
+      - install-dependencies
       - run:
           name: Build
           command: npm run build:prod
@@ -37,14 +90,19 @@ jobs:
           root: ~/<< pipeline.parameters.project-folder >>
           paths:
             - << pipeline.parameters.build-dist-folder >>
-            - scripts/deploy-retained-assets.sh
 
   deploy:
     working_directory: ~/<< pipeline.parameters.project-folder >>
     docker:
       - image: cimg/base:current
-    resource_class: arm.medium
+    # Everything here waits on the network and on the box, so more vCPUs would only cost more.
+    resource_class: arm.medium.gen2
     steps:
+      # The deploy script runs on the server, so it comes from the commit itself, never from the
+      # build job's workspace: every dependency runs code in the build job (install scripts, the
+      # build), and a compromised one could rewrite the script there and get a shell on the box.
+      # Checked out before the workspace is attached, which only adds the built `dist/`.
+      - checkout
       - attach_workspace:
           at: ~/<< pipeline.parameters.project-folder >>
       - add_ssh_keys:
@@ -67,6 +125,12 @@ jobs:
             mkdir -p ~/.ssh
             ssh-keyscan -p "$SSH_PORT" "$SSH_HOST" >> ~/.ssh/known_hosts
 
+            # Every ssh and scp below rides one connection to the box, opened by the first of them:
+            # each would otherwise pay its own TCP handshake, key exchange and authentication round
+            # trips. The connection is closed when the step ends, failed or not.
+            printf '%s\n' 'Host *' '  ControlMaster auto' '  ControlPath ~/.ssh/cm-%C' '  ControlPersist 2m' >> ~/.ssh/config
+            trap 'ssh -O exit -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" 2> /dev/null || true' EXIT
+
             # Prepare unique temp folder
             ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" "rm -dRf '$REMOTE_TEMP_DIR' && mkdir -p '$REMOTE_TEMP_DIR'"
 
@@ -83,10 +147,15 @@ jobs:
 workflows:
   build-and-deploy:
     jobs:
+      # Runs alongside the build rather than gating it, so the pipeline costs max(tests, build)
+      # instead of tests + build. `deploy` is what waits on it, so a red suite still blocks the
+      # release.
+      - unit-test
       - build
       - deploy:
           serial-group: << pipeline.project.slug >>/<< pipeline.parameters.project-folder >>/prod-deploy
           requires:
+            - unit-test
             - build
           filters:
             branches:

@@ -11,7 +11,7 @@
 
   // The unit is meaningful here: this is a Sass comparison against a px argument,
   // not a zero length that gets emitted into the stylesheet.
-  // stylelint-disable-next-line length-zero-no-unit
+  // stylelint-disable-next-line length-zero-no-unit -- compared in Sass, never emitted
   @if $base <= 0px {
     @error "px-to-rem() expects a positive px base, got #{$base}.";
   }
