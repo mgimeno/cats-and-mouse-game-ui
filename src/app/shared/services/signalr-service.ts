@@ -147,7 +147,16 @@ export class SignalrService {
     }
 
     this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl(environment.apiGameHubUrl)
+      // Straight to a WebSocket, skipping negotiate. Negotiate is a CORS preflight plus a
+      // POST before the socket opens, paid on the first connect and again on every
+      // reconnect, and it only exists to pick a transport and a server instance. The hub
+      // is a single instance and every supported browser has WebSockets, so it decides
+      // nothing here. The cost is the SSE and long-polling fallback for networks that block
+      // WebSockets: the client fails to connect there instead of degrading.
+      .withUrl(environment.apiGameHubUrl, {
+        transport: signalR.HttpTransportType.WebSockets,
+        skipNegotiation: true
+      })
       .configureLogging(environment.production ? signalR.LogLevel.Warning : signalR.LogLevel.Information)
       .withAutomaticReconnect(this.reconnectPolicy)
       // Deliberately no withStatefulReconnect(). It resumes a dropped socket in place and

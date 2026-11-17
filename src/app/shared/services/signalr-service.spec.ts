@@ -28,6 +28,7 @@ describe('SignalrService', () => {
   let visible: ReturnType<typeof signal<boolean>>;
   let onResync: ReturnType<typeof vi.fn<() => void>>;
   let withStatefulReconnect: ReturnType<typeof vi.spyOn>;
+  let withUrl: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
     localStorage.setItem(`${environment.localStoragePrefix}user-id`, 'user-1');
@@ -61,6 +62,7 @@ describe('SignalrService', () => {
     // The real builder is left in place so the production wiring is exercised; only the
     // connection it produces is faked.
     withStatefulReconnect = vi.spyOn(signalR.HubConnectionBuilder.prototype, 'withStatefulReconnect');
+    withUrl = vi.spyOn(signalR.HubConnectionBuilder.prototype, 'withUrl');
     vi.spyOn(signalR.HubConnectionBuilder.prototype, 'build').mockReturnValue(hub as unknown as signalR.HubConnection);
 
     TestBed.configureTestingModule({
@@ -95,6 +97,17 @@ describe('SignalrService', () => {
     // A failed in-place resume calls _stopConnection instead of handing over to
     // withAutomaticReconnect, so a drop a proxy will not carry becomes a dead socket.
     expect(withStatefulReconnect).not.toHaveBeenCalled();
+  });
+
+  it('opens a WebSocket straight away, skipping the negotiate round trips', async () => {
+    await connect();
+
+    // Negotiate costs a CORS preflight and a POST before the socket opens, on every
+    // connect and reconnect, to choose between options this hub does not have.
+    expect(withUrl).toHaveBeenCalledWith(environment.apiGameHubUrl, {
+      transport: signalR.HttpTransportType.WebSockets,
+      skipNegotiation: true
+    });
   });
 
   it('does not ask subscribers to resync on the first connection', async () => {

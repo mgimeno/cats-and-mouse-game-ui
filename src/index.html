@@ -10,10 +10,10 @@
     <link rel="canonical" href="https://www.marcosgimeno.com/cats-and-mouse" />
 
     <!-- Warm up the cross-origin game hub (environment.prod.ts apiGameHubUrl) while the bundle downloads.
-    Both tags are needed: browsers keep separate connection pools per credentials mode, and the SignalR
-    negotiate step hits both. The CORS preflight is always anonymous (crossorigin pool), while the
-    negotiate POST is credentialed because SignalR defaults withCredentials to true (no-crossorigin pool). -->
-    <link rel="preconnect" href="https://cats-and-mouse-api.marcosgimeno.com" crossorigin />
+    The client skips negotiate and opens a WebSocket straight away. Browsers open WebSockets on a socket
+    of their own, so this preconnected socket is not reused; what carries over is the DNS lookup and the
+    TLS session, which the WebSocket handshake resumes. No crossorigin: the handshake sends cookies, and
+    the TLS session cache is keyed on that credentials mode. -->
     <link rel="preconnect" href="https://cats-and-mouse-api.marcosgimeno.com" />
 
     <!-- Self-hosted Material Symbols icon font subset (npm run generate:material-symbols-font). -->
