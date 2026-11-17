@@ -9,6 +9,13 @@
 
     <link rel="canonical" href="https://www.marcosgimeno.com/cats-and-mouse" />
 
+    <!-- Warm up the cross-origin game hub (environment.prod.ts apiGameHubUrl) while the bundle downloads.
+    Both tags are needed: browsers keep separate connection pools per credentials mode, and the SignalR
+    negotiate step hits both. The CORS preflight is always anonymous (crossorigin pool), while the
+    negotiate POST is credentialed because SignalR defaults withCredentials to true (no-crossorigin pool). -->
+    <link rel="preconnect" href="https://cats-and-mouse-api.marcosgimeno.com" crossorigin />
+    <link rel="preconnect" href="https://cats-and-mouse-api.marcosgimeno.com" />
+
     <!-- Self-hosted Material Symbols icon font subset (npm run generate:material-symbols-font). -->
     <link
       rel="preload"
