@@ -42,6 +42,7 @@
         class="text-center"
         autocomplete="name"
         name="userName"
+        [enterKeyHint]="formGroup.controls.teamId.valid ? 'go' : 'done'"
         [maxlength]="maxUsernameLength"
       />
     </mat-form-field>

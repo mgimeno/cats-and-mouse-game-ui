@@ -14,14 +14,20 @@
   @if (canSendMessages()) {
     <form autocomplete="off" class="chat-form" [formGroup]="formGroup" (ngSubmit)="onSubmit()">
       <mat-form-field class="do-not-use-red-for-invalid">
-        <input type="text" matInput formControlName="message" autocomplete="off" [placeholder]="sendPlaceholder" />
+        <input
+          type="text"
+          matInput
+          formControlName="message"
+          autocomplete="off"
+          enterkeyhint="send"
+          [placeholder]="sendPlaceholder"
+        />
         <button
           class="send-message-button"
           type="submit"
           mat-icon-button
           matSuffix
           color="primary"
-          cdkFocusInitial
           matTooltipPosition="above"
           [matTooltip]="sendLabel"
           [attr.aria-label]="sendLabel"
